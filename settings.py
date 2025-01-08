@@ -4,7 +4,7 @@ class Settings:
     def __init__(self):
         """Initialize the game's static settings."""
         # Clock
-        self.fps = 60.0
+        self.fps = 120.0
 
         # Screen settings
         self.screen_width = 1200
@@ -12,7 +12,8 @@ class Settings:
         self.bg_color = (225, 225, 255)
 
         # Ship settings
-        self.ship_speed_factor = 1.5
+        self.ship_speed_factor_x = 2.5
+        self.ship_speed_factor_y = 1.5
         self.ship_limit = 2
 
         # Bullets settings
@@ -23,8 +24,10 @@ class Settings:
         self.bullets_allowed = 3
 
         # Alien settings
-        self.alien_speed_factor = 5
+        self.alien_speed_factor = 2
+        self.cargo_speed_factor = 0.5
         self.fleet_drop_speed = 2
+        self.cargo_drop_chance = 0  # TODO: There is an interesting bug in here
 
         # fleet_direction of 1 represents right; -1 represents left.
         self.fleet_direction = 1
@@ -36,14 +39,25 @@ class Settings:
         self.score_scale = 1.5
 
         self.alien_points = 50
+        self.cargo_points = 100
 
         self.initialize_dynamic_settings()
 
+        # screen background settings.
+        self.bg_screen_x = 0
+        self.bg_screen_y = 0
+        self.bg_screen_2_x = 0
+        self.bg_screen_2_y = -self.screen_height
+        self.bg_screen_scroll_speed = 0.2
+
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""
-        self.ship_speed_factor = 1.5
+        self.ship_speed_factor_x = 2.5
+        self.ship_speed_factor_y = 1.5
         self.bullet_speed_factor = 3
-        self.alien_speed_factor = 1
+        self.alien_speed_factor = 2
+        self.cargo_speed_factor = 0.5
+        self.cargo_drop_chance = 0
 
         # fleet_direction of 1 represents right; -1 represents left.
         self.fleet_direction = 1
@@ -53,8 +67,11 @@ class Settings:
 
     def increase_speed(self):
         """Increase speed settings."""
-        self.ship_speed_factor *= self.speedup_scale
+        self.ship_speed_factor_x *= self.speedup_scale
+        self.ship_speed_factor_y *= self.speedup_scale
         self.bullet_speed_factor *= self.speedup_scale
         self.alien_speed_factor *= self.speedup_scale
+        self.cargo_speed_factor *= self.speedup_scale
+        self.cargo_drop_chance *= self.speedup_scale
         self.alien_points = int(self.alien_points * self.score_scale)
-        self.bullet_width += 4
+        # self.bullet_width += 4

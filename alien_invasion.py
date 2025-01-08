@@ -9,11 +9,19 @@ from scoreboard import Scoreboard
 
 
 def run_game():
-    # Initialize pygame, settings, and screen object.
+    # Credit for the assets
+    print("""
+    Art assets used in this game were created by Skorpio and are licensed under CC-BY-SA 3.0.  
+    You can view and download them here: [https://opengameart.org/content/space-ship-construction-kit].
+    """)
+    # Initialize pygame, settings, screen object and assets.
     pygame.init()
     ai_settings = Settings()
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
+    screen_bg = pygame.image.load("images/space.jpg")
+    screen_bg = pygame.transform.scale(screen_bg, (ai_settings.screen_width*2, ai_settings.screen_width*2))
+    screen_bg_2 = pygame.transform.rotate(screen_bg, 180)
     clock = pygame.time.Clock()
 
     # Make the play button.
@@ -27,22 +35,23 @@ def run_game():
     ship = Ship(ai_settings, screen)
     bullets = Group()
     aliens = Group()
+    cargoes = Group()
 
     # Create the fleet of aliens.
-    gf.create_fleet(ai_settings, screen, ship, aliens)
+    gf.create_fleet(ai_settings, screen, ship, aliens, cargoes)
 
     # alien = Alien(ai_settings, screen)
     # Start the main loop for the game.
 
     while True:
-        gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets)
-
+        gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes)
         if stats.game_active:
             ship.update()
-            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets)
-            gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets)
+            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes)
+            gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb)
 
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button)
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
+                         screen_bg_2, cargoes)
         clock.tick(ai_settings.fps)
 
 
