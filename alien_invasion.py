@@ -12,7 +12,11 @@ def run_game():
     # Credit for the assets
     print("""
     Art assets used in this game were created by Skorpio and are licensed under CC-BY-SA 3.0.  
-    You can view and download them here: [https://opengameart.org/content/space-ship-construction-kit].
+    You can view and download them here: [https://opengameart.org/content/space-ship-construction-kit].\n
+    Fire sound effect by K.L.Jonasson, Winnipeg, Canada. Triki Minut Interactive www.trikiminut.com
+    You can view and download them here: [https://opengameart.org/content/sci-fi-laser-fire-sfx].\n
+    Explosion sound effect by by hosch
+    You can view and download them here: https://opengameart.org/content/8-bit-sound-effects-2
     """)
     # Initialize pygame, settings, screen object and assets.
     pygame.init()
@@ -40,9 +44,7 @@ def run_game():
     # Create the fleet of aliens.
     gf.create_fleet(ai_settings, screen, ship, aliens, cargoes)
 
-    # alien = Alien(ai_settings, screen)
     # Start the main loop for the game.
-
     while True:
         gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes)
         if stats.game_active:

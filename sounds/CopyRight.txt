@@ -1,0 +1,14 @@
+for fire.ogg:
+	This SFX was created for the game prototype: Space Pioneer
+
+	Triki Minut Interactive
+	www.trikiminut.com
+
+	Credit: 
+
+	K.L.Jonasson, Winnipeg, Canada.
+	Triki Minut Interactive
+	www.trikiminut.com
+
+for explosion.ogg:
+	explosion soud effect by hosch, https://opengameart.org/content/8-bit-sound-effects-2

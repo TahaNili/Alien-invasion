@@ -4,6 +4,16 @@ from bullet import Bullet
 from alien import Alien
 from time import sleep
 from random import randint
+pygame.mixer.init()
+
+sound_fire = pygame.mixer.Sound('sounds/fire.ogg')
+sound_explosion = pygame.mixer.Sound('sounds/explosion.ogg')
+
+
+def load_sounds():
+    global sound_fire, sound_explosion
+    sound_fire = pygame.mixer.Sound('sounds/fire.ogg')
+    sound_explosion = pygame.mixer.Sound('sounds/explosion.ogg')
 
 
 def check_keydown_events(event, ai_settings, screen, ship, bullets):
@@ -32,6 +42,7 @@ def fire_bullet(ai_settings, screen, ship, bullets):
     if len(bullets) < ai_settings.bullets_allowed:
         new_bullet = Bullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
+        sound_fire.play()
 
 
 def check_keyup_events(event, ship):
@@ -150,18 +161,21 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
         for aliens in collisions_1.values():
             stats.score += ai_settings.alien_points * len(aliens)
             sb.prep_score()
+            sound_explosion.play()
 
     # if we hit cargo:
     if collisions_2:
         for _ in collisions_2.values():
             stats.score -= ai_settings.cargo_points
             sb.prep_score()
+            sound_explosion.play()
 
     # if cargo hit alien:
     if collisions_3:
         for _ in collisions_3.values():
             stats.score -= ai_settings.cargo_points
             sb.prep_score()
+            sound_explosion.play()
 
     if len(aliens) == 0:
         # Destroy existing bullets, speed up game, and create new fleet.
