@@ -14,9 +14,6 @@ This project started with a basic version, which has now been evolved to **V1.1.
 - [Communication & Collaboration](#communication--collaboration)
 - [Project Setup](#project-setup)
 - [Assets Used](#assets-used)
-- [Features to Work On (Ideas)](#features-to-work-on-ideas)
-- [How to Help](#how-to-help)
-- [License](#license)
 
 ---
 
@@ -31,7 +28,7 @@ The current release is **V1.1.0**, which includes several exciting updates:
 
 ![Screenshot of V1.1.0](https://github.com/MatinAfzal/Alien-invasion/blob/main/changelog/V1.1.0/V1.1.0.png)
 
-[Check out the full release on GitHub here!](https://github.com/MatinAfzal/Alien-invasion/releases/tag/V1.0.0)
+[Check out the full release on GitHub here!](https://github.com/MatinAfzal/Alien-invasion/releases/tag/V1.1.0)
 
 ---
 
