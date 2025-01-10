@@ -1,19 +1,20 @@
 import sys
 import pygame
-from bullet import Bullet
-from alien import Alien
 from time import sleep
 from random import randint
+from src.bullet import Bullet
+from src.alien import Alien
+
 pygame.mixer.init()
 
-sound_fire = pygame.mixer.Sound('sounds/fire.ogg')
-sound_explosion = pygame.mixer.Sound('sounds/explosion.ogg')
+sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
+sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
 
 
 def load_sounds():
     global sound_fire, sound_explosion
-    sound_fire = pygame.mixer.Sound('sounds/fire.ogg')
-    sound_explosion = pygame.mixer.Sound('sounds/explosion.ogg')
+    sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
+    sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
 
 
 def check_keydown_events(event, ai_settings, screen, ship, bullets):
