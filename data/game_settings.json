@@ -1,6 +1,6 @@
 {
     "resolution_index": 4,
-    "fullscreen": true,
+    "fullscreen": false,
     "music_on": false,
     "sound_fx_on": false,
     "difficulty": "Easy",

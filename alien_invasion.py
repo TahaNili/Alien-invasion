@@ -9,6 +9,7 @@ from src.button import Button
 from src.scoreboard import Scoreboard
 from src.menu import MainMenu, SettingsMenu
 from src.debug import Debug
+from src.game_over import GameOver
 
 
 def apply_display_settings(screen, ai_settings):
@@ -48,7 +49,7 @@ def run_game():
     You can view and download them here: https://opengameart.org/content/8-bit-sound-effects-2
     """)
     
-    # Initialize pygame, settings, screen object and assets.
+    # Initialize pygame, settings, and screen object.
     pygame.init()
     pygame.mixer.init()
     
@@ -67,10 +68,12 @@ def run_game():
     sb = Scoreboard(ai_settings, screen, stats)
     ship = Ship(ai_settings, screen)
     bullets = Group()
+    alien_bullets = Group()  # Group for alien bullets
     aliens = Group()
     cargoes = Group()
     play_button = Button(ai_settings, screen, "Play")
     debug = Debug(screen, ai_settings)
+    game_over = GameOver(screen, stats)
 
     # Game state
     current_menu = None
@@ -80,11 +83,16 @@ def run_game():
     def start_game():
         stats.game_active = True
         stats.reset_stats()
+        sb.prep_score()
+        sb.prep_high_score()
+        sb.prep_level()
+        sb.prep_ships()
         pygame.mouse.set_visible(False)
         
         # Empty game objects
         aliens.empty()
         bullets.empty()
+        alien_bullets.empty()
         cargoes.empty()
         
         # Create new fleet and center ship
@@ -170,8 +178,8 @@ def run_game():
             ai_settings.input_handler.update()
             # Update game objects
             ship.update()
-            update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes)
-            update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb)
+            update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets)
+            update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets)
             # Update debug info
             debug.update(ship, aliens, bullets, cargoes, stats)
 
@@ -189,10 +197,14 @@ def run_game():
             cargoes.draw(screen)
             for bullet in bullets.sprites():
                 bullet.draw_bullet()
+            for bullet in alien_bullets.sprites():  # Draw alien bullets
+                bullet.draw_bullet()
             sb.show_score()
         elif current_menu:
             current_menu.draw()
         else:
+            if stats.ships_left == 0:
+                game_over.draw()
             play_button.draw_button()
             
         # Draw debug overlay

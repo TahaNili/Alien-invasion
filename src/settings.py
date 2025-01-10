@@ -47,6 +47,11 @@ class Settings:
         # Alien settings
         self.fleet_drop_speed = 10
         self.cargo_drop_chance = 10
+        
+        # Alien bullet settings
+        self.alien_bullets_allowed = 3
+        self.alien_bullet_speed_factor = 3
+        self.alien_shoot_chance = 0.01  # 1% chance to shoot each update
 
         # Menu settings
         self.music_on = True
