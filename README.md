@@ -62,7 +62,8 @@ To get started with the project, follow these steps:
 
 ### Prerequisites:
 - Python 3.x
-- Pygame library (you can install it using `pip install pygame`)
+- Pygame and Psd_tools libraries :
+   you can install these libraries using `pip install pygame psd_tools` or `pip install -r requirements.txt`
 
 ### Clone the Repository:
 ```bash

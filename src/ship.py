@@ -9,9 +9,9 @@ class Ship:
         self.ai_settings = ai_settings
 
         # Load the ship image and get its rect.
-        psd = PSDImage.open('sprites/Alien-Bomber.psd')
-        psd.composite().save("sprites/ship.png")
-        self.image = pygame.image.load("sprites/ship.png")
+        psd = PSDImage.open('data/assets/sprites/Alien-Bomber.psd')
+        psd.composite().save("data/assets/sprites/ship.png")
+        self.image = pygame.image.load("data/assets/sprites/ship.png")
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
 

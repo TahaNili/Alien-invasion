@@ -1,11 +1,11 @@
 import pygame
-import game_functions as gf
-from game_stats import GameStats
 from pygame.sprite import Group
-from settings import Settings
-from ship import Ship
-from button import Button
-from scoreboard import Scoreboard
+import src.game_functions as gf
+from src.game_stats import GameStats
+from src.settings import Settings
+from src.ship import Ship
+from src.button import Button
+from src.scoreboard import Scoreboard
 
 
 def run_game():
@@ -23,7 +23,7 @@ def run_game():
     ai_settings = Settings()
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
-    screen_bg = pygame.image.load("images/space.jpg")
+    screen_bg = pygame.image.load("data/assets/images/space.jpg")
     screen_bg = pygame.transform.scale(screen_bg, (ai_settings.screen_width*2, ai_settings.screen_width*2))
     screen_bg_2 = pygame.transform.rotate(screen_bg, 180)
     clock = pygame.time.Clock()
