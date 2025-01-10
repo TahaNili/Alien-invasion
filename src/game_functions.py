@@ -4,6 +4,7 @@ from time import sleep
 from random import randint
 from src.bullet import Bullet
 from src.alien import Alien
+from src.bullet import AlienBullet
 
 pygame.mixer.init()
 
@@ -98,7 +99,7 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, car
         ship.center_ship()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -112,6 +113,9 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
             bullet.draw_bullet()
         except:
             pass
+    
+    for bullet in alien_bullets.sprites():
+        bullet.draw_bullet()
 
     ship.bltime()
     aliens.draw(screen)
@@ -138,14 +142,20 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     pygame.display.flip()
 
 
-def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes):
+def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets):
     """Update position of bullets and get rid of old bullets."""
     bullets.update()
+    alien_bullets.update()
     # Get rid of bullets that have disappeared
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
+    for bullet in alien_bullets.copy():
+        if bullet.rect.top >= ai_settings.screen_height:
+            alien_bullets.remove(bullet)
+
     check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes)
+    check_bullet_ship_collisions(ai_settings, screen, stats, sb, ship, aliens, alien_bullets, cargoes)
 
 
 def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes):
@@ -183,6 +193,14 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
         bullets.empty()
         ai_settings.increase_speed()
         create_fleet(ai_settings, screen, ship, aliens, cargoes)
+
+def check_bullet_ship_collisions(ai_settings, screen, stats, sb, ship, aliens, alien_bullets, cargoes):
+    """Respond to bullet-ship collisions."""
+    collisions_1 = pygame.sprite.spritecollideany(ship, alien_bullets)
+
+    # if we hit alien
+    if collisions_1:
+        ship_hit(ai_settings, stats, screen, ship, aliens, alien_bullets, cargoes)
 
 
 def get_number_aliens_x(ai_settings, alien_width):
@@ -297,3 +315,10 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb
 
     # look for aliens hitting the bottom of the screen.
     check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
+
+def alien_fire(ai_settings, screen, aliens, alien_bullets):
+    for alien in aliens.sprites():
+        if randint(1, 1000) <= ai_settings.alien_fire_chance:  
+            bullet = AlienBullet(ai_settings, screen, alien)
+            alien_bullets.add(bullet)
+            
