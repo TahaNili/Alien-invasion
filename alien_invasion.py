@@ -7,9 +7,8 @@ from src.settings import Settings
 from src.ship import Ship
 from src.button import Button
 from src.scoreboard import Scoreboard
-from src.menu import MainMenu, SettingsMenu
+from src.menu_ui import MainMenu, SettingsMenu, GameOverMenu
 from src.debug import Debug
-from src.game_over import GameOver
 
 
 def apply_display_settings(screen, ai_settings):
@@ -49,7 +48,7 @@ def run_game():
     You can view and download them here: https://opengameart.org/content/8-bit-sound-effects-2
     """)
     
-    # Initialize pygame, settings, and screen object.
+    # Initialize pygame, settings, screen object and assets.
     pygame.init()
     pygame.mixer.init()
     
@@ -73,7 +72,6 @@ def run_game():
     cargoes = Group()
     play_button = Button(ai_settings, screen, "Play")
     debug = Debug(screen, ai_settings)
-    game_over = GameOver(screen, stats)
 
     # Game state
     current_menu = None
@@ -83,17 +81,18 @@ def run_game():
     def start_game():
         stats.game_active = True
         stats.reset_stats()
-        sb.prep_score()
-        sb.prep_high_score()
-        sb.prep_level()
-        sb.prep_ships()
         pygame.mouse.set_visible(False)
         
         # Empty game objects
         aliens.empty()
         bullets.empty()
-        alien_bullets.empty()
         cargoes.empty()
+        
+        # Reset ship movement flags
+        ship.moving_right = False
+        ship.moving_left = False
+        ship.moving_up = False
+        ship.moving_down = False
         
         # Create new fleet and center ship
         create_fleet(ai_settings, screen, ship, aliens, cargoes)
@@ -110,8 +109,15 @@ def run_game():
         nonlocal current_menu
         current_menu = MainMenu(screen, start_game, show_settings, sys.exit)
 
+    def show_game_over():
+        nonlocal current_menu
+        current_menu = GameOverMenu(screen, start_game, show_main_menu, sys.exit, stats.score)
+
     # Start with main menu
     show_main_menu()
+
+    # Initialize timers
+    alien_fire_timer = pygame.time.get_ticks()
 
     # Start the main loop for the game.
     while True:
@@ -125,7 +131,7 @@ def run_game():
                         stats.game_active = False
                         pygame.mouse.set_visible(True)
                         show_main_menu()
-                    elif current_menu and isinstance(current_menu, SettingsMenu):
+                    elif current_menu and isinstance(current_menu, (SettingsMenu, GameOverMenu)):
                         show_main_menu()
                 elif event.key == pygame.K_F3:  # Toggle debug with F3
                     debug.toggle()
@@ -179,9 +185,17 @@ def run_game():
             # Update game objects
             ship.update()
             update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets)
-            update_aliens(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets)
+            result = update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb)
+            if result == "game_over":
+                show_game_over()
             # Update debug info
             debug.update(ship, aliens, bullets, cargoes, stats)
+
+            # Handle alien firing
+            current_time = pygame.time.get_ticks()
+            if current_time - alien_fire_timer > 100:
+                alien_fire(ai_settings, screen, aliens, alien_bullets)
+                alien_fire_timer = current_time
 
         # Draw screen
         screen.fill(ai_settings.bg_color)
@@ -197,17 +211,15 @@ def run_game():
             cargoes.draw(screen)
             for bullet in bullets.sprites():
                 bullet.draw_bullet()
-            for bullet in alien_bullets.sprites():  # Draw alien bullets
+            for bullet in alien_bullets.sprites():
                 bullet.draw_bullet()
             sb.show_score()
         elif current_menu:
-            current_menu.draw()
+            current_menu.draw_menu()
         else:
-            if stats.ships_left == 0:
-                game_over.draw()
+            # Only show play button if we're not in any menu and game is not active
             play_button.draw_button()
-            
-        # Draw debug overlay
+
         debug.draw()
         debug.tick()
         
