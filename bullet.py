@@ -11,7 +11,7 @@ class Bullet(Sprite):
         self.screen = screen
 
         # Create a bullet rect (0, 0)
-        self.image = pygame.image.load(r'sprites\golden_bullet.png')
+        self.image = pygame.image.load(r'sprites/golden_bullet.png')
         self.image_size = self.image.get_size()
         self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.03, self.image_size[1] * 0.03))
         self.rect = self.image.get_rect()
