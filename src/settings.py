@@ -52,6 +52,10 @@ class Settings:
         self.bg_screen_2_y = -self.screen_height
         self.bg_screen_scroll_speed = 0.2
 
+        #lives settings.
+        self.init_hearts = 5
+        self.max_hearts = 10
+
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""
         self.ship_speed_factor_x = 2.5
