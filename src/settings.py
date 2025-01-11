@@ -22,12 +22,14 @@ class Settings:
         self.bullet_height = 15
         self.bullet_color = 60, 60, 60
         self.bullets_allowed = 3
+        self.alien_bullet_speed_factor = 1.5 
 
         # Alien settings
         self.alien_speed_factor = 2
         self.cargo_speed_factor = 0.5
         self.fleet_drop_speed = 2
         self.cargo_drop_chance = 0  # TODO: There is an interesting bug in here
+        self.alien_fire_chance = 3 # from 1000
 
         # fleet_direction of 1 represents right; -1 represents left.
         self.fleet_direction = 1

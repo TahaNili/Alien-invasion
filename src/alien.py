@@ -15,10 +15,10 @@ class Alien(Sprite):
 
         # Load the alien image and set its rect attribute.
         if self.type == 0:
-            self.image = pygame.image.load(r'sprites/alien_l1.png')
+            self.image = pygame.image.load(r'data/assets/sprites/alien_l1.png')
             self.image = pygame.transform.rotate(self.image, 180)
         else:
-            self.image = pygame.image.load(r'sprites/alien_cargo.png')
+            self.image = pygame.image.load(r'data/assets/sprites/alien_cargo.png')
             self.image_size = self.image.get_size()
             self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.2, self.image_size[1] * 0.2))
 
