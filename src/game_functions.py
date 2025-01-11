@@ -10,7 +10,7 @@ pygame.mixer.init()
 
 sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
 sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
-
+one_time_do_bullet_hit_flag = False
 
 def load_sounds():
     global sound_fire, sound_explosion
@@ -120,6 +120,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     ship.bltime()
     aliens.draw(screen)
     cargoes.draw(screen)
+    sb.show_health(ship)
 
     # Draw the score information.
     sb.show_score()
@@ -203,9 +204,15 @@ def check_bullet_ship_collisions(ai_settings, screen, stats, sb, ship, aliens, a
     """Respond to bullet-ship collisions."""
     collisions_1 = pygame.sprite.spritecollideany(ship, alien_bullets)
 
-    # if we hit alien
+    # if alien hit we
     if collisions_1:
-        ship_hit(ai_settings, stats, screen, ship, aliens, alien_bullets, cargoes)
+        sound_explosion.play()
+        alien_bullets.remove(collisions_1)
+        ship.take_damage(1)
+        if ship.get_health() <= 0 :
+            ship.set_health(ai_settings.ship_health)
+            ship_hit(ai_settings, stats, screen, ship, aliens, alien_bullets, cargoes)
+
 
 
 def get_number_aliens_x(ai_settings, alien_width):
@@ -320,12 +327,23 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb
     aliens.update()
     cargoes.update()
 
-    if pygame.sprite.spritecollideany(ship, aliens):
-        ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
+    check_collideany_ship_alien = pygame.sprite.spritecollideany(ship, aliens)
+    if check_collideany_ship_alien:
+        sound_explosion.play()
+        aliens.remove(check_collideany_ship_alien)
+        ship.take_damage(1)
+        if ship.get_health() <= 0 :
+            ship.set_health(ai_settings.ship_health)
+            ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
-    if pygame.sprite.spritecollideany(ship, cargoes):
-        ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
-
+    check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens)
+    if check_collideany_ship_cargoes:
+        sound_explosion.play()
+        aliens.remove(check_collideany_ship_cargoes)
+        ship.take_damage(1)
+        if ship.get_health() <= 0 :
+            ship.set_health(ai_settings.ship_health)
+            ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
     # look for aliens hitting the bottom of the screen.
     check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
