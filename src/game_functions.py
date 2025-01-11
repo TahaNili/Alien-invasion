@@ -316,9 +316,10 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb
     # look for aliens hitting the bottom of the screen.
     check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
-def alien_fire(ai_settings, screen, aliens, alien_bullets):
-    for alien in aliens.sprites():
-        if randint(1, 1000) <= ai_settings.alien_fire_chance:  
-            bullet = AlienBullet(ai_settings, screen, alien)
-            alien_bullets.add(bullet)
+def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
+    if stats.game_active : 
+        for alien in aliens.sprites():
+            if randint(1, 1000) <= ai_settings.alien_fire_chance:  
+                bullet = AlienBullet(ai_settings, screen, alien)
+                alien_bullets.add(bullet)
             
