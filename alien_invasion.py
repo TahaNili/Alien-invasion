@@ -197,6 +197,7 @@ def run_game():
                 alien_fire(ai_settings, screen, aliens, alien_bullets)
                 alien_fire_timer = current_time
 
+
         # Draw screen
         screen.fill(ai_settings.bg_color)
         
@@ -219,6 +220,12 @@ def run_game():
         else:
             # Only show play button if we're not in any menu and game is not active
             play_button.draw_button()
+            
+        # aliens fire timer
+        current_time = pygame.time.get_ticks()
+        if current_time - alien_spawn_timer > 100:   
+            gf.alien_fire(ai_settings,stats, screen, aliens, alien_bullets)
+            alien_spawn_timer = current_time
 
         debug.draw()
         debug.tick()
