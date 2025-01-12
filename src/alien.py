@@ -1,6 +1,7 @@
+from random import randint
+
 import pygame
 from pygame.sprite import Sprite
-from random import randint
 
 
 class Alien(Sprite):
@@ -35,7 +36,7 @@ class Alien(Sprite):
 
         # Store the alien's exact position.
         self.x = float(self.rect.x)
-    
+
     def check_edges(self):
         """Return True if alien is at edge of screen."""
         screen_rect = self.screen.get_rect()
@@ -89,7 +90,7 @@ class AlienL2(Sprite):
 
         # Store the alien's exact position.
         self.x = float(self.rect.x)
-    
+
     def check_edges(self):
         """Return True if alien is at edge of screen."""
         screen_rect = self.screen.get_rect()
