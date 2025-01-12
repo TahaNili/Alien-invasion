@@ -9,7 +9,7 @@ class Alien(Sprite):
 
     def __init__(self, ai_settings, screen, alien_type=0):
         """Initialize the alien and set its starting position."""
-        super(Alien, self).__init__()
+        super().__init__()
         self.type = alien_type  # 0 for alien, 1 for cargo
         self.screen = screen
         self.ai_settings = ai_settings
@@ -42,10 +42,11 @@ class Alien(Sprite):
         screen_rect = self.screen.get_rect()
         if self.rect.right >= screen_rect.right:
             return True
-        elif self.rect.left <= 0:
+        if self.rect.left <= 0:
             return True
+        return None
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """Move the aliens right or left."""
         if self.type == 0:
             self.x += (self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction)
@@ -63,7 +64,7 @@ class AlienL2(Sprite):
 
     def __init__(self, ai_settings, screen, alien_type=0):
         """Initialize the alien and set its starting position."""
-        super(AlienL2, self).__init__()
+        super().__init__()
         self.type = alien_type  # 0 for alien, 1 for cargo
         self.screen = screen
         self.ai_settings = ai_settings
@@ -96,10 +97,11 @@ class AlienL2(Sprite):
         screen_rect = self.screen.get_rect()
         if self.rect.right >= screen_rect.right:
             return True
-        elif self.rect.left <= 0:
+        if self.rect.left <= 0:
             return True
+        return None
 
-    def update(self):
+    def update(self, *args, **kwargs):
         """Move the aliens right or left."""
         if self.type == 0:
             self.x += (self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction)
