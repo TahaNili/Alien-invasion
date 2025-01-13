@@ -30,6 +30,7 @@ class Health:
         #todo: method description        
         if self.current_hearts == 1 :
             stats.game_active = False 
+            pygame.mouse.set_visible(True)
             return 
         self.current_hearts -= 1
 
