@@ -29,8 +29,6 @@ class Ship:
         self.moving_up = False
         self.moving_down = False
 
-
-        self.health = ai_settings.ship_health
     
     def update(self):
         """Update the ship's position based on the movement flag."""
@@ -51,16 +49,6 @@ class Ship:
     def bltime(self):
         """Draw the ship at its current location."""
         self.screen.blit(self.image, self.rect)
-
-    def take_damage(self, damage):
-        """decrease the ship's health"""
-        self.health -= damage
-
-    def get_health(self):
-        return self.health
-    
-    def set_health(self,health):
-        self.health = health
 
     def center_ship(self):
         """Center the ship on the screen."""

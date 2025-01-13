@@ -48,4 +48,4 @@ class Health:
             else:
                 self.screen.blit(heart_empty, health_rect)
             health_rect.left = health_rect.left + 25
-
+    
