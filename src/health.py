@@ -1,4 +1,5 @@
 import pygame
+from src.button import Button
 
 class Health:
     """A class for manging and show user lives."""
@@ -25,10 +26,10 @@ class Health:
             return
         self.current_hearts += 1
 
-    def minHealth(self):
+    def minHealth(self, stats):
         #todo: method description        
-        if self.current_hearts == 1 : 
-            #todo: user loss
+        if self.current_hearts == 1 :
+            stats.game_active = False 
             return 
         self.current_hearts -= 1
 
@@ -48,4 +49,4 @@ class Health:
             else:
                 self.screen.blit(heart_empty, health_rect)
             health_rect.left = health_rect.left + 25
-    
+
