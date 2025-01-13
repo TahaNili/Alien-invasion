@@ -28,6 +28,7 @@ def run_game():
     screen_bg_2 = pygame.transform.rotate(screen_bg, 180)
     clock = pygame.time.Clock()
     alien_spawn_timer = pygame.time.get_ticks()
+    one_time_do_bullet_hit_flag = False
 
     # Make the play button.
     play_button = Button(ai_settings, screen, "Play")

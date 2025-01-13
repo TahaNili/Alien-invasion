@@ -15,6 +15,7 @@ class Settings:
         self.ship_speed_factor_x = 2.5
         self.ship_speed_factor_y = 1.5
         self.ship_limit = 2
+        self.ship_health = 5
 
         # Bullets settings
         self.bullet_speed_factor = 3
@@ -30,6 +31,10 @@ class Settings:
         self.fleet_drop_speed = 2
         self.cargo_drop_chance = 0  # TODO: There is an interesting bug in here
         self.alien_fire_chance = 3 # from 1000
+        self.alien_l2_fire_chance = 10 # from 1000
+        self.alien_l2_health = 2
+        self.alien_l1_health = 1
+        self.alien_l2_spawn_chance = 5
 
         # fleet_direction of 1 represents right; -1 represents left.
         self.fleet_direction = 1
@@ -79,5 +84,6 @@ class Settings:
         self.alien_speed_factor *= self.speedup_scale
         self.cargo_speed_factor *= self.speedup_scale
         self.cargo_drop_chance *= self.speedup_scale
+        self.alien_l2_spawn_chance *= self.speedup_scale
         self.alien_points = int(self.alien_points * self.score_scale)
         # self.bullet_width += 4

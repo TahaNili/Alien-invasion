@@ -3,14 +3,14 @@ import pygame
 from time import sleep
 from random import randint
 from src.bullet import Bullet
-from src.alien import Alien
+from src.alien import Alien,AlienL2
 from src.bullet import AlienBullet
 
 pygame.mixer.init()
 
 sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
 sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
-
+one_time_do_bullet_hit_flag = False
 
 def load_sounds():
     global sound_fire, sound_explosion
@@ -120,6 +120,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     ship.bltime()
     aliens.draw(screen)
     cargoes.draw(screen)
+    sb.show_health(ship)
 
     # Draw the score information.
     sb.show_score()
@@ -163,13 +164,18 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
     # Remove any bullets and aliens that have collided.
     # Check for any bullets that have hit aliens.
     # If so, get rid of the bullet and the alien.
-    collisions_1 = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    collisions_1 = pygame.sprite.groupcollide(bullets, aliens, True,False)
     collisions_2 = pygame.sprite.groupcollide(bullets, cargoes, True, True)
     collisions_3 = pygame.sprite.groupcollide(aliens, cargoes, False, True)
 
     # if we hit alien
     if collisions_1:
-        for aliens in collisions_1.values():
+        for aliens_hit in collisions_1.values():
+            for alien in aliens_hit:
+                alien.health -= 1 
+                if alien.health <= 0 :
+                    aliens.remove(alien)
+
             stats.score += ai_settings.alien_points * len(aliens)
             sb.prep_score()
             sound_explosion.play()
@@ -198,9 +204,15 @@ def check_bullet_ship_collisions(ai_settings, screen, stats, sb, ship, aliens, a
     """Respond to bullet-ship collisions."""
     collisions_1 = pygame.sprite.spritecollideany(ship, alien_bullets)
 
-    # if we hit alien
+    # if alien hit we
     if collisions_1:
-        ship_hit(ai_settings, stats, screen, ship, aliens, alien_bullets, cargoes)
+        sound_explosion.play()
+        alien_bullets.remove(collisions_1)
+        ship.take_damage(1)
+        if ship.get_health() <= 0 :
+            ship.set_health(ai_settings.ship_health)
+            ship_hit(ai_settings, stats, screen, ship, aliens, alien_bullets, cargoes)
+
 
 
 def get_number_aliens_x(ai_settings, alien_width):
@@ -221,12 +233,20 @@ def get_number_rows(ai_settings, ship_height, alien_height):
 
 def create_alien(ai_settings, screen, aliens, alien_number, row_number):
     """Create an alien and place it in the row."""
-    alien = Alien(ai_settings, screen, alien_type=0)
-    alien_width = alien.rect.width
-    alien.x = alien_width + 2 * alien_width * alien_number
-    alien.rect.x = alien.x
-    alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
-    aliens.add(alien)
+    if randint(1, 100) <= ai_settings.alien_l2_spawn_chance: 
+        alien = AlienL2(ai_settings, screen, alien_type=0)
+        alien_width = alien.rect.width
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        aliens.add(alien)
+    else:
+        alien = Alien(ai_settings, screen, alien_type=0)
+        alien_width = alien.rect.width
+        alien.x = alien_width + 2 * alien_width * alien_number
+        alien.rect.x = alien.x
+        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        aliens.add(alien)
 
 
 def create_cargo(ai_settings, screen, cargoes):
@@ -307,19 +327,35 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb
     aliens.update()
     cargoes.update()
 
-    if pygame.sprite.spritecollideany(ship, aliens):
-        ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
+    check_collideany_ship_alien = pygame.sprite.spritecollideany(ship, aliens)
+    if check_collideany_ship_alien:
+        sound_explosion.play()
+        aliens.remove(check_collideany_ship_alien)
+        ship.take_damage(1)
+        if ship.get_health() <= 0 :
+            ship.set_health(ai_settings.ship_health)
+            ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
-    if pygame.sprite.spritecollideany(ship, cargoes):
-        ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
-
+    check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens)
+    if check_collideany_ship_cargoes:
+        sound_explosion.play()
+        aliens.remove(check_collideany_ship_cargoes)
+        ship.take_damage(1)
+        if ship.get_health() <= 0 :
+            ship.set_health(ai_settings.ship_health)
+            ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
     # look for aliens hitting the bottom of the screen.
     check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
 def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
     if stats.game_active : 
         for alien in aliens.sprites():
-            if randint(1, 1000) <= ai_settings.alien_fire_chance:  
-                bullet = AlienBullet(ai_settings, screen, alien)
-                alien_bullets.add(bullet)
+            if type(alien) is Alien:
+                if randint(1, 1000) <= ai_settings.alien_fire_chance:  
+                    bullet = AlienBullet(ai_settings, screen, alien)
+                    alien_bullets.add(bullet)
+            elif type(alien) is AlienL2:
+                if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:  
+                    bullet = AlienBullet(ai_settings, screen, alien)
+                    alien_bullets.add(bullet)
             
