@@ -99,7 +99,7 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, car
         ship.center_ship()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets, health):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -120,7 +120,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     ship.bltime()
     aliens.draw(screen)
     cargoes.draw(screen)
-    sb.show_health(ship)
+    health.show_health()
 
     # Draw the score information.
     sb.show_score()

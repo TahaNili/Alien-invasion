@@ -6,6 +6,7 @@ from src.settings import Settings
 from src.ship import Ship
 from src.button import Button
 from src.scoreboard import Scoreboard
+from src.health import Health
 
 
 def run_game():
@@ -36,7 +37,9 @@ def run_game():
     # Create an instance to store game statistics and create scoreboard.
     stats = GameStats(ai_settings)
     sb = Scoreboard(ai_settings, screen, stats)
+    healt = Health(ai_settings, screen)
 
+    healt.initHealth()
     # Make a ship, a group of bullets and alien bullets, and a group of aliens.
     ship = Ship(ai_settings, screen)
     bullets = Group()
@@ -56,7 +59,7 @@ def run_game():
             gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb)
 
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
-                         screen_bg_2, cargoes,alien_bullets)
+                         screen_bg_2, cargoes,alien_bullets, healt)
         clock.tick(ai_settings.fps)
 
         # aliens fire timer

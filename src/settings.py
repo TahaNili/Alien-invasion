@@ -59,7 +59,7 @@ class Settings:
 
         #lives settings.
         self.init_hearts = 5
-        self.max_hearts = 10
+        self.max_hearts = 5
 
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""
