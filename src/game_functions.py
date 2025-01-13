@@ -345,8 +345,17 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, he
     check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
 
-def update_hearts(hearts):
+def update_hearts(ship, health, hearts):
     hearts.update()
+
+    check_collideany_ship_heats = pygame.sprite.spritecollideany(ship, hearts)
+    if check_collideany_ship_heats:
+        hearts.remove(check_collideany_ship_heats)
+        health.increaseHealth()
+
+    for heart in hearts.copy():
+        if heart.rect.bottom <= 0:
+            hearts.remove(heart)
 
 def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
     if stats.game_active : 
