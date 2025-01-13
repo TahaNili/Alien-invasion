@@ -6,6 +6,7 @@ from src.settings import Settings
 from src.ship import Ship
 from src.button import Button
 from src.scoreboard import Scoreboard
+from src.health import Health
 
 
 def run_game():
@@ -31,12 +32,14 @@ def run_game():
     one_time_do_bullet_hit_flag = False
 
     # Make the play button.
-    play_button = Button(ai_settings, screen, "Play")
+    play_button = Button(screen, "Play")
 
     # Create an instance to store game statistics and create scoreboard.
     stats = GameStats(ai_settings)
     sb = Scoreboard(ai_settings, screen, stats)
+    health = Health(ai_settings, screen)
 
+    health.initHealth()
     # Make a ship, a group of bullets and alien bullets, and a group of aliens.
     ship = Ship(ai_settings, screen)
     bullets = Group()
@@ -52,11 +55,11 @@ def run_game():
         gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes)
         if stats.game_active:
             ship.update()
-            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets)
-            gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, sb)
+            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets, health)
+            gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, health)
 
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
-                         screen_bg_2, cargoes,alien_bullets)
+                         screen_bg_2, cargoes,alien_bullets, health)
         clock.tick(ai_settings.fps)
 
         # aliens fire timer

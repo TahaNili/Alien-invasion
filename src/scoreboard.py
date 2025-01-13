@@ -1,4 +1,3 @@
-from turtle import screensize
 import pygame.font
 
 
@@ -31,17 +30,17 @@ class Scoreboard:
         self.score_rect.right = self.screen_rect.right - 20
         self.score_rect.top = 20
 
-    def show_health(self, ship):
-        """Display the number of health remaining"""
-        health_str = f"Health: {ship.health}"
-        health_str = str(ship.health).zfill(4)
+    # def show_health(self, ship):
+    #     """Display the number of health remaining"""
+    #     health_str = f"Health: {ship.health}"
+    #     health_str = str(ship.health).zfill(4)
         
-        health_image = self.font.render(health_str, True, self.text_color, self.ai_settings.bg_color)
-        health_rect = health_image.get_rect()
-        health_rect.right = health_rect.right - 20
-        health_rect.top = 20
+    #     health_image = self.font.render(health_str, True, self.text_color, self.ai_settings.bg_color)
+    #     health_rect = health_image.get_rect()
+    #     health_rect.right = health_rect.right - 20
+    #     health_rect.top = 20
 
-        self.screen.blit(health_image, health_rect)
+    #     self.screen.blit(health_image, health_rect)
 
 
     def show_score(self):

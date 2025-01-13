@@ -15,7 +15,6 @@ class Settings:
         self.ship_speed_factor_x = 2.5
         self.ship_speed_factor_y = 1.5
         self.ship_limit = 2
-        self.ship_health = 5
 
         # Bullets settings
         self.bullet_speed_factor = 3
@@ -56,6 +55,10 @@ class Settings:
         self.bg_screen_2_x = 0
         self.bg_screen_2_y = -self.screen_height
         self.bg_screen_scroll_speed = 0.2
+
+        #lives settings.
+        self.init_hearts = 5
+        self.max_hearts = 5
 
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""
