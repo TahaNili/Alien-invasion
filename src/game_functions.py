@@ -5,6 +5,7 @@ from random import randint
 from src.bullet import Bullet
 from src.alien import Alien,AlienL2
 from src.bullet import AlienBullet
+from src.heart import Heart
 
 pygame.mixer.init()
 
@@ -102,7 +103,7 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, car
         health.initHealth()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets, health):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets, health, hearts):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -119,6 +120,9 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     
     for bullet in alien_bullets.sprites():
         bullet.draw_bullet()
+
+    for heart in hearts.sprites():
+        heart.draw_heart()
 
     ship.bltime()
     aliens.draw(screen)
@@ -211,7 +215,7 @@ def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, alien
     if collisions_1:
         sound_explosion.play()
         alien_bullets.remove(collisions_1)
-        health.minHealth(stats)
+        health.decreaseHealth(stats)
 
 
 def get_number_aliens_x(ai_settings, alien_width):
@@ -330,15 +334,19 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, he
     if check_collideany_ship_alien:
         sound_explosion.play()
         aliens.remove(check_collideany_ship_alien)
-        health.minHealth(stats)
+        health.decreaseHealth(stats)
 
     check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens)
     if check_collideany_ship_cargoes:
         sound_explosion.play()
         aliens.remove(check_collideany_ship_cargoes)
-        health.minHealth(stats)
+        health.decreaseHealth(stats)
     # look for aliens hitting the bottom of the screen.
     check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
+
+
+def update_hearts(hearts):
+    hearts.update()
 
 def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
     if stats.game_active : 
@@ -351,4 +359,10 @@ def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
                 if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:  
                     bullet = AlienBullet(ai_settings, screen, alien)
                     alien_bullets.add(bullet)
-            
+
+def generate_heart(ai_settings,stats, screen, heart_group):
+    if stats.game_active : 
+        if randint(1, 1000) <= ai_settings.generate_heart_chance:  
+            heart = Heart(ai_settings, screen)
+            heart_group.add(heart)
+        

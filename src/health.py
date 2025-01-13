@@ -20,13 +20,13 @@ class Health:
         #todo: method description
         self.current_hearts = self.ai_settings.max_hearts
 
-    def addHealth(self):
+    def increaseHealth(self):
         #todo: method description
         if self.current_hearts + 1 > self.ai_settings.max_hearts:
             return
         self.current_hearts += 1
 
-    def minHealth(self, stats):
+    def decreaseHealth(self, stats):
         #todo: method description        
         if self.current_hearts == 1 :
             stats.game_active = False 

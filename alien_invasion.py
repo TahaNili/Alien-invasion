@@ -29,6 +29,7 @@ def run_game():
     screen_bg_2 = pygame.transform.rotate(screen_bg, 180)
     clock = pygame.time.Clock()
     alien_spawn_timer = pygame.time.get_ticks()
+
     one_time_do_bullet_hit_flag = False
 
     # Make the play button.
@@ -46,6 +47,7 @@ def run_game():
     aliens = Group()
     cargoes = Group()
     alien_bullets = Group()
+    hearts = Group()
 
     # Create the fleet of aliens.
     gf.create_fleet(ai_settings, screen, ship, aliens, cargoes)
@@ -57,15 +59,17 @@ def run_game():
             ship.update()
             gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets, health)
             gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, health)
+            gf.update_hearts(hearts)
 
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
-                         screen_bg_2, cargoes,alien_bullets, health)
+                         screen_bg_2, cargoes,alien_bullets, health, hearts)
         clock.tick(ai_settings.fps)
 
         # aliens fire timer
         current_time = pygame.time.get_ticks()
         if current_time - alien_spawn_timer > 100:   
             gf.alien_fire(ai_settings,stats, screen, aliens, alien_bullets)
+            gf.generate_heart(ai_settings, stats, screen, hearts)
             alien_spawn_timer = current_time
 
 
