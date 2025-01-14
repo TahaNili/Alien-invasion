@@ -29,9 +29,6 @@ def check_keydown_events(event, ai_settings, screen, ship, bullets):
     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
         ship.moving_left = True
 
-    if event.key == pygame.K_SPACE:
-        fire_bullet(ai_settings, screen, ship, bullets)
-
     if event.key == pygame.K_UP or event.key == pygame.K_w:
         ship.moving_up = True
 
@@ -73,8 +70,11 @@ def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets,
             check_keyup_events(event, ship)
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
+            if stats.game_active:
+                fire_bullet(ai_settings, screen, ship, bullets)
+            else:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
 
 
 def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, cargoes, bullets, health, mouse_x, mouse_y):
