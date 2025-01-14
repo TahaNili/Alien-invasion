@@ -1,41 +1,32 @@
-from random import randint
-
 import pygame
+import math
+from abc import ABC, abstractmethod
+from random import randint
 from pygame.sprite import Sprite
 
 
-class Alien(Sprite):
-    """A class to represent a single alien in the fleet."""
+class Alien(ABC, Sprite):
+    """An abstract class to create aliens."""
 
-    def __init__(self, ai_settings, screen, alien_type=0):
+    def __init__(self, ai_settings, screen, health):
         """Initialize the alien and set its starting position."""
-        super().__init__()
-        self.type = alien_type  # 0 for alien, 1 for cargo
+        super(Alien, self).__init__()
+
         self.screen = screen
         self.ai_settings = ai_settings
-        self.health = ai_settings.alien_l1_health
+        self.health = health
+        self.angle = 0
 
         # Load the alien image and set its rect attribute.
-        if self.type == 0:
-            self.image = pygame.image.load(r'data/assets/sprites/alien_l1.png')
-            self.image = pygame.transform.rotate(self.image, 180)
-        else:
-            self.image = pygame.image.load(r'data/assets/sprites/alien_cargo.png')
-            self.image_size = self.image.get_size()
-            self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.2, self.image_size[1] * 0.2))
-
+        self.original_image = self.get_image()
+        self.image = self.original_image
         self.rect = self.image.get_rect()
 
         # Start each new alien near the top left of the screen.
-        if self.type == 0:
-            self.rect.x = self.rect.width
-            self.rect.y = self.rect.height
-        else:
-            self.rect.x = randint(10, ai_settings.screen_width - 10)
-            self.rect.y = self.ai_settings.screen_height + 100
-
-        # Store the alien's exact position.
-        self.x = float(self.rect.x)
+        self.x = float(randint(0, ai_settings.screen_width - self.rect.width))
+        self.y = float(randint(0, ai_settings.screen_height - self.rect.height))
+        self.rect.x = self.x
+        self.rect.y = self.y
 
     def check_edges(self):
         """Return True if alien is at edge of screen."""
@@ -46,69 +37,84 @@ class Alien(Sprite):
             return True
         return None
 
-    def update(self, *args, **kwargs):
+    def update(self,ship):
         """Move the aliens right or left."""
-        if self.type == 0:
-            self.x += (self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction)
-            self.rect.x = self.x
-        if self.type == 1:
-            self.rect.y -= self.ai_settings.cargo_speed_factor
+
+        # Calculate the distance between the alien and the ship.
+        delta_x = ship.rect.centerx - self.rect.centerx
+        delta_y = ship.rect.centery - self.rect.centery
+
+        # Calculate the target angle of movement.
+        target_angle = math.atan2(delta_y, delta_x)
+        target_angle_deg = -math.degrees(target_angle)
+
+        # Smoothly adjust the angle.
+        angle_diff = (target_angle_deg - self.angle) % 360
+        if angle_diff > 180:
+            angle_diff -= 360
+        self.angle += angle_diff * 0.1  # Adjust this factor for smoother rotation.
+
+        # Update the alien's position.
+        self.x += math.cos(target_angle) * self.ai_settings.alien_speed_factor
+        self.y += math.sin(target_angle) * self.ai_settings.alien_speed_factor
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+        # Rotate the alien to face the ship.
+        self.image = pygame.transform.rotate(self.original_image, self.angle+90)
+
+        # Keep the alien within the screen bounds.
+        screen_rect = self.screen.get_rect()
+        self.rect.clamp_ip(screen_rect)
+
 
     def bltime(self):
         """Draw the alien at its current location."""
         self.screen.blit(self.image, self.rect)
 
 
-class AlienL2(Sprite):
+    @abstractmethod
+    def get_image(self):
+        pass # This is an abstract method, no implementation here.
+
+
+class CargoAlien(Alien):
+    """A class to represent a single cargo alien in the fleet."""
+
+    def __init__(self, ai_settings, screen):
+        super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
+
+        self.rect.x = randint(10, ai_settings.screen_width - 10)
+        self.rect.y = self.ai_settings.screen_height + 100
+
+    def update(self):
+        super().update()
+        self.rect.y -= self.ai_settings.cargo_speed_facto
+
+    def get_image(self):
+        image = pygame.image.load(r"data/assets/sprites/alien_cargo.png")
+        image_size = image.get_size()
+        return pygame.transform.scale(image, (image_size[0] * 0.2, image_size[1] * 0.2))
+
+
+class AlienL1(Alien):
     """A class to represent a single alien in the fleet."""
 
-    def __init__(self, ai_settings, screen, alien_type=0):
-        """Initialize the alien and set its starting position."""
-        super().__init__()
-        self.type = alien_type  # 0 for alien, 1 for cargo
-        self.screen = screen
-        self.ai_settings = ai_settings
-        self.health = ai_settings.alien_l2_health
+    def __init__(self, ai_settings, screen):
+        super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
 
-        # Load the alien image and set its rect attribute.
-        if self.type == 0:
-            self.image = pygame.image.load(r'data/assets/sprites/alien_l2.png')
-            self.image = pygame.transform.scale(self.image, (60, 57))
-        else:
-            self.image = pygame.image.load(r'data/assets/sprites/alien_cargo.png')
-            self.image_size = self.image.get_size()
-            self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.2, self.image_size[1] * 0.2))
+    def get_image(self):
+        image = pygame.image.load(r"data/assets/sprites/alien_l1.png")
+        return pygame.transform.rotate(image, 180)
 
-        self.rect = self.image.get_rect()
 
-        # Start each new alien near the top left of the screen.
-        if self.type == 0:
-            self.rect.x = self.rect.width
-            self.rect.y = self.rect.height
-        else:
-            self.rect.x = randint(10, ai_settings.screen_width - 10)
-            self.rect.y = self.ai_settings.screen_height + 100
+class AlienL2(Alien):
+    """A class to represent a single alien in the fleet."""
 
-        # Store the alien's exact position.
-        self.x = float(self.rect.x)
+    def __init__(self, ai_settings, screen):
+        super().__init__(ai_settings, screen, ai_settings.alien_l2_health)
 
-    def check_edges(self):
-        """Return True if alien is at edge of screen."""
-        screen_rect = self.screen.get_rect()
-        if self.rect.right >= screen_rect.right:
-            return True
-        if self.rect.left <= 0:
-            return True
-        return None
-
-    def update(self, *args, **kwargs):
-        """Move the aliens right or left."""
-        if self.type == 0:
-            self.x += (self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction)
-            self.rect.x = self.x
-        if self.type == 1:
-            self.rect.y -= self.ai_settings.cargo_speed_factor
-
-    def bltime(self):
-        """Draw the alien at its current location."""
-        self.screen.blit(self.image, self.rect)
+    def get_image(self):
+        image = pygame.image.load(r"data/assets/sprites/alien_l2.png")
+        image = pygame.transform.scale(image, (60, 57))
+        return pygame.transform.rotate(image, 180)
