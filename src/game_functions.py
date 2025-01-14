@@ -1,7 +1,7 @@
 import sys
 import pygame
 from time import sleep
-from random import randint
+from random import randint,choice
 from src.bullet import ShipBullet, AlienBullet
 from src.alien import CargoAlien, AlienL1, AlienL2
 from src.heart import Heart
@@ -95,7 +95,7 @@ def check_play_button(ai_settings, screen, stats, play_button, ship, aliens, car
         cargoes.empty()
 
         # Create a new fleet and center the ship.
-        create_fleet(ai_settings, screen, ship, aliens, cargoes)
+        # create_fleet(ai_settings, screen, ship, aliens, cargoes)
         ship.center_ship()
 
         # Make helath full
@@ -200,11 +200,11 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
             sb.prep_score()
             sound_explosion.play()
 
-    if len(aliens) == 0:
+    # if len(aliens) == 0:
         # Destroy existing bullets, speed up game, and create new fleet.
-        bullets.empty()
-        ai_settings.increase_speed()
-        create_fleet(ai_settings, screen, ship, aliens, cargoes)
+        # bullets.empty()
+        # ai_settings.increase_speed()
+        # create_fleet(ai_settings, screen, ship, aliens, cargoes)
 
 def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, aliens, alien_bullets, cargoes):
     """Respond to bullet-ship collisions."""
@@ -233,23 +233,25 @@ def get_number_rows(ai_settings, ship_height, alien_height):
     return number_rows
 
 
-def create_alien(ai_settings, screen, aliens, alien_number, row_number):
+def create_alien(ai_settings, screen):
     """Create an alien and place it in the row."""
     if randint(1, 100) <= ai_settings.alien_l2_spawn_chance: 
         alien = AlienL2(ai_settings, screen)
-        alien_width = alien.rect.width
-        alien.x = alien_width + 2 * alien_width * alien_number
-        alien.rect.x = alien.x
-        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
-        aliens.add(alien)
+        # alien_width = alien.rect.width
+        # alien.x = alien_width + 2 * alien_width * alien_number
+        # alien.rect.x = alien.x
+        # alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        # aliens.add(alien)
+        
     else:
         alien = AlienL1(ai_settings, screen)
-        alien_width = alien.rect.width
-        alien.x = alien_width + 2 * alien_width * alien_number
-        alien.rect.x = alien.x
-        alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
-        aliens.add(alien)
+        # alien_width = alien.rect.width
+        # alien.x = alien_width + 2 * alien_width * alien_number
+        # alien.rect.x = alien.x
+        # alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
+        # aliens.add(alien)
 
+    return alien
 
 def create_cargo(ai_settings, screen, cargoes):
     """Create a cargo and place it in the aliens."""
@@ -257,23 +259,36 @@ def create_cargo(ai_settings, screen, cargoes):
     cargoes.add(cargo)
 
 
-def create_fleet(ai_settings, screen, ship, aliens, cargoes):
-    """Create a full fleet of aliens."""
-    # Create an alien and find the number of aliens in a row.
-    # Spacing between each alien is equal to one alien width.
-    alien = AlienL1(ai_settings, screen)
-    number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)
-    number_rows = get_number_rows(ai_settings, ship.rect.height, alien.rect.height)
+def spawn_random_alien(ai_settings, screen, aliens):
+    """Spawn an alien at a random edge of the screen."""
+    screen_width = ai_settings.screen_width
+    screen_height = ai_settings.screen_height
 
-    # Create the first row of aliens.
-    for row_number in range(number_rows):
-        for alien_number in range(number_aliens_x):
-            # Create an alien and place it in the row.
-            create_alien(ai_settings, screen, aliens, alien_number, row_number)
+    # Select a random direction from which the alien will spawn
+    direction = choice(['top', 'bottom', 'left', 'right'])
 
-            if randint(1, 100) <= ai_settings.cargo_drop_chance:
-                create_cargo(ai_settings, screen, cargoes)
+    if direction == 'top':  # From the top edge
+        x = randint(0, screen_width)  # Random x-coordinate along the top edge
+        y = -50  # Just above the screen
+    elif direction == 'bottom':  
+        x = randint(0, screen_width)  
+        y = screen_height + 50  
+    elif direction == 'left':  
+        x = -50 
+        y = randint(0, screen_height)  
+    elif direction == 'right':  
+        x = screen_width + 50 
+        y = randint(0, screen_height)  
 
+    # Create the alien and set its initial position
+    alien = create_alien(ai_settings, screen)
+    alien.rect.x = x
+    alien.rect.y = y
+    alien.x = float(alien.rect.x)
+    alien.y = float(alien.rect.y)
+
+    # Add the alien to the group
+    aliens.add(alien)
 
 def check_fleet_edges(ai_settings, aliens):
     """Respond appropriately if any aliens have reached an edge."""
@@ -302,7 +317,7 @@ def ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes):
         bullets.empty()
 
         # Create a new fleet and center the ship.
-        create_fleet(ai_settings, screen, ship, aliens, cargoes)
+        # create_fleet(ai_settings, screen, ship, aliens)
         ship.center_ship()
 
         # Pause
@@ -312,21 +327,13 @@ def ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes):
         pygame.mouse.set_visible(True)
 
 
-def check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes):
-    """Check if any alien have reached the bottom of the screen."""
-    screen_rect = screen.get_rect()
-    for alien in aliens.sprites():
-        if alien.rect.bottom >= screen_rect.bottom:
-            # Treat this same as if the ship got hit.
-            if type(alien) is not CargoAlien:
-                ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
-                break
+
 
 
 def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, health):
     """Check if the fleet is at the edge, and then update the position of all aliens in the fleet."""
     check_fleet_edges(ai_settings, aliens)
-    aliens.update()
+    aliens.update(ship)
     cargoes.update()
 
     check_collideany_ship_alien = pygame.sprite.spritecollideany(ship, aliens)
@@ -341,7 +348,6 @@ def update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, he
         aliens.remove(check_collideany_ship_cargoes)
         health.decreaseHealth(stats)
     # look for aliens hitting the bottom of the screen.
-    check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
 
 
 def update_hearts(ship, health, hearts):
@@ -373,3 +379,11 @@ def generate_heart(ai_settings,stats, screen, heart_group):
         if randint(1, 1000) <= ai_settings.generate_heart_chance:  
             heart = Heart(ai_settings, screen)
             heart_group.add(heart)
+
+
+def remove_offscreen_aliens(aliens, screen_width, screen_height):
+    """"""
+    for alien in aliens.copy():
+        if (alien.rect.right < 0 or alien.rect.left > screen_width or
+            alien.rect.bottom < 0 or alien.rect.top > screen_height):
+            aliens.remove(alien)
