@@ -2,9 +2,8 @@ import sys
 import pygame
 from time import sleep
 from random import randint
-from src.bullet import Bullet
-from src.alien import Alien,AlienL2
-from src.bullet import AlienBullet
+from src.bullet import ShipBullet, AlienBullet
+from src.alien import CargoAlien, AlienL1, AlienL2
 from src.heart import Heart
 
 pygame.mixer.init()
@@ -40,7 +39,7 @@ def fire_bullet(ai_settings, screen, stats, ship, bullets):
     """Fire a bullet if limit not reached yet."""
     # Create a new bullet and add it to the bullets group.
     if len(bullets) < ai_settings.bullets_allowed and stats.game_active:
-        new_bullet = Bullet(ai_settings, screen, ship)
+        new_bullet = ShipBullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
         sound_fire.play()
 
@@ -237,14 +236,14 @@ def get_number_rows(ai_settings, ship_height, alien_height):
 def create_alien(ai_settings, screen, aliens, alien_number, row_number):
     """Create an alien and place it in the row."""
     if randint(1, 100) <= ai_settings.alien_l2_spawn_chance: 
-        alien = AlienL2(ai_settings, screen, alien_type=0)
+        alien = AlienL2(ai_settings, screen)
         alien_width = alien.rect.width
         alien.x = alien_width + 2 * alien_width * alien_number
         alien.rect.x = alien.x
         alien.rect.y = alien.rect.height + 2 * alien.rect.height * row_number
         aliens.add(alien)
     else:
-        alien = Alien(ai_settings, screen, alien_type=0)
+        alien = AlienL1(ai_settings, screen)
         alien_width = alien.rect.width
         alien.x = alien_width + 2 * alien_width * alien_number
         alien.rect.x = alien.x
@@ -254,7 +253,7 @@ def create_alien(ai_settings, screen, aliens, alien_number, row_number):
 
 def create_cargo(ai_settings, screen, cargoes):
     """Create a cargo and place it in the aliens."""
-    cargo = Alien(ai_settings, screen, alien_type=1)
+    cargo = CargoAlien(ai_settings, screen)
     cargoes.add(cargo)
 
 
@@ -262,7 +261,7 @@ def create_fleet(ai_settings, screen, ship, aliens, cargoes):
     """Create a full fleet of aliens."""
     # Create an alien and find the number of aliens in a row.
     # Spacing between each alien is equal to one alien width.
-    alien = Alien(ai_settings, screen)
+    alien = AlienL1(ai_settings, screen)
     number_aliens_x = get_number_aliens_x(ai_settings, alien.rect.width)
     number_rows = get_number_rows(ai_settings, ship.rect.height, alien.rect.height)
 
@@ -279,7 +278,7 @@ def create_fleet(ai_settings, screen, ship, aliens, cargoes):
 def check_fleet_edges(ai_settings, aliens):
     """Respond appropriately if any aliens have reached an edge."""
     for alien in aliens.sprites():
-        if alien.type == 0:
+        if type(alien) is not CargoAlien:
             if alien.check_edges():
                 change_fleet_direction(ai_settings, aliens)
                 break
@@ -319,7 +318,7 @@ def check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets, cargo
     for alien in aliens.sprites():
         if alien.rect.bottom >= screen_rect.bottom:
             # Treat this same as if the ship got hit.
-            if alien.type == 0:
+            if type(alien) is not CargoAlien:
                 ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes)
                 break
 
@@ -360,7 +359,7 @@ def update_hearts(ship, health, hearts):
 def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
     if stats.game_active : 
         for alien in aliens.sprites():
-            if type(alien) is Alien:
+            if type(alien) is AlienL1:
                 if randint(1, 1000) <= ai_settings.alien_fire_chance:  
                     bullet = AlienBullet(ai_settings, screen, alien)
                     alien_bullets.add(bullet)
