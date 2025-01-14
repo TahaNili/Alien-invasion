@@ -156,7 +156,7 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoe
     alien_bullets.update()
     # Get rid of bullets that have disappeared
     for bullet in bullets.copy():
-        if bullet.rect.bottom <= 0:
+        if bullet.rect.bottom <= 0 or bullet.rect.top >= ai_settings.screen_height or bullet.rect.left < 0 or bullet.rect.right > ai_settings.screen_width :
             bullets.remove(bullet)
     for bullet in alien_bullets.copy():
         if bullet.rect.top >= ai_settings.screen_height:
