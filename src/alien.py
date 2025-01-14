@@ -15,18 +15,18 @@ class Alien(ABC, Sprite):
         self.screen = screen
         self.ai_settings = ai_settings
         self.health = health
-        self.angle = math.pi
+        self.angle = 0
 
         # Load the alien image and set its rect attribute.
-        self.image = self.get_image()
+        self.original_image = self.get_image()
+        self.image = self.original_image
         self.rect = self.image.get_rect()
 
         # Start each new alien near the top left of the screen.
-        self.rect.x = self.rect.width
-        self.rect.y = self.rect.height
-
-        # Store the alien's exact position.
-        self.x = float(self.rect.x)
+        self.x = float(randint(0, ai_settings.screen_width - self.rect.width))
+        self.y = float(randint(0, ai_settings.screen_height - self.rect.height))
+        self.rect.x = self.x
+        self.rect.y = self.y
 
     def check_edges(self):
         """Return True if alien is at edge of screen."""
@@ -37,10 +37,36 @@ class Alien(ABC, Sprite):
             return True
         return None
 
-    def update(self):
+    def update(self,ship):
         """Move the aliens right or left."""
-        self.x += (self.ai_settings.alien_speed_factor * self.ai_settings.fleet_direction)
+
+        # Calculate the distance between the alien and the ship.
+        delta_x = ship.rect.centerx - self.rect.centerx
+        delta_y = ship.rect.centery - self.rect.centery
+
+        # Calculate the target angle of movement.
+        target_angle = math.atan2(delta_y, delta_x)
+        target_angle_deg = -math.degrees(target_angle)
+
+        # Smoothly adjust the angle.
+        angle_diff = (target_angle_deg - self.angle) % 360
+        if angle_diff > 180:
+            angle_diff -= 360
+        self.angle += angle_diff * 0.1  # Adjust this factor for smoother rotation.
+
+        # Update the alien's position.
+        self.x += math.cos(target_angle) * self.ai_settings.alien_speed_factor
+        self.y += math.sin(target_angle) * self.ai_settings.alien_speed_factor
         self.rect.x = self.x
+        self.rect.y = self.y
+
+        # Rotate the alien to face the ship.
+        self.image = pygame.transform.rotate(self.original_image, self.angle+90)
+
+        # Keep the alien within the screen bounds.
+        screen_rect = self.screen.get_rect()
+        self.rect.clamp_ip(screen_rect)
+
 
     def bltime(self):
         """Draw the alien at its current location."""

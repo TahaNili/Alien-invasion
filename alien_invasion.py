@@ -48,9 +48,8 @@ def run_game():
     cargoes = Group()
     alien_bullets = Group()
     hearts = Group()
+    alien_spown_counter = 0
 
-    # Create the fleet of aliens.
-    gf.create_fleet(ai_settings, screen, ship, aliens, cargoes)
 
     # Start the main loop for the game.
     while True:
@@ -60,6 +59,7 @@ def run_game():
             gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets, health)
             gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, health)
             gf.update_hearts(ship, health, hearts)
+            gf.remove_offscreen_aliens(aliens, ai_settings.screen_width, ai_settings.screen_height)
 
             if stats.game_active:
                 pygame.event.set_grab(True)
@@ -71,10 +71,14 @@ def run_game():
         clock.tick(ai_settings.fps)
 
         # aliens fire timer
+        
         current_time = pygame.time.get_ticks()
         if current_time - alien_spawn_timer > 100:   
             gf.alien_fire(ai_settings,stats, screen, aliens, alien_bullets)
             gf.generate_heart(ai_settings, stats, screen, hearts)
+            if alien_spown_counter % 10 == 0 :
+                gf.spawn_random_alien(ai_settings, screen, aliens)
+            alien_spown_counter += 1 
             alien_spawn_timer = current_time
 
 
