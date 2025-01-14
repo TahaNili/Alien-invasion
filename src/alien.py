@@ -62,6 +62,7 @@ class CargoAlien(Alien):
         self.rect.y = self.ai_settings.screen_height + 100
 
     def update(self):
+        super().update()
         self.rect.y -= self.ai_settings.cargo_speed_facto
 
     def get_image(self):
