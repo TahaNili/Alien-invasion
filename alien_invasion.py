@@ -61,6 +61,11 @@ def run_game():
             gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, health)
             gf.update_hearts(ship, health, hearts)
 
+            if stats.game_active:
+                pygame.event.set_grab(True)
+            else:
+                pygame.event.set_grab(False)
+
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
                          screen_bg_2, cargoes,alien_bullets, health, hearts)
         clock.tick(ai_settings.fps)

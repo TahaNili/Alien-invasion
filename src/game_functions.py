@@ -29,9 +29,6 @@ def check_keydown_events(event, ai_settings, screen, stats, ship, bullets):
     if event.key == pygame.K_LEFT or event.key == pygame.K_a:
         ship.moving_left = True
 
-    if event.key == pygame.K_SPACE:
-        fire_bullet(ai_settings, screen, stats, ship, bullets)
-
     if event.key == pygame.K_UP or event.key == pygame.K_w:
         ship.moving_up = True
 
@@ -74,7 +71,7 @@ def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets,
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if stats.game_active:
-                fire_bullet(ai_settings, screen, ship, bullets)
+                fire_bullet(ai_settings, screen, stats, ship, bullets)
             else:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
@@ -377,4 +374,3 @@ def generate_heart(ai_settings,stats, screen, heart_group):
         if randint(1, 1000) <= ai_settings.generate_heart_chance:  
             heart = Heart(ai_settings, screen)
             heart_group.add(heart)
-        
