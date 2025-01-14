@@ -71,7 +71,7 @@ def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets,
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if stats.game_active:
-                fire_bullet(ai_settings, screen, ship, bullets)
+                fire_bullet(ai_settings, screen, stats, ship, bullets)
             else:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 check_play_button(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
