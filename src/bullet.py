@@ -18,9 +18,9 @@ class Bullet(ABC, Sprite):
         self.rect = self.image.get_rect()
 
         self.angle = ship.angle
-        self.rect.centerx = ship.rect.centerx
-        self.rect.top = ship.rect.top
-
+        self.rect.centerx = ship.rect.centerx + math.sin(self.angle) * 30  
+        self.rect.centery = ship.rect.centery - math.cos(self.angle) * 30 
+        
         # Store the bullet's position as a decimal value.
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
