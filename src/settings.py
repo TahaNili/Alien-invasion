@@ -12,16 +12,16 @@ class Settings:
         self.bg_color = (225, 225, 255)
 
         # Ship settings
-        self.ship_speed_factor_x = 2.5
-        self.ship_speed_factor_y = 1.5
+        self.ship_speed_factor_x = 3
+        self.ship_speed_factor_y = 3
         self.ship_limit = 2
 
         # Bullets settings
-        self.bullet_speed_factor = 3
+        self.bullet_speed_factor = 10
         self.bullet_width = 3
         self.bullet_height = 15
         self.bullet_color = 60, 60, 60
-        self.bullets_allowed = 3
+        self.bullets_allowed = 5
         self.alien_bullet_speed_factor = 1.5 
 
         # Alien settings
@@ -64,9 +64,9 @@ class Settings:
 
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""
-        self.ship_speed_factor_x = 2.5
-        self.ship_speed_factor_y = 1.5
-        self.bullet_speed_factor = 3
+        # self.ship_speed_factor_x = 2.5
+        # self.ship_speed_factor_y = 1.5
+        # self.bullet_speed_factor = 3
         self.heart_speed_factor = 4
         self.alien_speed_factor = 2
         self.cargo_speed_factor = 0.5
