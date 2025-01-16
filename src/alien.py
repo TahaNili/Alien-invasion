@@ -37,8 +37,8 @@ class Alien(ABC, Sprite):
             return True
         return None
 
-    def update(self,ship):
-        """Move the aliens right or left."""
+    def update(self, ship):
+        """Move the alien."""
 
         # Calculate the distance between the alien and the ship.
         delta_x = ship.rect.centerx - self.rect.centerx
@@ -61,25 +61,23 @@ class Alien(ABC, Sprite):
         self.rect.y = self.y
 
         # Rotate the alien to face the ship.
-        self.image = pygame.transform.rotate(self.original_image, self.angle+90)
+        self.image = pygame.transform.rotate(self.original_image, self.angle + 90)
 
         # Keep the alien within the screen bounds.
         screen_rect = self.screen.get_rect()
         self.rect.clamp_ip(screen_rect)
 
-
     def bltime(self):
         """Draw the alien at its current location."""
         self.screen.blit(self.image, self.rect)
 
-
     @abstractmethod
     def get_image(self):
-        pass # This is an abstract method, no implementation here.
+        pass  # This is an abstract method, no implementation here.
 
 
 class CargoAlien(Alien):
-    """A class to represent a single cargo alien in the fleet."""
+    """A class to represent a single cargo alien."""
 
     def __init__(self, ai_settings, screen):
         super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
@@ -87,8 +85,8 @@ class CargoAlien(Alien):
         self.rect.x = randint(10, ai_settings.screen_width - 10)
         self.rect.y = self.ai_settings.screen_height + 100
 
-    def update(self):
-        super().update()
+    def update(self, ship):
+        super().update(ship)
         self.rect.y -= self.ai_settings.cargo_speed_facto
 
     def get_image(self):
@@ -98,7 +96,7 @@ class CargoAlien(Alien):
 
 
 class AlienL1(Alien):
-    """A class to represent a single alien in the fleet."""
+    """A class to represent a single alien."""
 
     def __init__(self, ai_settings, screen):
         super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
@@ -109,7 +107,7 @@ class AlienL1(Alien):
 
 
 class AlienL2(Alien):
-    """A class to represent a single alien in the fleet."""
+    """A class to represent a single alien."""
 
     def __init__(self, ai_settings, screen):
         super().__init__(ai_settings, screen, ai_settings.alien_l2_health)
