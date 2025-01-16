@@ -362,16 +362,16 @@ def update_hearts(ship, health, hearts):
         if heart.rect.bottom <= 0:
             hearts.remove(heart)
 
-def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
+def alien_fire(ai_settings,stats, screen, aliens, alien_bullets,ship):
     if stats.game_active : 
         for alien in aliens.sprites():
             if type(alien) is AlienL1:
                 if randint(1, 1000) <= ai_settings.alien_fire_chance:  
-                    bullet = AlienBullet(ai_settings, screen, alien)
+                    bullet = AlienBullet(ai_settings, screen, alien,ship)
                     alien_bullets.add(bullet)
             elif type(alien) is AlienL2:
                 if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:  
-                    bullet = AlienBullet(ai_settings, screen, alien)
+                    bullet = AlienBullet(ai_settings, screen, alien,ship)
                     alien_bullets.add(bullet)
 
 def generate_heart(ai_settings,stats, screen, heart_group):
