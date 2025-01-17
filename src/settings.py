@@ -36,9 +36,6 @@ class Settings:
         self.alien_l1_health = 1
         self.alien_l2_spawn_chance = 5
 
-        # fleet_direction of 1 represents right; -1 represents left.
-        self.fleet_direction = 1
-
         # How quickly the game speeds up
         self.speedup_scale = 1.1
 
@@ -71,9 +68,6 @@ class Settings:
         self.alien_speed_factor = 2
         self.cargo_speed_factor = 0.5
         self.cargo_drop_chance = 0
-
-        # fleet_direction of 1 represents right; -1 represents left.
-        self.fleet_direction = 1
 
         # Scoring
         self.alien_points = 10

@@ -28,7 +28,11 @@ class Bullet(ABC, Sprite):
         self.speed_factor = speed_factor
 
     def update(self):
-        """Move the bullet."""
+
+        """Move the bullet with ship's or alien's angle"""
+
+        # Update the decimal position of the bullet.
+
         self.x -= math.sin(self.angle) * self.speed_factor
         self.y -= math.cos(self.angle) * self.speed_factor
 
