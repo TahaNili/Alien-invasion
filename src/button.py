@@ -19,6 +19,8 @@ class Button:
         self.rect.center = self.screen_rect.center
 
         # The button massage needs to be prepped only once.
+        self.msg_image = None
+        self.msg_image_rect = None
         self.prep_msg(msg)
 
     def prep_msg(self, msg):

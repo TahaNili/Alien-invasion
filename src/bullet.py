@@ -77,7 +77,6 @@ class AlienBullet(Bullet):
 
         angle = math.atan2(-dy, dx) - 90  
 
-
         x = source.rect.centerx
         y = source.rect.centery
 

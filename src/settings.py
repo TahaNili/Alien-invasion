@@ -29,9 +29,9 @@ class Settings:
         self.cargo_speed_factor = 0.5
         self.fleet_drop_speed = 2
         self.cargo_drop_chance = 0  # TODO: There is an interesting bug in hereش
-        self.alien_fire_chance = 100 # from 1000
-        self.generate_heart_chance = 10 # from 1000
-        self.alien_l2_fire_chance = 200 # from 1000
+        self.alien_fire_chance = 100  # from 1000
+        self.generate_heart_chance = 10  # from 1000
+        self.alien_l2_fire_chance = 200  # from 1000
         self.alien_l2_health = 2
         self.alien_l1_health = 1
         self.alien_l2_spawn_chance = 5
@@ -54,10 +54,9 @@ class Settings:
         self.bg_screen_2_y = -self.screen_height
         self.bg_screen_scroll_speed = 0.2
 
-        #lives settings.
+        # lives settings.
         self.init_hearts = 5
         self.max_hearts = 5
-
 
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""
