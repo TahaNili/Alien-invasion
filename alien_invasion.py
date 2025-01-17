@@ -68,8 +68,10 @@ def run_game():
 
         # Aliens fire timer
         current_time = pygame.time.get_ticks()
+
         if current_time - alien_spawn_timer > 100:
             gf.alien_fire(ai_settings,stats, screen, aliens, alien_bullets)
+
             gf.generate_heart(ai_settings, stats, screen, hearts)
             if alien_spawn_counter % 10 == 0:
                 gf.spawn_random_alien(ai_settings, screen, aliens)

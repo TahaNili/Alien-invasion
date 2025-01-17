@@ -333,7 +333,7 @@ def alien_fire(ai_settings,stats, screen, aliens, alien_bullets):
                     alien_bullets.add(bullet)
             elif type(alien) is AlienL2:
                 if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:  
-                    bullet = AlienBullet(ai_settings, screen, alien)
+                    bullet = AlienBullet(ai_settings, screen, alien,ship)
                     alien_bullets.add(bullet)
 
 
