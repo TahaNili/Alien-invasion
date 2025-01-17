@@ -30,55 +30,52 @@ def run_game():
     clock = pygame.time.Clock()
     alien_spawn_timer = pygame.time.get_ticks()
 
-    one_time_do_bullet_hit_flag = False
-
     # Make the play button.
     play_button = Button(screen, "Play")
 
     # Create an instance to store game statistics and create scoreboard.
     stats = GameStats(ai_settings)
     sb = Scoreboard(ai_settings, screen, stats)
-    health = Health(ai_settings, screen)
 
-    health.initHealth()
-    # Make a ship, a group of bullets and alien bullets, and a group of aliens.
+    health = Health(ai_settings, screen)
+    health.init_health()
+
+    # Make a ship, and a group for each game sprite.
     ship = Ship(ai_settings, screen)
     bullets = Group()
     aliens = Group()
     cargoes = Group()
     alien_bullets = Group()
     hearts = Group()
-    alien_spown_counter = 0
 
+    alien_spawn_counter = 0
 
     # Start the main loop for the game.
     while True:
         gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health)
         if stats.game_active:
-            ship.update()
-            gf.update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets, health)
-            gf.update_aliens(ai_settings, stats, screen, ship, aliens, bullets, cargoes, health)
-            gf.update_hearts(ship, health, hearts)
-            gf.remove_offscreen_aliens(aliens, ai_settings.screen_width, ai_settings.screen_height)
+            # Prevent mouse from going out of screen.
+            pygame.event.set_grab(True)
 
-            if stats.game_active:
-                pygame.event.set_grab(True)
-            else:
-                pygame.event.set_grab(False)
+            # Update game sprites
+            gf.update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts)
+        else:
+            pygame.event.set_grab(False)
 
         gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
                          screen_bg_2, cargoes,alien_bullets, health, hearts)
         clock.tick(ai_settings.fps)
 
-        # aliens fire timer
-        
+        # Aliens fire timer
         current_time = pygame.time.get_ticks()
-        if current_time - alien_spawn_timer > 100:   
-            gf.alien_fire(ai_settings,stats, screen, aliens, alien_bullets,ship)
+
+        if current_time - alien_spawn_timer > 100:
+            gf.alien_fire(ai_settings,stats, screen, aliens, alien_bullets)
+
             gf.generate_heart(ai_settings, stats, screen, hearts)
-            if alien_spown_counter % 10 == 0 :
+            if alien_spawn_counter % 10 == 0:
                 gf.spawn_random_alien(ai_settings, screen, aliens)
-            alien_spown_counter += 1 
+            alien_spawn_counter += 1
             alien_spawn_timer = current_time
 
 
