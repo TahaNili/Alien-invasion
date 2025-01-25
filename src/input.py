@@ -15,8 +15,8 @@ class Input:
         self.previous_mouse_button_states = pygame.mouse.get_pressed()
 
         # store previous mouse position
-        self.currentMousePosition = pygame.mouse.get_pos()
-        self.previousMousePosition = pygame.mouse.get_pos()
+        self.current_mouse_position = pygame.mouse.get_pos()
+        self.previous_mouse_position = pygame.mouse.get_pos()
 
         # set long press durations
         self.__key_press_durations = [0 for _ in range(len(self.current_key_states))]
@@ -79,8 +79,8 @@ class Input:
         self.current_mouse_button_states = pygame.mouse.get_pressed()
 
         # update mouse position
-        self.previousMousePosition = self.currentMousePosition
-        self.currentMousePosition = pygame.mouse.get_pos()
+        self.previous_mouse_position = self.current_mouse_position
+        self.current_mouse_position = pygame.mouse.get_pos()
 
         # update mouse button press durations
         for i in range(len(self.__mouse_button_durations)):
@@ -176,7 +176,7 @@ class Input:
         Returns the pygame mouse pointer position.
         """
 
-        return self.currentMousePosition
+        return self.current_mouse_position
 
     def is_mouse_button_down(self, mouse_button):
         """
