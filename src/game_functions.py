@@ -25,65 +25,39 @@ def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, c
     update_hearts(ship, health, hearts)
 
 
-def check_keydown_events(event, ship):
-    if event.key == pygame.K_q:
-        sys.exit()
-
-    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-        ship.moving_right = True
-
-    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-        ship.moving_left = True
-
-    if event.key == pygame.K_UP or event.key == pygame.K_w:
-        ship.moving_up = True
-
-    if event.key == pygame.K_DOWN or event.key == pygame.K_s:
-        ship.moving_down = True
-
-
-def fire_bullet(ai_settings, screen, ship, bullets):
-    """Fire a bullet if limit not reached yet."""
-    # Create a new bullet and add it to the bullets group.
-    if len(bullets) < ai_settings.bullets_allowed:
-        new_bullet = ShipBullet(ai_settings, screen, ship)
-        bullets.add(new_bullet)
-        sound_fire.play()
-
-
-def check_keyup_events(event, ship):
-    if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-        ship.moving_right = False
-
-    if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-        ship.moving_left = False
-
-    if event.key == pygame.K_UP or event.key == pygame.K_w:
-        ship.moving_up = False
-
-    if event.key == pygame.K_DOWN or event.key == pygame.K_s:
-        ship.moving_down = False
-
-    
-def check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health):
+def check_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health):
     """Respond to key presses and mouse events."""
     for event in pygame.event.get():
-
         if event.type == pygame.QUIT:
+            pygame.quit()
             sys.exit()
 
-        elif event.type == pygame.KEYDOWN:
-            check_keydown_events(event, ship)
+    check_key_events(input, ship)
+    check_mouse_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health)
 
-        elif event.type == pygame.KEYUP:
-            check_keyup_events(event, ship)
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if stats.game_active:
-                fire_bullet(ai_settings, screen, ship, bullets)
-            else:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                check_play_button(ai_settings, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
+def check_key_events(input, ship):
+    """Handle key down/up"""
+
+    if input.is_key_pressed(pygame.K_q):
+        pygame.quit()
+        sys.exit()
+
+    ship.moving_right = True if input.is_key_down(pygame.K_RIGHT) or input.is_key_down(pygame.K_d) else False
+    ship.moving_left = True if input.is_key_down(pygame.K_LEFT) or input.is_key_down(pygame.K_a) else False
+    ship.moving_up = True if input.is_key_down(pygame.K_UP) or input.is_key_down(pygame.K_w) else False
+    ship.moving_down = True if input.is_key_down(pygame.K_DOWN) or input.is_key_down(pygame.K_s) else False
+
+
+def check_mouse_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health):
+    """Handle mouse button press and movement."""
+
+    if input.is_mouse_button_pressed(0):
+        if stats.game_active:
+            fire_bullet(ai_settings, screen, ship, bullets)
+        else:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            check_play_button(ai_settings, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
 
 
 def check_play_button(ai_settings, stats, play_button, ship, aliens, cargoes, bullets, health, mouse_x, mouse_y):
@@ -156,6 +130,15 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
         ai_settings.bg_screen_2_y += ai_settings.bg_screen_scroll_speed
 
     pygame.display.flip()
+
+
+def fire_bullet(ai_settings, screen, ship, bullets):
+    """Fire a bullet if limit not reached yet."""
+    # Create a new bullet and add it to the bullets group.
+    if len(bullets) < ai_settings.bullets_allowed:
+        new_bullet = ShipBullet(ai_settings, screen, ship)
+        bullets.add(new_bullet)
+        sound_fire.play()
 
 
 def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets, health):
