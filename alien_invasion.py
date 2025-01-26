@@ -7,6 +7,7 @@ from src.ship import Ship
 from src.button import Button
 from src.scoreboard import Scoreboard
 from src.health import Health
+from src.input import Input
 
 
 def run_game():
@@ -22,6 +23,7 @@ def run_game():
     # Initialize pygame, settings, screen object and assets.
     pygame.init()
     ai_settings = Settings()
+    input = Input()
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
     screen_bg = pygame.image.load("data/assets/images/space.jpg")
@@ -41,7 +43,7 @@ def run_game():
     health.init_health()
 
     # Make a ship, and a group for each game sprite.
-    ship = Ship(ai_settings, screen)
+    ship = Ship(ai_settings, input, screen)
     bullets = Group()
     aliens = Group()
     cargoes = Group()
@@ -52,7 +54,8 @@ def run_game():
 
     # Start the main loop for the game.
     while True:
-        gf.check_events(ai_settings, screen, stats, play_button, ship, aliens, bullets, cargoes, health)
+        input.update()
+        gf.check_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health)
         if stats.game_active:
             # Prevent mouse from going out of screen.
             pygame.event.set_grab(True)

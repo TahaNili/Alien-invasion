@@ -4,9 +4,10 @@ from psd_tools import PSDImage
 
 
 class Ship:
-    def __init__(self, ai_settings, screen):
+    def __init__(self, ai_settings, input, screen):
         """Initialize the ship and set its starting position."""
         self.screen = screen
+        self.input = input
         self.ai_settings = ai_settings
 
         # Load the ship image and get its rect.
@@ -49,7 +50,7 @@ class Ship:
         self.rect.centery = self.center[1]
 
         # Update the ship's angle
-        mouse_x, mouse_y = pygame.mouse.get_pos()
+        mouse_x, mouse_y = self.input.get_mouse_cursor_position()
         dx = mouse_x - self.center[0]  # The mouse position relative to the ship location
         dy = mouse_y - self.center[1]
         self.angle = math.atan2(-dx, -dy)  # Calculate angle
