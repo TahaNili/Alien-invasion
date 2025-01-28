@@ -32,9 +32,6 @@ def run_game():
     clock = pygame.time.Clock()
     alien_spawn_timer = pygame.time.get_ticks()
 
-    # Make the play button.
-    play_button = Button(screen, "Play")
-
     # Create an instance to store game statistics and create scoreboard.
     stats = GameStats(ai_settings)
     sb = Scoreboard(ai_settings, screen, stats)
@@ -50,12 +47,18 @@ def run_game():
     alien_bullets = Group()
     hearts = Group()
 
+    # Make the play button.
+    play_button = Button(screen, input, position=(screen.get_rect().centerx - 100, screen.get_rect().centery + 25), size=(200, 50),
+                         text="Play", foreground_color=(255, 255, 255), background_color=(0, 225, 0), border_width=0,
+                         display_condition=lambda: not stats.game_active,
+                         on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health))
+
     alien_spawn_counter = 0
 
     # Start the main loop for the game.
     while True:
         input.update()
-        gf.check_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health)
+        gf.check_events(ai_settings, input, screen, stats, ship, bullets)
         if stats.game_active:
             # Prevent mouse from going out of screen.
             pygame.event.set_grab(True)

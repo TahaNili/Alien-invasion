@@ -12,3 +12,6 @@ for fire.ogg:
 
 for explosion.ogg:
 	explosion soud effect by hosch, https://opengameart.org/content/8-bit-sound-effects-2
+
+for button_clicked.mp3:
+	button click sound effect by ZapSplat, https://www.zapsplat.com/sound-effect-category/button-clicks/

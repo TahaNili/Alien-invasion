@@ -25,7 +25,7 @@ def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, c
     update_hearts(ship, health, hearts)
 
 
-def check_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health):
+def check_events(ai_settings, input, screen, stats, ship, bullets):
     """Respond to key presses and mouse events."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -33,7 +33,7 @@ def check_events(ai_settings, input, screen, stats, play_button, ship, aliens, b
             sys.exit()
 
     check_key_events(input, ship)
-    check_mouse_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health)
+    check_mouse_events(ai_settings, input, screen, stats, ship, bullets)
 
 
 def check_key_events(input, ship):
@@ -49,40 +49,35 @@ def check_key_events(input, ship):
     ship.moving_down = True if input.is_key_down(pygame.K_DOWN) or input.is_key_down(pygame.K_s) else False
 
 
-def check_mouse_events(ai_settings, input, screen, stats, play_button, ship, aliens, bullets, cargoes, health):
+def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
     """Handle mouse button press and movement."""
 
     if input.is_mouse_button_pressed(0):
         if stats.game_active:
             fire_bullet(ai_settings, screen, ship, bullets)
-        else:
-            mouse_x, mouse_y = input.get_mouse_cursor_position()
-            check_play_button(ai_settings, stats, play_button, ship, aliens, bullets, cargoes, health, mouse_x, mouse_y)
 
 
-def check_play_button(ai_settings, stats, play_button, ship, aliens, cargoes, bullets, health, mouse_x, mouse_y):
+def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     """start a new game when the player clicks play."""
-    button_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
-    if button_clicked and not stats.game_active:
-        # reset the game settings.
-        ai_settings.initialize_dynamic_settings()
+    # reset the game settings.
+    ai_settings.initialize_dynamic_settings()
 
-        # Hide the mouse cursor.
-        pygame.mouse.set_visible(False)
-        # Reset the game statistics.
-        stats.reset_stats()
-        stats.game_active = True          
+    # Hide the mouse cursor.
+    pygame.mouse.set_visible(False)
+    # Reset the game statistics.
+    stats.reset_stats()
+    stats.game_active = True
 
-        # Empty the list of aliens and bullets.
-        aliens.empty()
-        bullets.empty()
-        cargoes.empty()
+    # Empty the list of aliens and bullets.
+    aliens.empty()
+    bullets.empty()
+    cargoes.empty()
 
-        # Center the ship.
-        ship.center_ship()
+    # Center the ship.
+    ship.center_ship()
 
-        # Make health full
-        health.init_health()
+    # Make health full
+    health.init_health()
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets, health, hearts):
@@ -114,10 +109,10 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     # Draw the score information.
     sb.show_score()
 
-    # Draw the play button if the game is inactive
-    if not stats.game_active:
-        play_button.draw_button()
-    else:
+    # Draw the play button.
+    play_button.update()
+
+    if stats.game_active:
         # Resetting the background when it leaves screen
         if ai_settings.bg_screen_y >= ai_settings.screen_height:
             ai_settings.bg_screen_y = -ai_settings.screen_height * 2
