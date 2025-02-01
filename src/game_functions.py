@@ -9,26 +9,34 @@ from src.animation import Animation
 
 pygame.mixer.init()
 
-sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
-sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
+sound_fire = pygame.mixer.Sound("data/assets/sounds/fire.ogg")
+sound_explosion = pygame.mixer.Sound("data/assets/sounds/explosion.ogg")
+sound_life = pygame.mixer.Sound("data/assets/sounds/life_pickup.flac")
+sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
 one_time_do_bullet_hit_flag = False
 
 # animations
 animations = []
 #  index 0 -> fire explosion animation.
+#  index 1 -> shield animation
 
 
 def load_sounds():
-    global sound_fire, sound_explosion
+    global sound_fire, sound_explosion, sound_life, sound_damage
     sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
     sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
+    sound_life = pygame.mixer.Sound("data/assets/sounds/life_pickup.flac")
+    sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
 
 
 def load_animations(screen):
     global animations
     # animation frames
-    fire_explosion_animation = Animation("data/assets/animations/explosion3", 15, screen)
+    fire_explosion_animation = Animation("data/assets/animations/explosion4", 15, screen)
+    shield_animation = Animation("data/assets/animations/shield3", 11, screen, 0,
+                                 2.6)
     animations.append(fire_explosion_animation)
+    animations.append(shield_animation)
 
 
 def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts):
@@ -141,6 +149,9 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
         ai_settings.bg_screen_y += ai_settings.bg_screen_scroll_speed
         ai_settings.bg_screen_2_y += ai_settings.bg_screen_scroll_speed
 
+    # animations[1].set_position(ship.rect.x, ship.rect.y)
+    # animations[1].play()
+
     pygame.display.flip()
 
 
@@ -215,7 +226,7 @@ def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, alien
 
     # if alien hit us
     if collisions:
-        sound_explosion.play()
+        sound_damage.play()
         alien_bullets.remove(collisions)
         health.decrease_health(stats)
 
@@ -313,6 +324,7 @@ def update_hearts(ship, health, hearts):
 
     check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts)
     if check_collideany_ship_hearts:
+        sound_life.play()
         hearts.remove(check_collideany_ship_hearts)
         health.increase_health()
 

@@ -19,8 +19,12 @@ def run_game():
     You can view and download them here: [https://opengameart.org/content/sci-fi-laser-fire-sfx].\n
     Explosion sound effect by by "hosch"
     You can view and download them here: [https://opengameart.org/content/8-bit-sound-effects-2]\n
-    Explosion animation effect by "Skorpio", lincensed under CC-BY-SA 3.0.
+    Explosion animation effect by "Skorpio", licensed under CC-BY 3.0.
     You can view and download them here: [https://opengameart.org/content/sci-fi-effects]\n
+    Heart Pickup sound by "Blender Foundation", licensed under CC-BY 3.0.
+    You can view and download them here: [https://opengameart.org/content/life-pickup-yo-frankie]\n
+    Damage sound by "TeamAlpha", licensed under CC-BY 3.0.
+    You can view and download them here: [https://opengameart.org/content/8-bitnes-explosion-sound-effecs]\n
     """)
     # Initialize pygame, settings, screen object and assets.
     pygame.init()

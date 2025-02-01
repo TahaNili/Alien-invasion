@@ -15,3 +15,9 @@ for explosion.ogg:
 
 for button_clicked.mp3:
 	button click sound effect by ZapSplat, https://www.zapsplat.com/sound-effect-category/button-clicks/
+
+for life_pickup.flac:
+	life pickup sound by Blender Foundation, https://opengameart.org/content/life-pickup-yo-frankie
+
+for damage.wav:
+	damage sound by "TeamAlpha", https://opengameart.org/content/8-bitnes-explosion-sound-effecs
