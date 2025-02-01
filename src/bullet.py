@@ -69,7 +69,13 @@ class AlienBullet(Bullet):
     """A class to manage bullets fired from the aliens."""
 
     def __init__(self, ai_settings, screen, alien, ship):
-        super().__init__(ai_settings, screen, ship, alien, ai_settings.bullet_color, ai_settings.alien_bullet_speed_factor)
+        super().__init__(
+            ai_settings,
+            screen,
+            ship,
+            alien,
+            ai_settings.bullet_color,
+            ai_settings.alien_bullet_speed_factor)
 
     def set_angle(self, source, target):
         dx = target.rect.centerx - source.rect.centerx

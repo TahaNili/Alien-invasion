@@ -13,12 +13,14 @@ from src.input import Input
 def run_game():
     # Credit for the assets
     print("""
-    Art assets used in this game were created by Skorpio and are licensed under CC-BY-SA 3.0.  
+    Art assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.  
     You can view and download them here: [https://opengameart.org/content/space-ship-construction-kit].\n
-    Fire sound effect by K.L.Jonasson, Winnipeg, Canada. Triki Minut Interactive www.trikiminut.com
+    Fire sound effect by "K.L.Jonasson", Winnipeg, Canada. Triki Minut Interactive www.trikiminut.com
     You can view and download them here: [https://opengameart.org/content/sci-fi-laser-fire-sfx].\n
-    Explosion sound effect by by hosch
-    You can view and download them here: https://opengameart.org/content/8-bit-sound-effects-2
+    Explosion sound effect by by "hosch"
+    You can view and download them here: [https://opengameart.org/content/8-bit-sound-effects-2]\n
+    Explosion animation effect by "Skorpio", lincensed under CC-BY-SA 3.0.
+    You can view and download them here: [https://opengameart.org/content/sci-fi-effects]\n
     """)
     # Initialize pygame, settings, screen object and assets.
     pygame.init()
@@ -26,7 +28,7 @@ def run_game():
     input = Input()
     screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
     pygame.display.set_caption("Alien Invasion")
-    screen_bg = pygame.image.load("data/assets/images/space.jpg")
+    screen_bg = pygame.image.load("data/assets/images/space3.png")
     screen_bg = pygame.transform.scale(screen_bg, (ai_settings.screen_width*2, ai_settings.screen_width*2))
     screen_bg_2 = pygame.transform.rotate(screen_bg, 180)
     clock = pygame.time.Clock()
@@ -48,12 +50,21 @@ def run_game():
     hearts = Group()
 
     # Make the play button.
-    play_button = Button(screen, input, position=(screen.get_rect().centerx - 100, screen.get_rect().centery + 25), size=(200, 50),
-                         text="Play", foreground_color=(255, 255, 255), background_color=(0, 225, 0), border_width=0,
-                         display_condition=lambda: not stats.game_active,
-                         on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health))
+    play_button = Button(
+        screen,
+        input,
+        position=(screen.get_rect().centerx - 100, screen.get_rect().centery + 25),
+        size=(200, 50),
+        text="Play",
+        foreground_color=(255, 255, 255),
+        background_color=(0, 225, 0),
+        border_width=0,
+        display_condition=lambda: not stats.game_active,
+        on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health))
 
     alien_spawn_counter = 0
+
+    gf.load_animations(screen)
 
     # Start the main loop for the game.
     while True:

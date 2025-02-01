@@ -32,10 +32,7 @@ class Input:
         self.__mouse_press_states = ["none" for _ in range(len(self.current_mouse_button_states))]
 
     def update(self):
-        #
         # update key press info
-        #
-
         # update key presses
         self.previous_key_states = self.current_key_states
         self.current_key_states = pygame.key.get_pressed()
@@ -64,7 +61,8 @@ class Input:
             elif self.__key_press_states[i] == "single" and self.is_key_pressed(i):
                 self.__key_press_states[i] = "double"
             # single -> none
-            elif self.__key_press_states[i] == "single" and self.__key_time_since_last_pressed[i] > self.double_press_timeout:
+            elif (self.__key_press_states[i] == "single" and
+                  self.__key_time_since_last_pressed[i] > self.double_press_timeout):
                 self.__key_press_states[i] = "none"
             # double -> none
             elif self.__key_press_states[i] == "double":
@@ -106,7 +104,8 @@ class Input:
             elif self.__mouse_press_states[i] == "single" and self.is_mouse_button_pressed(i):
                 self.__mouse_press_states[i] = "double"
             # single -> none
-            elif self.__mouse_press_states[i] == "single" and self.__mouse_time_since_last_pressed[i] > self.double_press_timeout:
+            elif (self.__mouse_press_states[i] == "single" and
+                  self.__mouse_time_since_last_pressed[i] > self.double_press_timeout):
                 self.__mouse_press_states[i] = "none"
             # double -> none
             elif self.__mouse_press_states[i] == "double":

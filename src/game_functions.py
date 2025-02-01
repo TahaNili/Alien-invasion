@@ -1,10 +1,11 @@
 import sys
 import pygame
 from time import sleep
-from random import randint,choice
+from random import randint, choice
 from src.bullet import ShipBullet, AlienBullet
 from src.alien import CargoAlien, AlienL1, AlienL2
 from src.heart import Heart
+from src.animation import Animation
 
 pygame.mixer.init()
 
@@ -12,10 +13,22 @@ sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
 sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
 one_time_do_bullet_hit_flag = False
 
+# animations
+animations = []
+#  index 0 -> fire explosion animation.
+
+
 def load_sounds():
     global sound_fire, sound_explosion
     sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
     sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
+
+
+def load_animations(screen):
+    global animations
+    # animation frames
+    fire_explosion_animation = Animation("data/assets/animations/explosion3", 15, screen)
+    animations.append(fire_explosion_animation)
 
 
 def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts):
@@ -47,6 +60,9 @@ def check_key_events(input, ship):
     ship.moving_left = True if input.is_key_down(pygame.K_LEFT) or input.is_key_down(pygame.K_a) else False
     ship.moving_up = True if input.is_key_down(pygame.K_UP) or input.is_key_down(pygame.K_w) else False
     ship.moving_down = True if input.is_key_down(pygame.K_DOWN) or input.is_key_down(pygame.K_s) else False
+
+    if input.is_key_down(pygame.K_ESCAPE):
+        sys.exit()
 
 
 def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
@@ -80,7 +96,8 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     health.init_health()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,alien_bullets, health, hearts):
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,
+                  alien_bullets, health, hearts):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -136,7 +153,7 @@ def fire_bullet(ai_settings, screen, ship, bullets):
         sound_fire.play()
 
 
-def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes,alien_bullets, health):
+def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health):
     """Update position of bullets and get rid of old bullets."""
     bullets.update()
     alien_bullets.update()
@@ -150,16 +167,16 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoe
                 or bullet.rect.right > ai_settings.screen_width):
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes)
+    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, animations)
     check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, aliens, alien_bullets, cargoes)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes):
+def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, animations):
     """Respond to bullet-alien collisions."""
     # Remove any bullets and aliens that have collided.
     # Check for any bullets that have hit aliens.
     # If so, get rid of the bullet and the alien.
-    collisions_1 = pygame.sprite.groupcollide(bullets, aliens, True,False)
+    collisions_1 = pygame.sprite.groupcollide(bullets, aliens, True, False)
     collisions_2 = pygame.sprite.groupcollide(bullets, cargoes, True, True)
     collisions_3 = pygame.sprite.groupcollide(aliens, cargoes, False, True)
 
@@ -168,7 +185,9 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
         for aliens_hit in collisions_1.values():
             for alien in aliens_hit:
                 alien.health -= 1
-                if alien.health <= 0 :
+                animations[0].set_position(alien.rect.x, alien.rect.y)
+                animations[0].play()
+                if alien.health <= 0:
                     aliens.remove(alien)
 
             stats.score += ai_settings.alien_points * len(aliens)
@@ -302,8 +321,8 @@ def update_hearts(ship, health, hearts):
             hearts.remove(heart)
 
 
-def alien_fire(ai_settings,stats, screen, aliens, alien_bullets, ship):
-    if stats.game_active : 
+def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
+    if stats.game_active:
         for alien in aliens.sprites():
             if type(alien) is AlienL1:
                 if randint(1, 1000) <= ai_settings.alien_fire_chance:

@@ -35,12 +35,12 @@ class Health:
     def show_health(self):
         """Display health bar on top left corner of the screen."""
 
-        HEART_SIZE = 20
+        heart_size = 20
         heart_full = pygame.image.load('data/assets/hearts/full_heart.png')
         heart_empty = pygame.image.load('data/assets/hearts/empty_heart.png')
         
-        heart_full = pygame.transform.scale(heart_full, (HEART_SIZE, HEART_SIZE))
-        heart_empty = pygame.transform.scale(heart_empty, (HEART_SIZE, HEART_SIZE))
+        heart_full = pygame.transform.scale(heart_full, (heart_size, heart_size))
+        heart_empty = pygame.transform.scale(heart_empty, (heart_size, heart_size))
         health_rect = self.screen.get_rect()
         health_rect.top = 20
         health_rect.left = 20

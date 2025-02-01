@@ -1,7 +1,6 @@
 import pygame.font
-
-
 pygame.mixer.init()
+
 
 class Button:
     """A class to create button.
@@ -21,9 +20,20 @@ class Button:
         on_clicked (() -> Any): A function to run when button is clicked
     """
 
-    def __init__(self, screen, input, position=(0, 0), size=(200, 50), text="", font=None,
-                 foreground_color=(255, 255, 255), background_color=(0, 0, 0), border_width=1, border_color=(255, 255, 255),
-                 display_condition=None, on_clicked=None):
+    def __init__(
+            self,
+            screen,
+            input,
+            position=(0, 0),
+            size=(200, 50),
+            text="",
+            font=None,
+            foreground_color=(255, 255, 255),
+            background_color=(0, 0, 0),
+            border_width=1,
+            border_color=(255, 255, 255),
+            display_condition=None,
+            on_clicked=None):
 
         self.screen = screen
 
@@ -47,7 +57,8 @@ class Button:
         self.__sound = pygame.mixer.Sound("data/assets/sounds/button_clicked.mp3")
         self.__sound.set_volume(0.35)
         self.__original_bg_color = self.background_color
-        self.__hovered_bg_color = pygame.color.Color(self.background_color[0], self.background_color[1], self.background_color[2])
+        self.__hovered_bg_color = pygame.color.Color(self.background_color[0], self.background_color[1],
+                                                     self.background_color[2])
         self.__hovered_bg_color = self.__hovered_bg_color.correct_gamma(2.5)
 
     def update(self):
@@ -97,7 +108,10 @@ class Button:
 
     def __draw_background(self):
         """Draws the button background."""
-        pygame.draw.rect(self.screen, self.background_color, (self.position[0], self.position[1], self.size[0], self.size[1]))
+        pygame.draw.rect(
+            self.screen,
+            self.background_color,
+            (self.position[0], self.position[1], self.size[0], self.size[1]))
 
     def __draw_text(self):
         """Draws the button text."""
@@ -110,7 +124,8 @@ class Button:
     def __draw_border(self):
         """Draws the button border."""
         if self.border_width > 0:
-            pygame.draw.rect(self.screen, self.border_color, (self.position[0], self.position[1], self.size[0], self.size[1]), width=self.border_width)
+            pygame.draw.rect(self.screen, self.border_color, (self.position[0], self.position[1], self.size[0],
+                                                              self.size[1]), width=self.border_width)
 
     def __should_display(self):
         if self.display_condition is not None:
