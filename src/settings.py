@@ -32,11 +32,15 @@ class Settings:
         self.fleet_drop_speed = 2
         self.cargo_drop_chance = 0  # TODO: There is an interesting bug in hereش
         self.alien_fire_chance = 100  # from 1000
-        self.generate_heart_chance = 10  # from 1000
         self.alien_l2_fire_chance = 200  # from 1000
         self.alien_l2_health = 2
         self.alien_l1_health = 1
         self.alien_l2_spawn_chance = 5
+
+        # Drop down items setting
+        self.generate_heart_chance = 10  # from 1000
+        self.generate_shield_chance = 10  # from 1000
+        self.shield_time = 10  # in seconds
 
         # How quickly the game speeds up
         self.speedup_scale = 1.1

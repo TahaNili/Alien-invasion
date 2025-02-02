@@ -1,4 +1,5 @@
 import pygame
+import time
 
 
 class Health:
@@ -6,10 +7,13 @@ class Health:
 
     def __init__(self, ai_settings, screen):
         """Initialize class properties."""
+        self.ai_settings = ai_settings
         self.screen = screen
-        self.max_hearts = ai_settings.max_hearts
-        self.init_hearts = ai_settings.init_hearts
+        self.max_hearts = self.ai_settings.max_hearts
+        self.init_hearts = self.ai_settings.init_hearts
         self.current_hearts = 0
+        self.freez_flag = False
+        self.freezed_time = 0
 
     def init_health(self):
         """Reset health."""
@@ -27,10 +31,22 @@ class Health:
     def decrease_health(self, stats):
         """Decrease health by one."""
 
-        self.current_hearts -= 1
-        if self.current_hearts == 0:
-            stats.game_active = False
-            pygame.mouse.set_visible(True)
+        if self.freez_flag:
+            elapsed__freez_time = time.time() - self.freezed_time
+            if elapsed__freez_time >= self.ai_settings.shield_time:
+                self.current_hearts -= 1
+                if self.current_hearts == 0:
+                    stats.game_active = False
+                    pygame.mouse.set_visible(True)
+        else:
+            self.current_hearts -= 1
+            if self.current_hearts == 0:
+                stats.game_active = False
+                pygame.mouse.set_visible(True)
+
+    def freez(self):
+        self.freez_flag = True
+        self.freezed_time = time.time()
 
     def show_health(self):
         """Display health bar on top left corner of the screen."""

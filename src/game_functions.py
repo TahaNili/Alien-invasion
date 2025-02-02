@@ -6,6 +6,7 @@ from src.bullet import ShipBullet, AlienBullet
 from src.alien import CargoAlien, AlienL1, AlienL2
 from src.heart import Heart
 from src.animation import Animation
+from src.shield import Shield
 
 pygame.mixer.init()
 
@@ -13,6 +14,9 @@ sound_fire = pygame.mixer.Sound("data/assets/sounds/fire.ogg")
 sound_explosion = pygame.mixer.Sound("data/assets/sounds/explosion.ogg")
 sound_life = pygame.mixer.Sound("data/assets/sounds/life_pickup.flac")
 sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
+sound_shield_fill = pygame.mixer.Sound("data/assets/sounds/shield_fill.wav")
+sound_shield_empty = pygame.mixer.Sound("data/assets/sounds/shield_empty.wav")
+
 one_time_do_bullet_hit_flag = False
 
 # animations
@@ -22,11 +26,13 @@ animations = []
 
 
 def load_sounds():
-    global sound_fire, sound_explosion, sound_life, sound_damage
+    global sound_fire, sound_explosion, sound_life, sound_damage, sound_shield_fill, sound_shield_empty
     sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
     sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
     sound_life = pygame.mixer.Sound("data/assets/sounds/life_pickup.flac")
     sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
+    sound_shield_fill = pygame.mixer.Sound("data/assets/sounds/shield_fill.wav")
+    sound_shield_empty = pygame.mixer.Sound("data/assets/sounds/shield_empty.wav")
 
 
 def load_animations(screen, ai_settings):
@@ -45,18 +51,21 @@ def load_animations(screen, ai_settings):
         11,
         screen,
         0,
-        2.6
+        2.6,
+        False,
+        30
     )
 
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
 
 
-def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts):
+def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts, shields):
     ship.update()
     update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health)
     update_aliens(ai_settings, stats, ship, aliens, cargoes, health)
     update_hearts(ship, health, hearts)
+    update_shields(ship, shields, health)
 
 
 def check_events(ai_settings, input, screen, stats, ship, bullets):
@@ -118,7 +127,7 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
 
 
 def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,
-                  alien_bullets, health, hearts):
+                  alien_bullets, health, hearts, shields):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -138,6 +147,9 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
 
     for heart in hearts.sprites():
         heart.draw_heart()
+
+    for shield in shields.sprites():
+        shield.draw()
 
     ship.bltime()
     aliens.draw(screen)
@@ -162,8 +174,8 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
         ai_settings.bg_screen_y += ai_settings.bg_screen_scroll_speed
         ai_settings.bg_screen_2_y += ai_settings.bg_screen_scroll_speed
 
-    # animations[1].set_position(ship.rect.x, ship.rect.y)
-    # animations[1].play()
+    animations[1].set_position(ship.rect.x, ship.rect.y)
+    animations[1].play()
 
     pygame.display.flip()
 
@@ -332,20 +344,6 @@ def update_aliens(ai_settings, stats, ship, aliens, cargoes, health):
     remove_offscreen_aliens(aliens, ai_settings.screen_width, ai_settings.screen_height)
 
 
-def update_hearts(ship, health, hearts):
-    hearts.update()
-
-    check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts)
-    if check_collideany_ship_hearts:
-        sound_life.play()
-        hearts.remove(check_collideany_ship_hearts)
-        health.increase_health()
-
-    for heart in hearts.copy():
-        if heart.rect.bottom <= 0:
-            hearts.remove(heart)
-
-
 def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
     if stats.game_active:
         for alien in aliens.sprites():
@@ -364,6 +362,42 @@ def generate_heart(ai_settings, stats, screen, heart_group):
         if randint(1, 1000) <= ai_settings.generate_heart_chance:  
             heart = Heart(ai_settings, screen)
             heart_group.add(heart)
+
+
+def update_hearts(ship, health, hearts):
+    hearts.update()
+
+    check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts)
+    if check_collideany_ship_hearts:
+        sound_life.play()
+        hearts.remove(check_collideany_ship_hearts)
+        health.increase_health()
+
+    for heart in hearts.copy():
+        if heart.rect.bottom <= 0:
+            hearts.remove(heart)
+
+
+def generate_shields(screen, ai_settings, stats, shield_group):
+    if stats.game_active:
+        if randint(1, 1000) <= ai_settings.generate_shield_chance:
+            shield = Shield(ai_settings, screen)
+            shield_group.add(shield)
+
+
+def update_shields(ship, shields, health):
+    shields.update()
+
+    check_collideany_ship_shields = pygame.sprite.spritecollideany(ship, shields)
+    if check_collideany_ship_shields:
+        health.freez()  # freezing health bar.
+        sound_shield_fill.play()
+        animations[1].set_visibility(True, True, 10, sound_shield_empty)
+        shields.remove(check_collideany_ship_shields)
+
+    for shield in shields.copy():
+        if shield.rect.bottom <= 0:
+            shield.remove(shields)
 
 
 def remove_offscreen_aliens(aliens, screen_width, screen_height):
