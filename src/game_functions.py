@@ -63,7 +63,7 @@ def load_animations(screen, ai_settings):
     animations.append(shield_animation)
 
 
-def load_credits(ai_settings):
+def load_credits():
     global text_lines, text_rects
     credit = """
     Developers:
@@ -96,7 +96,8 @@ def load_credits(ai_settings):
         offset += 20
 
 
-def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts, shields):
+def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts,
+                        shields):
     ship.update()
     update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health)
     update_aliens(ai_settings, stats, ship, aliens, cargoes, health)
@@ -184,6 +185,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
         try:
             bullet.draw_bullet()
         except:
+            # print("HERE")
             pass
     
     for bullet in alien_bullets.sprites():
@@ -331,7 +333,7 @@ def spawn_random_alien(ai_settings, screen, aliens):
 
     # Select a random direction from which the alien will spawn
     direction = choice(['top', 'bottom', 'left', 'right'])
-
+    x, y = (0, 0)
     if direction == 'top':  # From the top edge
         x = randint(0, screen_width)  # Random x-coordinate along the top edge
         y = -50  # Just above the screen

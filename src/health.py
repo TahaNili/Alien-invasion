@@ -34,15 +34,15 @@ class Health:
         if self.freez_flag:
             elapsed__freez_time = time.time() - self.freezed_time
             if elapsed__freez_time >= self.ai_settings.shield_time:
-                self.current_hearts -= 1
-                if self.current_hearts == 0:
-                    stats.game_active = False
-                    pygame.mouse.set_visible(True)
+                self._decrease_health(stats)
         else:
-            self.current_hearts -= 1
-            if self.current_hearts == 0:
-                stats.game_active = False
-                pygame.mouse.set_visible(True)
+            self._decrease_health(stats)
+
+    def _decrease_health(self, stats):
+        self.current_hearts -= 1
+        if self.current_hearts == 0:
+            stats.game_active = False
+            pygame.mouse.set_visible(True)
 
     def freez(self):
         self.freez_flag = True

@@ -42,7 +42,7 @@ class Button:
         self.size = size
         self.text = text
         if font is None:
-            self.font = pygame.font.SysFont(None, 48)
+            self.font = pygame.font.Font(None, 48)
         else:
             self.font = font
 
@@ -93,7 +93,8 @@ class Button:
             if self.on_clicked is not None:
                 self.on_clicked()
 
-    def __is_with_in_bounds(self, position, rect):
+    @staticmethod
+    def __is_with_in_bounds(position, rect):
         return ((position[0] >= rect[0]) and (position[0] <= rect[0] + rect[2]) and (position[1] >= rect[1])
                 and (position[1] <= rect[1] + rect[3]))
 

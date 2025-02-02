@@ -67,7 +67,7 @@ class Alien(ABC, Sprite):
         screen_rect = self.screen.get_rect()
         self.rect.clamp_ip(screen_rect)
 
-    def bltime(self):
+    def blit(self):
         """Draw the alien at its current location."""
         self.screen.blit(self.image, self.rect)
 
