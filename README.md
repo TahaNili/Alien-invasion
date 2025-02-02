@@ -1,93 +1,88 @@
 # We Can Make This Game Better!
 
-Welcome to the **Alien Invasion** project! This is an exciting open-source initiative where **we** can collaborate to improve, enhance, and evolve the game together.
-As a community of passionate developers, designers, and gamers, we have the opportunity to make this game **better** with each contribution.
+Welcome to the Alien Invasion project. This is an open-source effort where serious developers, designers, and gamers come together to create something extraordinary. We’re focused on pushing the limits of what this game can be, and we need your expertise to make that happen.
 
-This project started with a basic version, which has now been evolved to **V1.1.0**, featuring a new scrolling space background, enhanced assets, new sound effects, and more. However, this is just the beginning, and we need **your** help to take this game to the next level!
+The foundation is set, but now it’s time to build something even better. If you’re ready to contribute, collaborate, and help take this project to the next level, we’re excited to have you on board.
 
----
-
-## Table of Contents
-
-- [Current Version](#current-version)
-- [How to Contribute](#how-to-contribute)
-- [Communication & Collaboration](#communication--collaboration)
-- [Project Setup](#project-setup)
-- [Assets Used](#assets-used)
-
----
-
-## Current Version
-
-The current release is **V1.1.0**, which includes several exciting updates:
-
-- **Dynamic Scrolling Space Background**: A dynamic background effect that adds life to the space environment.
-- **New Assets**: Improved graphics for ships, bullets, and aliens for better visual appeal and gameplay.
-- **Sound Effects**: Immersive sound effects for actions such as firing bullets and alien ship explosions.
-- **Cargo Entity**: A new entity, "Cargo," which is currently deactivated (to be re-enabled in a future update).
-
-![Screenshot of V1.1.0](https://github.com/MatinAfzal/Alien-invasion/blob/main/changelog/V1.1.0/V1.1.0.png)
-
-[Check out the full release on GitHub here!](https://github.com/MatinAfzal/Alien-invasion/releases/tag/V1.1.0)
+<div align="center" style="line-height: 1;">
+  <a href="https://github.com/MatinAfzal/Alien-invasion/releases" target="_blank" style="margin: 2px;">
+    <img alt="Homepage" src="https://img.shields.io/badge/Github-Latest%20release-7289da?logo=futurelearn&logoColor=white&color=7289da" style="display: inline-block; vertical-align: middle;"/>
+  </a>
+  <a href="https://discord.com/invite/jBhmM2j2GN" target="_blank" style="margin: 2px;">
+    <img alt="Chat" src="https://img.shields.io/badge/Discord-MatinAfzal-7289da?logo=Discord&logoColor=white&color=7289da" style="display: inline-block; vertical-align: middle;"/>
+  </a>
+  <a href="https://github.com/MatinAfzal/Alien-invasion/discussions/43" target="_blank" style="margin: 2px;">
+    <img alt="Chat" src="https://img.shields.io/badge/Discussions-TODO%20List-7289da?logo=todoist&logoColor=white&color=green" style="display: inline-block; vertical-align: middle;"/>
+  </a>
+</div> 
 
 ---
+
+<table align="center">
+  <tr>
+    <th>Version</th>
+    <th>Date</th>
+    <th>Release</th>
+  </tr>
+  <tr>
+    <td>Vx.x.x</td>
+    <td>Feb 3, 2025</td>
+    <td>
+      <a href="" target="_blank">
+        <img src="https://img.shields.io/badge/Release-Vx.x.x-7289da?logo=alienware&logoColor=green&color=violet" alt="Release Badge">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>V1.1.0</td>
+    <td>Jan 8, 2025</td>
+    <td>
+      <a href="https://github.com/MatinAfzal/Alien-invasion/releases/tag/V1.1.0" target="_blank">
+        <img src="https://img.shields.io/badge/Release-V1.1.0-7289da?logo=alienware&logoColor=green&color=violet" alt="Release Badge">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td>V1.0.0</td>
+    <td>Nov 16, 2024</td>
+    <td>
+      <a href="https://github.com/MatinAfzal/Alien-invasion/releases/tag/V1.0.0" target="_blank">
+        <img src="https://img.shields.io/badge/Release-V1.0.0-7289da?logo=alienware&logoColor=green&color=violet" alt="Release Badge">
+      </a>
+    </td>
+  </tr>
+</table>
+
 
 ## How to Contribute
 
-As I have worked on **V1.0.0** and made improvements in **V1.1.0**, I now want **you** to help make the game even **better**! Here’s how you can contribute:
+- To contribute to the Alien Invasion project, please make your pull requests to the [develop](https://github.com/MatinAfzal/Alien-invasion/tree/develop) branch with a clear and detailed description in English of the changes you've made. 
 
-1. **Fork this repository** to your own GitHub account.
-2. Create a new branch from the **develop branch**.
-3. **Develop** your improvements, features, or fixes in this new branch.
-4. **Submit a Pull Request** to the **develop branch**.  
-   - Make sure to provide a clear, detailed description of what your PR does and why it's important.
-   - Ensure your code is well-documented and follows the existing code style.
-5. **Engage with other contributors** and provide feedback or support where needed.
+- It's important to ensure your PRs are standardized, PEP8 compliant, and that you avoid large commits. Instead, break your changes into smaller, logical commits to make the review process smoother. 
 
-Please note: **All contributions should be made to the `develop` branch**, and **only pull requests to the `develop` branch will be reviewed** for merging. This will ensure a streamlined workflow as we refine and test new features.
+- If you're adding new assets like sound effects, music, or textures, ensure that the sources are listed in the Copyright.txt file in the appropriate directory, and include the source links in your PR description if possible. 
 
----
+- For ideas on what to work on, check the [TODO list discussion](https://github.com/MatinAfzal/Alien-invasion/discussions/43), or feel free to join our [Discord server](https://discord.com/invite/jBhmM2j2GN) to collaborate and share your progress. 
 
-## Communication & Collaboration
-
-We believe that collaboration and communication are key to making this game better. To discuss your ideas, share your progress, and ask questions, please join our **Discord server**. This is where you can interact with other contributors, get help, and keep up with updates to the project.
-
-[Join our Discord Server!](https://discord.gg/jBhmM2j2GN)
-
----
+We appreciate your contributions and look forward to building something great.
 
 ## Project Setup
 
-To get started with the project, follow these steps:
-
-### Prerequisites:
-- Python 3.x
-- Pygame and Psd_tools libraries :
-   you can install these libraries using `pip install pygame psd_tools` or `pip install -r requirements.txt`
-
-### Clone the Repository:
-```bash
-git clone https://github.com/MatinAfzal/Alien-invasion.git
-cd Alien-invasion
+- Clone this [repository](https://github.com/MatinAfzal/Alien-invasion) or download the [latest version](https://github.com/MatinAfzal/Alien-invasion/releases)
+- Make sure you have Python 3 or later installed. Then, install the dependencies:
+  
 ```
-### Run the Game:
-```bash
-python alien_invasion.py
+   pip install -r requirements.txt
 ```
 
-#### Branches:
-- main: The stable version of the game (only for release).
-- develop: The branch where development happens. Make all contributions here!
+- Next, navigate to the project directory:
 
-### Assets Used
-This game uses some amazing assets that we are thankful for. Here are the details:
+```
+   cd Alien-invasion
+```
 
-- Art assets used in this game were created by Skorpio and are licensed under CC-BY-SA 3.0.
-You can view and download them here: Space Ship Construction Kit.
-
-- Fire sound effect by K.L.Jonasson, Winnipeg, Canada. Triki Minut Interactive www.trikiminut.com
-You can view and download them here: Sci-Fi Laser Fire SFX.
-
-- Explosion sound effect by hosch.
-You can view and download them here: 8-Bit Sound Effects 2.
-
+- Finally, run the game:
+  
+```
+   python3 alien_invasion.py
+```
