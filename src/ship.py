@@ -36,13 +36,13 @@ class Ship:
         """Update the ship's position based on the movement flag."""
         # update te ship's center value, not the rect.
         if self.moving_right and self.rect.right < self.screen_rect.right:
-            self.center[0] += self.ai_settings.ship_speed_factor_x
+            self.center[0] += self.ai_settings.ship_speed_factor_x * self.ai_settings.delta_time
         if self.moving_left and self.rect.left > 0:
-            self.center[0] -= self.ai_settings.ship_speed_factor_x
+            self.center[0] -= self.ai_settings.ship_speed_factor_x * self.ai_settings.delta_time
         if self.moving_up and self.rect.top > 0:
-            self.center[1] -= self.ai_settings.ship_speed_factor_y
+            self.center[1] -= self.ai_settings.ship_speed_factor_y * self.ai_settings.delta_time
         if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            self.center[1] += self.ai_settings.ship_speed_factor_y
+            self.center[1] += self.ai_settings.ship_speed_factor_y * self.ai_settings.delta_time
 
         # Update rect object from self.center.
         self.rect.centerx = self.center[0]

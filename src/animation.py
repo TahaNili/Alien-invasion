@@ -1,9 +1,13 @@
 import time
 import pygame
+from src.settings import Settings
+
+settings = Settings()
 
 
 class Animation:
     def __init__(self, frame_path, frame_count, screen, latency=0.001, divider=4):
+        self.settings = Settings()
         self.animation_frames = []
         self.animation_rects = []
         self.screen = screen

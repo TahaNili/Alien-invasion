@@ -5,6 +5,8 @@ class Settings:
         """Initialize the game's static settings."""
         # Clock
         self.fps = 120.0
+        self.delta_time = (1000.0 / self.fps) / 10
+        self.default_animation_latency = self.delta_time / 500
 
         # Screen settings
         self.screen_width = 1200

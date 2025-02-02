@@ -29,12 +29,25 @@ def load_sounds():
     sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
 
 
-def load_animations(screen):
+def load_animations(screen, ai_settings):
     global animations
     # animation frames
-    fire_explosion_animation = Animation("data/assets/animations/explosion4", 15, screen)
-    shield_animation = Animation("data/assets/animations/shield3", 11, screen, 0,
-                                 2.6)
+    fire_explosion_animation = Animation(
+        "data/assets/animations/explosion4",
+        15,
+        screen,
+        ai_settings.default_animation_latency,
+        4
+    )
+
+    shield_animation = Animation(
+        "data/assets/animations/shield3",
+        11,
+        screen,
+        0,
+        2.6
+    )
+
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
 

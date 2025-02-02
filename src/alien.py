@@ -55,8 +55,8 @@ class Alien(ABC, Sprite):
         self.angle += angle_diff * 0.1  # Adjust this factor for smoother rotation.
 
         # Update the alien's position.
-        self.x += math.cos(target_angle) * self.ai_settings.alien_speed_factor
-        self.y += math.sin(target_angle) * self.ai_settings.alien_speed_factor
+        self.x += math.cos(target_angle) * self.ai_settings.alien_speed_factor * self.ai_settings.delta_time
+        self.y += math.sin(target_angle) * self.ai_settings.alien_speed_factor * self.ai_settings.delta_time
         self.rect.x = self.x
         self.rect.y = self.y
 

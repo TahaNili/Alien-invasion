@@ -68,7 +68,7 @@ def run_game():
 
     alien_spawn_counter = 0
 
-    gf.load_animations(screen)
+    gf.load_animations(screen, ai_settings)
 
     # Start the main loop for the game.
     while True:

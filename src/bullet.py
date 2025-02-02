@@ -9,6 +9,7 @@ class Bullet(ABC, Sprite):
 
     def __init__(self, ai_settings, screen, target, source, color, speed_factor):
         super(Bullet, self).__init__()
+        self.ai_settings = ai_settings
         self.screen = screen
 
         # Load and scale bullet image
@@ -33,8 +34,8 @@ class Bullet(ABC, Sprite):
 
         # Update the decimal position of the bullet.
 
-        self.x -= math.sin(self.angle) * self.speed_factor
-        self.y -= math.cos(self.angle) * self.speed_factor
+        self.x -= math.sin(self.angle) * self.speed_factor * self.ai_settings.delta_time
+        self.y -= math.cos(self.angle) * self.speed_factor * self.ai_settings.delta_time
 
         # Update the rect position
         self.rect.x = self.x
