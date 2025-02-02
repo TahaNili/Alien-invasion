@@ -17,6 +17,9 @@ sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
 sound_shield_fill = pygame.mixer.Sound("data/assets/sounds/shield_fill.wav")
 sound_shield_empty = pygame.mixer.Sound("data/assets/sounds/shield_empty.wav")
 
+text_lines = []
+text_rects = []
+
 one_time_do_bullet_hit_flag = False
 
 # animations
@@ -58,6 +61,39 @@ def load_animations(screen, ai_settings):
 
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
+
+
+def load_credits(ai_settings):
+    global text_lines, text_rects
+    credit = """
+    Developers:
+        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila
+    
+    Assets:
+        Ship assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.
+        You can view and download them here: https://opengameart.org/content/space-ship-construction-kit.\n
+        Fire sound effect by "K.L.Jonasson", Winnipeg, Canada. Triki Minut Interactive www.trikiminut.com
+        You can view and download them here: https://opengameart.org/content/sci-fi-laser-fire-sfx.\n
+        Explosion sound effect by by "hosch"
+        You can view and download them here: https://opengameart.org/content/8-bit-sound-effects-2\n
+        Explosion animation effect by "Skorpio", licensed under CC-BY 3.0.
+        You can view and download them here: https://opengameart.org/content/sci-fi-effects\n
+        Heart Pickup sound by "Blender Foundation", licensed under CC-BY 3.0.
+        You can view and download them here: https://opengameart.org/content/life-pickup-yo-frankie\n
+        Damage sound by "TeamAlpha", licensed under CC-BY 3.0.
+        You can view and download them here: https://opengameart.org/content/8-bitnes-explosion-sound-effecs\n"""
+
+    split_lines = credit.split("\n")
+    font = pygame.font.Font(None, 24)
+    offset = 0
+    for line in split_lines:
+        text = font.render(line, True, (255, 255, 255))
+        text_rect = text.get_rect()
+        text_rect.x = 200
+        text_rect.y = 100 + offset
+        text_lines.append(text)
+        text_rects.append(text_rect)
+        offset += 20
 
 
 def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts, shields):
@@ -126,8 +162,16 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     health.init_health()
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg, screen_bg_2, cargoes,
-                  alien_bullets, health, hearts, shields):
+def run_credit_button(stats):
+    stats.credits_active = True
+
+
+def run_back_button(stats):
+    stats.credits_active = False
+
+
+def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, credits_button,
+                  back_button, screen_bg, screen_bg_2, cargoes, alien_bullets, health, hearts, shields):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -161,6 +205,14 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
 
     # Draw the play button.
     play_button.update()
+    credits_button.update()
+
+    if stats.credits_active:
+        back_button.update()
+        i = 0
+        for line in text_lines:
+            screen.blit(line, text_rects[i])
+            i += 1
 
     if stats.game_active:
         # Resetting the background when it leaves screen

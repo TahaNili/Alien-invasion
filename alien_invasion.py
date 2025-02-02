@@ -11,21 +11,6 @@ from src.input import Input
 
 
 def run_game():
-    # Credit for the assets
-    print("""
-    Art assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.  
-    You can view and download them here: [https://opengameart.org/content/space-ship-construction-kit].\n
-    Fire sound effect by "K.L.Jonasson", Winnipeg, Canada. Triki Minut Interactive www.trikiminut.com
-    You can view and download them here: [https://opengameart.org/content/sci-fi-laser-fire-sfx].\n
-    Explosion sound effect by by "hosch"
-    You can view and download them here: [https://opengameart.org/content/8-bit-sound-effects-2]\n
-    Explosion animation effect by "Skorpio", licensed under CC-BY 3.0.
-    You can view and download them here: [https://opengameart.org/content/sci-fi-effects]\n
-    Heart Pickup sound by "Blender Foundation", licensed under CC-BY 3.0.
-    You can view and download them here: [https://opengameart.org/content/life-pickup-yo-frankie]\n
-    Damage sound by "TeamAlpha", licensed under CC-BY 3.0.
-    You can view and download them here: [https://opengameart.org/content/8-bitnes-explosion-sound-effecs]\n
-    """)
     # Initialize pygame, settings, screen object and assets.
     pygame.init()
     ai_settings = Settings()
@@ -64,12 +49,37 @@ def run_game():
         foreground_color=(255, 255, 255),
         background_color=(0, 225, 0),
         border_width=0,
-        display_condition=lambda: not stats.game_active,
+        display_condition=lambda: not stats.game_active and not stats.credits_active,
         on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health))
+
+    credits_button = Button(
+        screen,
+        input,
+        position=(screen.get_rect().centerx - 100, screen.get_rect().centery + 100),
+        size=(200, 50),
+        text="Credits",
+        foreground_color=(255, 255, 255),
+        background_color=(0, 225, 0),
+        border_width=0,
+        display_condition=lambda: not stats.credits_active and not stats.game_active,
+        on_clicked=lambda: gf.run_credit_button(stats))
+
+    back_button = Button(
+        screen,
+        input,
+        position=(10, 50),
+        size=(200, 50),
+        text="Back",
+        foreground_color=(255, 255, 255),
+        background_color=(0, 225, 0),
+        border_width=0,
+        display_condition=lambda: stats.credits_active,
+        on_clicked=lambda: gf.run_back_button(stats))
 
     alien_spawn_counter = 0
 
     gf.load_animations(screen, ai_settings)
+    gf.load_credits(ai_settings)
 
     # Start the main loop for the game.
     while True:
@@ -85,8 +95,8 @@ def run_game():
         else:
             pygame.event.set_grab(False)
 
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, screen_bg,
-                         screen_bg_2, cargoes, alien_bullets, health, hearts, shields)
+        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, credits_button,
+                         back_button, screen_bg, screen_bg_2, cargoes, alien_bullets, health, hearts, shields)
 
         clock.tick(ai_settings.fps)
 

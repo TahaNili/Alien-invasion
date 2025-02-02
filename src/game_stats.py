@@ -9,6 +9,9 @@ class GameStats:
         # Start game in an inactive state.
         self.game_active = False
 
+        # Credits state.
+        self.credits_active = False
+
         self.ships_left = 0
         self.score = 0
 
