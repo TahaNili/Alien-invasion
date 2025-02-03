@@ -25,11 +25,11 @@ The foundation is set, but now it’s time to build something even better. If yo
     <th>Release</th>
   </tr>
   <tr>
-    <td>Vx.x.x</td>
+    <td>V1.2.0</td>
     <td>Feb 3, 2025</td>
     <td>
-      <a href="" target="_blank">
-        <img src="https://img.shields.io/badge/Release-Vx.x.x-7289da?logo=alienware&logoColor=green&color=violet" alt="Release Badge">
+      <a href="https://github.com/MatinAfzal/Alien-invasion/releases/tag/V1.2.0" target="_blank">
+        <img src="https://img.shields.io/badge/Release-V1.2.0-7289da?logo=alienware&logoColor=green&color=violet" alt="Release Badge">
       </a>
     </td>
   </tr>
