@@ -68,18 +68,19 @@ We appreciate your contributions and look forward to building something great.
 
 ## Project Setup
 
-- Clone this [repository](https://github.com/MatinAfzal/Alien-invasion) or download the [latest version](https://github.com/MatinAfzal/Alien-invasion/releases)
-- Make sure you have Python 3 or later installed. Then, install the dependencies:
-  
-```
-   pip install -r requirements.txt
-```
+- Clone this [repository](https://github.com/MatinAfzal/Alien-invasion) or download the [latest version](https://github.com/MatinAfzal/Alien-invasion/releases).
 
 - Next, navigate to the project directory:
 
 ```
    cd Alien-invasion
 ```
+
+- Make sure you have Python 3 or later installed. Then, install the dependencies:
+```
+   pip install -r requirements.txt
+```
+
 
 - Finally, run the game:
   
