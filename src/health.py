@@ -54,7 +54,7 @@ class Health:
         heart_size = 20
         heart_full = pygame.image.load('data/assets/hearts/full_heart.png')
         heart_empty = pygame.image.load('data/assets/hearts/empty_heart.png')
-        
+
         heart_full = pygame.transform.scale(heart_full, (heart_size, heart_size))
         heart_empty = pygame.transform.scale(heart_empty, (heart_size, heart_size))
         health_rect = self.screen.get_rect()

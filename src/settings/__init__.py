@@ -1,3 +1,87 @@
+"""."""
+
+from pathlib import Path
+
+import pygame
+
+pygame.init()
+
+type Color = tuple[int, int, int]
+
+BASE_DIR: Path = Path(__file__).parent.parent.parent
+ASSETS_DIR: Path = BASE_DIR / "data" / "assets"
+SOUNDS_DIR: Path = ASSETS_DIR / "sounds"
+
+FONT = pygame.font.Font(
+    BASE_DIR / "data" / "assets" / "fonts" / "sevenSegment.ttf",
+    48,
+)
+
+
+HEART_SPEED_FACTOR = 4
+
+
+# settings.py
+"""Module to store all settings for Alien Invasion"""
+
+# Clock
+FPS: float = 120.0
+DELTA_TIME: float = (1000.0 / FPS) / 10
+DEFAULT_ANIMATION_LATENCY: float = DELTA_TIME / 500
+
+# Screen settings
+SCREEN_WIDTH: int = 1200
+SCREEN_HEIGHT: int = 800
+BG_COLOR: Color = (225, 225, 255)
+
+# Ship settings
+SHIP_SPEED_FACTOR_X: float = 3.0
+SHIP_SPEED_FACTOR_Y: float = 3.0
+SHIP_LIMIT: int = 2
+
+# Bullet settings
+BULLET_SPEED_FACTOR: float = 10.0
+BULLET_WIDTH: int = 3
+BULLET_HEIGHT: int = 15
+BULLET_COLOR: tuple[int, int, int] = (60, 60, 60)
+BULLETS_ALLOWED: int = 5
+ALIEN_BULLET_SPEED_FACTOR: float = 5.0
+
+# Alien settings
+ALIEN_SPEED_FACTOR: float = 5.0
+CARGO_SPEED_FACTOR: float = 0.5
+FLEET_DROP_SPEED: int = 2
+CARGO_DROP_CHANCE: float = 0  # TODO: There is an interesting bug here
+ALIEN_FIRE_CHANCE: int = 100  # from 1000
+ALIEN_L2_FIRE_CHANCE: int = 200  # from 1000
+ALIEN_L2_HEALTH: int = 2
+ALIEN_L1_HEALTH: int = 1
+ALIEN_L2_SPAWN_CHANCE: int = 5
+
+# Drop down items setting
+GENERATE_HEART_CHANCE: int = 10  # from 1000
+GENERATE_SHIELD_CHANCE: int = 10  # from 1000
+SHIELD_TIME: int = 10  # in seconds
+
+# Game progression
+SPEEDUP_SCALE: float = 1.1
+SCORE_SCALE: float = 1.5
+
+ALIEN_POINTS: int = 50
+CARGO_POINTS: int = 100
+
+# Screen background settings
+BG_SCREEN_X: int = 0
+BG_SCREEN_Y: int = 0
+BG_SCREEN_2_X: int = 0
+BG_SCREEN_2_Y: int = -SCREEN_HEIGHT
+BG_SCREEN_SCROLL_SPEED: float = 0.2
+
+# Lives settings
+INIT_HEARTS: int = 5
+MAX_HEARTS: int = 5
+
+
 class Settings:
     """A class to store all settings for Alien Invasion"""
 
@@ -69,7 +153,6 @@ class Settings:
         # self.ship_speed_factor_x = 2.5
         # self.ship_speed_factor_y = 1.5
         # self.bullet_speed_factor = 3
-        self.heart_speed_factor = 4
         self.alien_speed_factor = 2
         self.cargo_speed_factor = 0.5
         self.cargo_drop_chance = 0

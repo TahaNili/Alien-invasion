@@ -1,36 +1,35 @@
+"""Module for managing and animating heart sprites that fall down the screen in the game."""
+
+import secrets
+from pathlib import Path
+
 import pygame
 from pygame.sprite import Sprite
-from random import randint
+
+from . import settings
+
+FULL_HEART_IMAGE_PATH: Path = settings.ASSETS_DIR / "hearts" / "full_heart.png"
+EMPTY_HEART_IMAGE_PATH: Path = settings.ASSETS_DIR / "hearts" / "empty_heart.png"
 
 
 class Heart(Sprite):
-    """A class to manage generated hearts."""
+    """A class to represent a heart that falls down the screen in the game."""
 
-    def __init__(self, ai_settings, screen):
-        super(Heart, self).__init__()
+    def __init__(self, screen: pygame.Surface) -> None:
+        """Initialize the heart's image, rect, and position."""
+        super().__init__()
+        self.screen: pygame.Surface = screen
+        self.speed_factor: float = settings.HEART_SPEED_FACTOR
 
-        self.ai_settings = ai_settings
-        self.screen = screen
-        self.image = pygame.image.load(r'data/assets/hearts/full_heart.png')
-        self.image = pygame.transform.scale(self.image, (25, 25))
-        self.rect = self.image.get_rect()
-        self.screen_rect = screen.get_rect()    
-        self.rect.centerx = randint(0, self.screen_rect.right)
+        self.image: pygame.Surface = pygame.transform.scale(pygame.image.load(FULL_HEART_IMAGE_PATH), (25, 25))
+        self.rect: pygame.Rect = self.image.get_rect()
+        self.rect.centerx = secrets.randbelow(self.screen.get_rect().right + 1)
         self.rect.top = 0
 
-        # Store the heart's position as a decimal value.
-        self.y = 0
+    def update(self) -> None:
+        """Update the heart's position to move it down the screen."""
+        self.rect.y += int(self.speed_factor * settings.DELTA_TIME)
 
-        self.speed_factor = self.ai_settings.heart_speed_factor
-
-    def update(self):
-        """Move the heart down the screen."""
-        # Update the decimal position of the heart.
-        self.y += self.speed_factor * self.ai_settings.delta_time
-
-        # Update the rect position
-        self.rect.y = self.y
-
-    def draw_heart(self):
-        """Draw the heart to the screen."""
+    def draw(self) -> None:
+        """Draw the heart onto the screen."""
         self.screen.blit(self.image, self.rect)

@@ -1,21 +1,26 @@
 import sys
-import pygame
+from random import choice, randint
 from time import sleep
-from random import randint, choice
-from src.bullet import ShipBullet, AlienBullet
-from src.alien import CargoAlien, AlienL1, AlienL2
-from src.heart import Heart
+
+import pygame
+
+from src.alien import AlienL1, AlienL2, CargoAlien
 from src.animation import Animation
+from src.bullet import AlienBullet, ShipBullet
+from src.heart import Heart
 from src.shield import Shield
+
+from . import settings
+from .game_stats import GameStats
 
 pygame.mixer.init()
 
-sound_fire = pygame.mixer.Sound("data/assets/sounds/fire.ogg")
-sound_explosion = pygame.mixer.Sound("data/assets/sounds/explosion.ogg")
-sound_life = pygame.mixer.Sound("data/assets/sounds/life_pickup.flac")
-sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
-sound_shield_fill = pygame.mixer.Sound("data/assets/sounds/shield_fill.wav")
-sound_shield_empty = pygame.mixer.Sound("data/assets/sounds/shield_empty.wav")
+sound_fire = pygame.mixer.Sound(settings.SOUNDS_DIR / "fire.ogg")
+sound_explosion = pygame.mixer.Sound(settings.SOUNDS_DIR / "explosion.ogg")
+sound_life = pygame.mixer.Sound(settings.SOUNDS_DIR / "life_pickup.flac")
+sound_damage = pygame.mixer.Sound(settings.SOUNDS_DIR / "damage.wav")
+sound_shield_fill = pygame.mixer.Sound(settings.SOUNDS_DIR / "shield_fill.wav")
+sound_shield_empty = pygame.mixer.Sound(settings.SOUNDS_DIR / "shield_empty.wav")
 
 text_lines = []
 text_rects = []
@@ -28,36 +33,18 @@ animations = []
 #  index 1 -> shield animation
 
 
-def load_sounds():
-    global sound_fire, sound_explosion, sound_life, sound_damage, sound_shield_fill, sound_shield_empty
-    sound_fire = pygame.mixer.Sound('data/assets/sounds/fire.ogg')
-    sound_explosion = pygame.mixer.Sound('data/assets/sounds/explosion.ogg')
-    sound_life = pygame.mixer.Sound("data/assets/sounds/life_pickup.flac")
-    sound_damage = pygame.mixer.Sound("data/assets/sounds/damage.wav")
-    sound_shield_fill = pygame.mixer.Sound("data/assets/sounds/shield_fill.wav")
-    sound_shield_empty = pygame.mixer.Sound("data/assets/sounds/shield_empty.wav")
-
-
-def load_animations(screen, ai_settings):
+def load_animations(screen: pygame.Surface) -> None:
     global animations
     # animation frames
     fire_explosion_animation = Animation(
         "data/assets/animations/explosion4",
         15,
         screen,
-        ai_settings.default_animation_latency,
-        4
+        settings.DEFAULT_ANIMATION_LATENCY,
+        4,
     )
 
-    shield_animation = Animation(
-        "data/assets/animations/shield3",
-        11,
-        screen,
-        0,
-        2.6,
-        False,
-        30
-    )
+    shield_animation = Animation("data/assets/animations/shield3", 11, screen, 0, 2.6, False, 30)
 
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
@@ -68,7 +55,7 @@ def load_credits():
     credit = """
     Developers:
         MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila
-    
+
     Assets:
         Ship assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.
         You can view and download them here: https://opengameart.org/content/space-ship-construction-kit.\n
@@ -96,10 +83,33 @@ def load_credits():
         offset += 20
 
 
-def update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health, hearts,
-                        shields):
+def update_game_sprites(
+    ai_settings,
+    screen,
+    stats,
+    sb,
+    ship,
+    aliens,
+    bullets,
+    cargoes,
+    alien_bullets,
+    health,
+    hearts,
+    shields,
+):
     ship.update()
-    update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health)
+    update_bullets(
+        ai_settings,
+        screen,
+        stats,
+        sb,
+        ship,
+        aliens,
+        bullets,
+        cargoes,
+        alien_bullets,
+        health,
+    )
     update_aliens(ai_settings, stats, ship, aliens, cargoes, health)
     update_hearts(ship, health, hearts)
     update_shields(ship, shields, health)
@@ -148,7 +158,7 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     # Hide the mouse cursor.
     pygame.mouse.set_visible(False)
     # Reset the game statistics.
-    stats.reset_stats()
+    stats.reset()
     stats.game_active = True
 
     # Empty the list of aliens and bullets.
@@ -171,8 +181,25 @@ def run_back_button(stats):
     stats.credits_active = False
 
 
-def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, credits_button,
-                  back_button, screen_bg, screen_bg_2, cargoes, alien_bullets, health, hearts, shields):
+def update_screen(
+    ai_settings,
+    screen,
+    stats,
+    sb,
+    ship,
+    aliens,
+    bullets,
+    play_button,
+    credits_button,
+    back_button,
+    screen_bg,
+    screen_bg_2,
+    cargoes,
+    alien_bullets,
+    health,
+    hearts,
+    shields,
+):
     """Update image on the screen and flip to the new screen."""
     # Redraw the screen during each pass through the loop
     screen.fill(ai_settings.bg_color)
@@ -183,16 +210,16 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     for bullet in bullets.sprites():
         # TODO: There is an interesting bug in here!
         try:
-            bullet.draw_bullet()
+            bullet.draw()
         except:
             # print("HERE")
             pass
-    
+
     for bullet in alien_bullets.sprites():
-        bullet.draw_bullet()
+        bullet.draw()
 
     for heart in hearts.sprites():
-        heart.draw_heart()
+        heart.draw()
 
     for shield in shields.sprites():
         shield.draw()
@@ -203,7 +230,7 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     health.show_health()
 
     # Draw the score information.
-    sb.show_score()
+    sb.show()
 
     # Draw the play button.
     play_button.update()
@@ -234,16 +261,27 @@ def update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_bu
     pygame.display.flip()
 
 
-def fire_bullet(ai_settings, screen, ship, bullets):
+def fire_bullet(ai_settings, screen, ship, bullets) -> None:
     """Fire a bullet if limit not reached yet."""
     # Create a new bullet and add it to the bullets group.
-    if len(bullets) < ai_settings.bullets_allowed:
+    if len(bullets) < settings.BULLETS_ALLOWED:
         new_bullet = ShipBullet(ai_settings, screen, ship)
         bullets.add(new_bullet)
         sound_fire.play()
 
 
-def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets, health):
+def update_bullets(
+    ai_settings,
+    screen,
+    stats,
+    sb,
+    ship,
+    aliens,
+    bullets,
+    cargoes,
+    alien_bullets,
+    health,
+):
     """Update position of bullets and get rid of old bullets."""
     bullets.update()
     alien_bullets.update()
@@ -253,11 +291,25 @@ def update_bullets(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoe
     all_bullets.add(alien_bullets.copy())
 
     for bullet in all_bullets:
-        if (bullet.rect.bottom <= 0 or bullet.rect.top >= ai_settings.screen_height or bullet.rect.left < 0
-                or bullet.rect.right > ai_settings.screen_width):
+        if (
+            bullet.rect.bottom <= 0
+            or bullet.rect.top >= ai_settings.screen_height
+            or bullet.rect.left < 0
+            or bullet.rect.right > ai_settings.screen_width
+        ):
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, animations)
+    check_bullet_alien_collisions(
+        ai_settings,
+        screen,
+        stats,
+        sb,
+        ship,
+        aliens,
+        bullets,
+        cargoes,
+        animations,
+    )
     check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, aliens, alien_bullets, cargoes)
 
 
@@ -281,21 +333,21 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
                     aliens.remove(alien)
 
             stats.score += ai_settings.alien_points * len(aliens)
-            sb.prep_score()
+            sb.update()
             sound_explosion.play()
 
     # if we hit cargo:
     if collisions_2:
         for _ in collisions_2.values():
             stats.score -= ai_settings.cargo_points
-            sb.prep_score()
+            sb.update()
             sound_explosion.play()
 
     # if cargo hit alien:
     if collisions_3:
         for _ in collisions_3.values():
             stats.score -= ai_settings.cargo_points
-            sb.prep_score()
+            sb.update()
             sound_explosion.play()
 
 
@@ -312,7 +364,7 @@ def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, alien
 
 def create_alien(ai_settings, screen):
     """Create an alien and place it in the row."""
-    if randint(1, 100) <= ai_settings.alien_l2_spawn_chance: 
+    if randint(1, 100) <= ai_settings.alien_l2_spawn_chance:
         alien = AlienL2(ai_settings, screen)
     else:
         alien = AlienL1(ai_settings, screen)
@@ -332,20 +384,20 @@ def spawn_random_alien(ai_settings, screen, aliens):
     screen_height = ai_settings.screen_height
 
     # Select a random direction from which the alien will spawn
-    direction = choice(['top', 'bottom', 'left', 'right'])
+    direction = choice(["top", "bottom", "left", "right"])
     x, y = (0, 0)
-    if direction == 'top':  # From the top edge
+    if direction == "top":  # From the top edge
         x = randint(0, screen_width)  # Random x-coordinate along the top edge
         y = -50  # Just above the screen
-    elif direction == 'bottom':  
-        x = randint(0, screen_width)  
-        y = screen_height + 50  
-    elif direction == 'left':  
-        x = -50 
-        y = randint(0, screen_height)  
-    elif direction == 'right':  
-        x = screen_width + 50 
-        y = randint(0, screen_height)  
+    elif direction == "bottom":
+        x = randint(0, screen_width)
+        y = screen_height + 50
+    elif direction == "left":
+        x = -50
+        y = randint(0, screen_height)
+    elif direction == "right":
+        x = screen_width + 50
+        y = randint(0, screen_height)
 
     # Create the alien and set its initial position
     alien = create_alien(ai_settings, screen)
@@ -406,16 +458,20 @@ def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
                     bullet = AlienBullet(ai_settings, screen, alien, ship)
                     alien_bullets.add(bullet)
             elif type(alien) is AlienL2:
-                if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:  
+                if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:
                     bullet = AlienBullet(ai_settings, screen, alien, ship)
                     alien_bullets.add(bullet)
 
 
-def generate_heart(ai_settings, stats, screen, heart_group):
-    if stats.game_active:
-        if randint(1, 1000) <= ai_settings.generate_heart_chance:  
-            heart = Heart(ai_settings, screen)
-            heart_group.add(heart)
+def generate_heart(
+    stats: GameStats,
+    screen: pygame.Surface,
+    heart_group: pygame.sprite.Group,
+) -> None:
+    """."""
+    if stats.game_active and randint(1, 1000) <= settings.GENERATE_HEART_CHANCE:
+        heart = Heart(screen)
+        heart_group.add(heart)
 
 
 def update_hearts(ship, health, hearts):
@@ -435,7 +491,7 @@ def update_hearts(ship, health, hearts):
 def generate_shields(screen, ai_settings, stats, shield_group):
     if stats.game_active:
         if randint(1, 1000) <= ai_settings.generate_shield_chance:
-            shield = Shield(ai_settings, screen)
+            shield = Shield(screen)
             shield_group.add(shield)
 
 
@@ -457,6 +513,10 @@ def update_shields(ship, shields, health):
 def remove_offscreen_aliens(aliens, screen_width, screen_height):
     """"""
     for alien in aliens.copy():
-        if (alien.rect.right < 0 or alien.rect.left > screen_width or
-                alien.rect.bottom < 0 or alien.rect.top > screen_height):
+        if (
+            alien.rect.right < 0
+            or alien.rect.left > screen_width
+            or alien.rect.bottom < 0
+            or alien.rect.top > screen_height
+        ):
             aliens.remove(alien)

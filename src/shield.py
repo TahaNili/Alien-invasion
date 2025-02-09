@@ -1,28 +1,28 @@
+import secrets
+from dataclasses import dataclass
+
 import pygame.image
+from pygame import Rect
 from pygame.sprite import Sprite
-from random import randint
+
+from . import settings
 
 
+@dataclass
 class Shield(Sprite):
-    def __init__(self, ai_settings, screen):
-        super(Shield, self).__init__()
+    screen: pygame.Surface
+    shield_image = pygame.transform.scale(
+        pygame.image.load("data/assets/shield/shield.png"),
+        (25, 25),
+    )
 
-        self.ai_settings = ai_settings
-        self.screen = screen
-        self.shield_image = pygame.image.load("data/assets/shield/shield.png")
-        self.shield_image = pygame.transform.scale(self.shield_image, (25, 25))
-        self.rect = self.shield_image.get_rect()
-        self.rect.centerx = randint(0, self.ai_settings.screen_width)
+    def __post_init__(self) -> None:
+        self.rect: Rect = self.shield_image.get_rect()
+        self.rect.centerx = secrets.randbelow(settings.SCREEN_WIDTH + 1)
         self.rect.top = 0
 
-        # Store the heart's position as a decimal value.
-        self.y = 0
-
-        self.speed_factor = self.ai_settings.heart_speed_factor
-
     def update(self):
-        self.y += self.speed_factor * self.ai_settings.delta_time
-        self.rect.y = self.y
+        self.rect.y += int(settings.HEART_SPEED_FACTOR * settings.DELTA_TIME)
 
     def draw(self):
         self.screen.blit(self.shield_image, self.rect)
