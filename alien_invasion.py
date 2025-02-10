@@ -1,37 +1,42 @@
 import pygame
 from pygame.sprite import Group
+
 import src.game_functions as gf
-from src.game_stats import GameStats
-from src.settings import Settings
-from src.ship import Ship
 from src.button import Button
-from src.scoreboard import Scoreboard
+from src.entities.ui.elements.scoreboard import Scoreboard
+from src.game_functions import generate_heart
+from src.game_stats import GameStats
 from src.health import Health
 from src.input import Input
+from src.settings import ASSETS_DIR, SCREEN_HEIGHT, SCREEN_WIDTH, SOUNDS_DIR, Settings
+from src.ship import Ship
 
 
 def run_game():
-    # Initialize pygame, settings, screen object and assets.
+    print(SOUNDS_DIR / "fire.ogg")
     pygame.init()
     ai_settings = Settings()
     input = Input()
-    screen = pygame.display.set_mode((ai_settings.screen_width, ai_settings.screen_height))
+
+    screen: pygame.Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Alien Invasion")
-    screen_bg = pygame.image.load("data/assets/images/space3.png")
-    screen_bg = pygame.transform.scale(screen_bg, (ai_settings.screen_width*2, ai_settings.screen_width*2))
-    screen_bg_2 = pygame.transform.rotate(screen_bg, 180)
+    screen_bg: pygame.Surface = pygame.image.load(ASSETS_DIR / "images" / "space3.png")
+    screen_bg = pygame.transform.scale(screen_bg, (SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))
+
+    screen_bg_2: pygame.Surface = pygame.transform.rotate(screen_bg, 180)
+
     clock = pygame.time.Clock()
     alien_spawn_timer = pygame.time.get_ticks()
 
     # Create an instance to store game statistics and create scoreboard.
-    stats = GameStats(ai_settings)
-    sb = Scoreboard(ai_settings, screen, stats)
+    stats = GameStats()
+    sb = Scoreboard(screen, stats)
 
-    health = Health(ai_settings, screen)
-    health.init_health()
+    health = Health(screen)
+    health.reset()
 
     # Make a ship, and a group for each game sprite.
-    ship = Ship(ai_settings, input, screen)
+    ship = Ship(input, screen)
     bullets = Group()
     aliens = Group()
     cargoes = Group()
@@ -43,26 +48,34 @@ def run_game():
     play_button = Button(
         screen,
         input,
-        position=(screen.get_rect().centerx - 100, screen.get_rect().centery + 25),
+        position=(
+            screen.get_rect().centerx - 100,
+            screen.get_rect().centery + 25,
+        ),
         size=(200, 50),
         text="Play",
         foreground_color=(255, 255, 255),
         background_color=(0, 225, 0),
         border_width=0,
         display_condition=lambda: not stats.game_active and not stats.credits_active,
-        on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health))
+        on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health),
+    )
 
     credits_button = Button(
         screen,
         input,
-        position=(screen.get_rect().centerx - 100, screen.get_rect().centery + 100),
+        position=(
+            screen.get_rect().centerx - 100,
+            screen.get_rect().centery + 100,
+        ),
         size=(200, 50),
         text="Credits",
         foreground_color=(255, 255, 255),
         background_color=(0, 225, 0),
         border_width=0,
         display_condition=lambda: not stats.credits_active and not stats.game_active,
-        on_clicked=lambda: gf.run_credit_button(stats))
+        on_clicked=lambda: gf.run_credit_button(stats),
+    )
 
     back_button = Button(
         screen,
@@ -74,11 +87,12 @@ def run_game():
         background_color=(0, 225, 0),
         border_width=0,
         display_condition=lambda: stats.credits_active,
-        on_clicked=lambda: gf.run_back_button(stats))
+        on_clicked=lambda: gf.run_back_button(stats),
+    )
 
     alien_spawn_counter = 0
 
-    gf.load_animations(screen, ai_settings)
+    gf.load_animations(screen)
     gf.load_credits()
 
     # Start the main loop for the game.
@@ -90,13 +104,42 @@ def run_game():
             pygame.event.set_grab(True)
 
             # Update game sprites
-            gf.update_game_sprites(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, alien_bullets,
-                                   health, hearts, shields)
+            gf.update_game_sprites(
+                ai_settings,
+                screen,
+                stats,
+                sb,
+                ship,
+                aliens,
+                bullets,
+                cargoes,
+                alien_bullets,
+                health,
+                hearts,
+                shields,
+            )
         else:
             pygame.event.set_grab(False)
 
-        gf.update_screen(ai_settings, screen, stats, sb, ship, aliens, bullets, play_button, credits_button,
-                         back_button, screen_bg, screen_bg_2, cargoes, alien_bullets, health, hearts, shields)
+        gf.update_screen(
+            ai_settings,
+            screen,
+            stats,
+            sb,
+            ship,
+            aliens,
+            bullets,
+            play_button,
+            credits_button,
+            back_button,
+            screen_bg,
+            screen_bg_2,
+            cargoes,
+            alien_bullets,
+            health,
+            hearts,
+            shields,
+        )
 
         clock.tick(ai_settings.fps)
 
@@ -106,7 +149,7 @@ def run_game():
         if current_time - alien_spawn_timer > 100:
             gf.alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship)
 
-            gf.generate_heart(ai_settings, stats, screen, hearts)
+            generate_heart(stats, screen, hearts)
             gf.generate_shields(screen, ai_settings, stats, shields)
 
             if alien_spawn_counter % 10 == 0:

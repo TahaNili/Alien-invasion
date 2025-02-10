@@ -13,7 +13,7 @@ class Bullet(ABC, Sprite):
         self.screen = screen
 
         # Load and scale bullet image
-        self.image = pygame.image.load(r'data/assets/sprites/golden_bullet.png')
+        self.image = pygame.image.load(r"data/assets/sprites/golden_bullet.png")
         self.image_size = self.image.get_size()
         self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.03, self.image_size[1] * 0.03))
         self.rect = self.image.get_rect()
@@ -29,7 +29,6 @@ class Bullet(ABC, Sprite):
         self.speed_factor = speed_factor
 
     def update(self):
-
         """Move the bullet with ship's or alien's angle"""
 
         # Update the decimal position of the bullet.
@@ -41,7 +40,7 @@ class Bullet(ABC, Sprite):
         self.rect.x = self.x
         self.rect.y = self.y
 
-    def draw_bullet(self):
+    def draw(self):
         """Draw the bullet to the screen."""
         rotated_image = pygame.transform.rotate(self.image, math.degrees(self.angle))
         rotated_rec = rotated_image.get_rect(center=(self.rect.centerx, self.rect.centery))
@@ -71,18 +70,14 @@ class AlienBullet(Bullet):
 
     def __init__(self, ai_settings, screen, alien, ship):
         super().__init__(
-            ai_settings,
-            screen,
-            ship,
-            alien,
-            ai_settings.bullet_color,
-            ai_settings.alien_bullet_speed_factor)
+            ai_settings, screen, ship, alien, ai_settings.bullet_color, ai_settings.alien_bullet_speed_factor
+        )
 
     def set_angle(self, source, target):
         dx = target.rect.centerx - source.rect.centerx
         dy = target.rect.centery - source.rect.centery
 
-        angle = math.atan2(-dy, dx) - 90  
+        angle = math.atan2(-dy, dx) - 90
 
         x = source.rect.centerx
         y = source.rect.centery
