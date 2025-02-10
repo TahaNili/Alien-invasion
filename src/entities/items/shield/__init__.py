@@ -3,8 +3,6 @@
 import secrets
 
 import pygame
-from pygame import Rect
-from pygame.sprite import Sprite
 
 from src import settings
 
@@ -12,7 +10,7 @@ GENERATE_SHIELD_CHANCE: int = 10
 SHIELD_TIME: int = 10
 
 
-class Shield(Sprite):
+class Shield(pygame.sprite.Sprite):
     """A shield power-up that spawns randomly and moves downward."""
 
     def __init__(self, screen: pygame.Surface) -> None:
@@ -23,7 +21,7 @@ class Shield(Sprite):
             pygame.image.load("data/assets/shield/shield.png"),
             (25, 25),
         )
-        self.rect: Rect = self.image.get_rect()
+        self.rect: pygame.Rect = self.image.get_rect()
         self.rect.centerx = secrets.randbelow(settings.SCREEN_WIDTH - self.rect.width)
         self.rect.top = 0
 

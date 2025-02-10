@@ -5,10 +5,12 @@ from dataclasses import dataclass
 
 import pygame
 
-from src.entities.items.heart import INIT_HEARTS, MAX_HEARTS
 from src.entities.items.shield import SHIELD_TIME
 
 from .game_stats import GameStats
+
+INIT_HEARTS: int = 5
+MAX_HEARTS: int = 5
 
 
 @dataclass

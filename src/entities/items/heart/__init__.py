@@ -4,7 +4,6 @@ import secrets
 from pathlib import Path
 
 import pygame
-from pygame.sprite import Sprite
 
 from src import settings
 
@@ -12,11 +11,9 @@ FULL_HEART_IMAGE_PATH: Path = settings.ASSETS_DIR / "hearts" / "full_heart.png"
 EMPTY_HEART_IMAGE_PATH: Path = settings.ASSETS_DIR / "hearts" / "empty_heart.png"
 
 GENERATE_HEART_CHANCE: int = 10
-INIT_HEARTS: int = 5
-MAX_HEARTS: int = 5
 
 
-class Heart(Sprite):
+class Heart(pygame.sprite.Sprite):
     """A class to represent a heart that falls down the screen in the game."""
 
     def __init__(self, screen: pygame.Surface) -> None:

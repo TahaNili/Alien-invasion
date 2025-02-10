@@ -3,11 +3,11 @@ from pygame.sprite import Group
 
 import src.game_functions as gf
 from src.button import Button
+from src.entities.ui.elements.scoreboard import Scoreboard
 from src.game_functions import generate_heart
 from src.game_stats import GameStats
 from src.health import Health
 from src.input import Input
-from src.scoreboard import Scoreboard
 from src.settings import ASSETS_DIR, SCREEN_HEIGHT, SCREEN_WIDTH, SOUNDS_DIR, Settings
 from src.ship import Ship
 
