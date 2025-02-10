@@ -60,8 +60,6 @@ ALIEN_L2_SPAWN_CHANCE: int = 5
 
 # Drop down items setting
 GENERATE_HEART_CHANCE: int = 10  # from 1000
-GENERATE_SHIELD_CHANCE: int = 10  # from 1000
-SHIELD_TIME: int = 10  # in seconds
 
 # Game progression
 SPEEDUP_SCALE: float = 1.1
@@ -123,8 +121,6 @@ class Settings:
 
         # Drop down items setting
         self.generate_heart_chance = 10  # from 1000
-        self.generate_shield_chance = 10  # from 1000
-        self.shield_time = 10  # in seconds
 
         # How quickly the game speeds up
         self.speedup_scale = 1.1

@@ -12,6 +12,7 @@ from src.shield import Shield
 
 from . import settings
 from .game_stats import GameStats
+from .shield import GENERATE_SHIELD_CHANCE
 
 pygame.mixer.init()
 
@@ -170,7 +171,7 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     ship.center_ship()
 
     # Make health full
-    health.init_health()
+    health.reset()
 
 
 def run_credit_button(stats):
@@ -227,7 +228,7 @@ def update_screen(
     ship.bltime()
     aliens.draw(screen)
     cargoes.draw(screen)
-    health.show_health()
+    health.draw()
 
     # Draw the score information.
     sb.show()
@@ -359,7 +360,7 @@ def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, alien
     if collisions:
         sound_damage.play()
         alien_bullets.remove(collisions)
-        health.decrease_health(stats)
+        health.decrease(stats)
 
 
 def create_alien(ai_settings, screen):
@@ -439,13 +440,13 @@ def update_aliens(ai_settings, stats, ship, aliens, cargoes, health):
     if check_collideany_ship_alien:
         sound_explosion.play()
         aliens.remove(check_collideany_ship_alien)
-        health.decrease_health(stats)
+        health.decrease(stats)
 
     check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens)
     if check_collideany_ship_cargoes:
         sound_explosion.play()
         aliens.remove(check_collideany_ship_cargoes)
-        health.decrease_health(stats)
+        health.decrease(stats)
 
     remove_offscreen_aliens(aliens, ai_settings.screen_width, ai_settings.screen_height)
 
@@ -481,7 +482,7 @@ def update_hearts(ship, health, hearts):
     if check_collideany_ship_hearts:
         sound_life.play()
         hearts.remove(check_collideany_ship_hearts)
-        health.increase_health()
+        health.increase()
 
     for heart in hearts.copy():
         if heart.rect.bottom <= 0:
@@ -490,7 +491,7 @@ def update_hearts(ship, health, hearts):
 
 def generate_shields(screen, ai_settings, stats, shield_group):
     if stats.game_active:
-        if randint(1, 1000) <= ai_settings.generate_shield_chance:
+        if randint(1, 1000) <= GENERATE_SHIELD_CHANCE:
             shield = Shield(screen)
             shield_group.add(shield)
 
@@ -500,7 +501,7 @@ def update_shields(ship, shields, health):
 
     check_collideany_ship_shields = pygame.sprite.spritecollideany(ship, shields)
     if check_collideany_ship_shields:
-        health.freez()  # freezing health bar.
+        health.activate_shield()  # freezing health bar.
         sound_shield_fill.play()
         animations[1].set_visibility(True, True, 10, sound_shield_empty)
         shields.remove(check_collideany_ship_shields)

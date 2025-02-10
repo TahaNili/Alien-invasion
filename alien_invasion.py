@@ -32,8 +32,8 @@ def run_game():
     stats = GameStats()
     sb = Scoreboard(screen, stats)
 
-    health = Health(ai_settings, screen)
-    health.init_health()
+    health = Health(screen)
+    health.reset()
 
     # Make a ship, and a group for each game sprite.
     ship = Ship(input, screen)
