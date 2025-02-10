@@ -58,9 +58,6 @@ ALIEN_L2_HEALTH: int = 2
 ALIEN_L1_HEALTH: int = 1
 ALIEN_L2_SPAWN_CHANCE: int = 5
 
-# Drop down items setting
-GENERATE_HEART_CHANCE: int = 10  # from 1000
-
 # Game progression
 SPEEDUP_SCALE: float = 1.1
 SCORE_SCALE: float = 1.5
@@ -74,10 +71,6 @@ BG_SCREEN_Y: int = 0
 BG_SCREEN_2_X: int = 0
 BG_SCREEN_2_Y: int = -SCREEN_HEIGHT
 BG_SCREEN_SCROLL_SPEED: float = 0.2
-
-# Lives settings
-INIT_HEARTS: int = 5
-MAX_HEARTS: int = 5
 
 
 class Settings:
@@ -119,9 +112,6 @@ class Settings:
         self.alien_l1_health = 1
         self.alien_l2_spawn_chance = 5
 
-        # Drop down items setting
-        self.generate_heart_chance = 10  # from 1000
-
         # How quickly the game speeds up
         self.speedup_scale = 1.1
 
@@ -139,10 +129,6 @@ class Settings:
         self.bg_screen_2_x = 0
         self.bg_screen_2_y = -self.screen_height
         self.bg_screen_scroll_speed = 0.2
-
-        # lives settings.
-        self.init_hearts = 5
-        self.max_hearts = 5
 
     def initialize_dynamic_settings(self):
         """Increase speed settings and alien point values."""

@@ -5,9 +5,10 @@ from dataclasses import dataclass
 
 import pygame
 
-from . import settings
+from src.entities.items.heart import INIT_HEARTS, MAX_HEARTS
+from src.entities.items.shield import SHIELD_TIME
+
 from .game_stats import GameStats
-from .shield import SHIELD_TIME
 
 
 @dataclass
@@ -15,21 +16,21 @@ class Health:
     """Handles ship health and shields."""
 
     screen: pygame.Surface
-    current_hearts: int = settings.INIT_HEARTS
+    current_hearts: int = INIT_HEARTS
     freeze_flag: bool = False
     freeze_time: float = 0
 
     def reset(self) -> None:
         """Reset health to initial value."""
-        self.current_hearts = settings.INIT_HEARTS
+        self.current_hearts = INIT_HEARTS
 
     def full(self) -> None:
         """Set health to maximum."""
-        self.current_hearts = settings.MAX_HEARTS
+        self.current_hearts = MAX_HEARTS
 
     def increase(self) -> None:
         """Increase health by one if not at max."""
-        if self.current_hearts < settings.MAX_HEARTS:
+        if self.current_hearts < MAX_HEARTS:
             self.current_hearts += 1
 
     def decrease(self, stats: GameStats) -> None:
@@ -50,13 +51,15 @@ class Health:
         """Draw health bar in the top-left corner."""
         heart_size: tuple[int, int] = (20, 20)
         full_heart: pygame.Surface = pygame.transform.scale(
-            pygame.image.load("data/assets/hearts/full_heart.png"), heart_size
+            pygame.image.load("data/assets/hearts/full_heart.png"),
+            heart_size,
         )
         empty_heart: pygame.Surface = pygame.transform.scale(
-            pygame.image.load("data/assets/hearts/empty_heart.png"), heart_size
+            pygame.image.load("data/assets/hearts/empty_heart.png"),
+            heart_size,
         )
 
         rect: pygame.Rect = self.screen.get_rect(topleft=(20, 20))
-        for i in range(settings.MAX_HEARTS):
+        for i in range(MAX_HEARTS):
             self.screen.blit(full_heart if i < self.current_hearts else empty_heart, rect)
             rect.x += 25

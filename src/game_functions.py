@@ -7,12 +7,11 @@ import pygame
 from src.alien import AlienL1, AlienL2, CargoAlien
 from src.animation import Animation
 from src.bullet import AlienBullet, ShipBullet
-from src.heart import Heart
-from src.shield import Shield
+from src.entities.items.heart import GENERATE_HEART_CHANCE, Heart
+from src.entities.items.shield import GENERATE_SHIELD_CHANCE, Shield
 
 from . import settings
 from .game_stats import GameStats
-from .shield import GENERATE_SHIELD_CHANCE
 
 pygame.mixer.init()
 
@@ -470,7 +469,7 @@ def generate_heart(
     heart_group: pygame.sprite.Group,
 ) -> None:
     """."""
-    if stats.game_active and randint(1, 1000) <= settings.GENERATE_HEART_CHANCE:
+    if stats.game_active and randint(1, 1000) <= GENERATE_HEART_CHANCE:
         heart = Heart(screen)
         heart_group.add(heart)
 

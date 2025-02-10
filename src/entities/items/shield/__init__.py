@@ -6,7 +6,7 @@ import pygame
 from pygame import Rect
 from pygame.sprite import Sprite
 
-from . import settings
+from src import settings
 
 GENERATE_SHIELD_CHANCE: int = 10
 SHIELD_TIME: int = 10
