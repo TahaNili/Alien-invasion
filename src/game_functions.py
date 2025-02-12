@@ -147,7 +147,7 @@ def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
 
     if input.is_mouse_button_pressed(0):
         if stats.game_active:
-            fire_bullet(ai_settings, screen, ship, bullets)
+            fire_bullet(ship, bullets)
 
 
 def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
@@ -261,11 +261,11 @@ def update_screen(
     pygame.display.flip()
 
 
-def fire_bullet(ai_settings, screen, ship, bullets) -> None:
+def fire_bullet(ship, bullets) -> None:
     """Fire a bullet if limit not reached yet."""
     # Create a new bullet and add it to the bullets group.
     if len(bullets) < settings.BULLETS_ALLOWED:
-        new_bullet = ShipBullet(ai_settings, screen, ship)
+        new_bullet = ShipBullet(ship)
         bullets.add(new_bullet)
         sound_fire.play()
 
@@ -455,11 +455,11 @@ def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
         for alien in aliens.sprites():
             if type(alien) is AlienL1:
                 if randint(1, 1000) <= ai_settings.alien_fire_chance:
-                    bullet = AlienBullet(ai_settings, screen, alien, ship)
+                    bullet = AlienBullet(alien, ship)
                     alien_bullets.add(bullet)
             elif type(alien) is AlienL2:
                 if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:
-                    bullet = AlienBullet(ai_settings, screen, alien, ship)
+                    bullet = AlienBullet(alien, ship)
                     alien_bullets.add(bullet)
 
 
@@ -491,7 +491,7 @@ def update_hearts(ship, health, hearts):
 def generate_shields(screen, ai_settings, stats, shield_group):
     if stats.game_active:
         if randint(1, 1000) <= GENERATE_SHIELD_CHANCE:
-            shield = Shield(screen)
+            shield = Shield()
             shield_group.add(shield)
 
 

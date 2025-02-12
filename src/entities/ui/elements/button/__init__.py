@@ -1,90 +1,140 @@
-"""Define a customizable button class for Pygame with hover and click effects."""
+"""
+Implement a button class for a Pygame-based UI.
+
+Provides a simple button with elevation, hover effect, and click handling.
+"""
+
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from enum import StrEnum
 
 import pygame
-from pygame.locals import MOUSEBUTTONDOWN
+
+from src import settings
 
 
-class Button:
-    """Represents a clickable button with hover effects."""
+class BtnColors(StrEnum):
+    """Enumeration for button colors used in the UI."""
 
-    def __init__(
-        self,
-        screen: pygame.Surface,
-        position: tuple[int, int],
-        size: tuple[int, int],
-        text: str,
-        font: pygame.font.Font = None,
-        fg_color: tuple[int, int, int] = (255, 255, 255),
-        bg_color: tuple[int, int, int] = (0, 0, 0),
-        border_width: int = 1,
-        border_color: tuple[int, int, int] = (255, 255, 255),
-        action: callable[[], None] | None = None,
-        hover_color_factor: float = 1.2,
-    ) -> None:
-        """Initialize the button.
+    TOP_COLOR = "#b5e48c"
+    BOTTOM_COLOR = "#52b69a"
+    TEXT_COLOR = "#184e77"
+    HOVER_COLOR = "#99d98c"
 
-        :param screen: The Pygame screen where the button will be drawn.
-        :param position: A tuple (x, y) for the button's position.
-        :param size: A tuple (width, height) for the button's size.
-        :param text: The text displayed on the button.
-        :param font: Font for the text (optional).
-        :param fg_color: Foreground (text) color.
-        :param bg_color: Background color of the button.
-        :param border_width: Width of the button's border.
-        :param border_color: Color of the button's border.
-        :param action: Function to be called when the button is clicked.
-        :param hover_color_factor: Factor to change the background color on hover.
+
+# Initial elevation value for button
+ELEVATION_INIT_VALUE = 6
+
+
+@dataclass
+class ButtonState:
+    """Manage the state of the button including press and elevation."""
+
+    elevation: int = field(default=ELEVATION_INIT_VALUE, init=False)
+    pressed: bool = field(default=False, init=False)
+
+    def set_pressed(self, value: bool) -> None:
+        """Set the button press state and adjust the elevation accordingly.
+
+        Args:
+            value (bool): True if the button is pressed, False otherwise.
         """
-        self.screen = screen
-        self.position = pygame.Rect(position, size)
-        self.text = text
-        self.font = font or pygame.font.Font(None, 36)
-        self.fg_color = fg_color
-        self.bg_color = bg_color
-        self.border_width = border_width
-        self.border_color = border_color
-        self.action = action
-        self.hover_color_factor = hover_color_factor
-        self.original_bg_color = pygame.Color(*bg_color)
-        self.hover_bg_color = self.original_bg_color.copy()
-        self.hover_bg_color.hsva = (
-            self.original_bg_color.hsva[0],
-            min(100, self.original_bg_color.hsva[1] * hover_color_factor),
-            self.original_bg_color.hsva[2],
-        )
+        self.pressed = value
+        self.elevation = 0 if value else ELEVATION_INIT_VALUE
 
-    def update(self, event: pygame.event.Event) -> None:
-        """Update button state (check hover and click)."""
-        self.check_hover()
-        self.handle_click(event)
-        self.draw()
 
-    def check_hover(self) -> None:
-        """Check if the mouse is hovering over the button."""
-        if self.position.collidepoint(pygame.mouse.get_pos()):
-            self.bg_color = self.hover_bg_color
-        else:
-            self.bg_color = self.original_bg_color
+@dataclass
+class Button:
+    """Create a UI button with elevation effect, hover state, and click handling.
 
-    def handle_click(self, event: pygame.event.Event) -> None:
-        """Handle mouse click event."""
-        if (
-            event.type == MOUSEBUTTONDOWN
-            and event.button == 1
-            and self.position.collidepoint(event.pos)
-            and self.action
-        ):
-            self.action()
+    Attributes:
+        text (str): The label displayed on the button.
+        size (tuple[int, int]): The dimensions (width, height) of the button.
+        pos (tuple[int, int]): The top-left position (x, y) of the button.
+        on_click (Callable[[], None]): Callback function to be invoked when the button is clicked.
+        show_fn (Callable[[], bool]): Function that returns True if the button should be visible.
+    """
+
+    text: str  # Button label text
+    size: tuple[int, int]  # Button width and height
+    pos: tuple[int, int]  # Button position (x, y)
+    on_click: Callable[[], None]  # Function to call when button is clicked
+    show_fn: Callable[[], bool]  # Function that determines button visibility
+
+    state: ButtonState = field(default_factory=ButtonState, init=False)  # Button state manager
+
+    def __post_init__(self) -> None:
+        """Initialize button attributes and prepare UI elements after instantiation."""
+        self.screen: pygame.Surface = pygame.display.get_surface()
+        self.original_y_pos: int = self.pos[1]
+
+        # Define the top rectangle (button face)
+        self.top_rect = pygame.Rect(self.pos, self.size)
+        self.top_color: pygame.Color = pygame.Color(BtnColors.TOP_COLOR)
+
+        # Define the bottom rectangle (shadow/elevation effect)
+        self.bottom_rect = pygame.Rect(self.pos, (self.size[0], self.state.elevation))
+        self.bottom_color: pygame.Color = pygame.Color(BtnColors.BOTTOM_COLOR)
+
+        # Render the button text
+        self.text_surf: pygame.Surface = settings.FONT.render(self.text, True, BtnColors.TEXT_COLOR)
+        self.text_rect: pygame.Rect = self.text_surf.get_rect(center=self.top_rect.center)
 
     def draw(self) -> None:
-        """Draw the button on the screen."""
-        pygame.draw.rect(self.screen, self.bg_color, self.position)
-        if self.border_width > 0:
-            pygame.draw.rect(self.screen, self.border_color, self.position, self.border_width)
-        self.draw_text()
+        """Draw the button on the screen with its current state.
 
-    def draw_text(self) -> None:
-        """Draw the button's text centered on the button."""
-        text_surface = self.font.render(self.text, True, self.fg_color)
-        text_rect = text_surface.get_rect(center=self.position.center)
-        self.screen.blit(text_surface, text_rect)
+        Adjusts the button's position based on its elevation and renders both the shadow and button face.
+        """
+        # Adjust the top rectangle's vertical position based on elevation
+        self.top_rect.y = self.original_y_pos - self.state.elevation
+        # Center the text on the top rectangle
+        self.text_rect.center = self.top_rect.center
+
+        # Adjust text vertical alignment to fix spacing issues
+        self.text_rect.y -= (self.text_surf.get_height() - settings.FONT_ACCENT) // 2
+
+        # Update the bottom rectangle (shadow) to align with the top rectangle
+        self.bottom_rect.midtop = self.top_rect.midtop
+        self.bottom_rect.height = self.top_rect.height + self.state.elevation
+
+        # Draw the shadow (bottom rectangle) and the button face (top rectangle)
+        pygame.draw.rect(self.screen, self.bottom_color, self.bottom_rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.top_color, self.top_rect, border_radius=8)
+
+        # Render the button text on top of the button face
+        self.screen.blit(self.text_surf, self.text_rect)
+
+    def check_click(self) -> None:
+        """Handle mouse hover and click interactions for the button.
+
+        If the mouse is over the button and the left button is pressed, update the button state.
+        When the mouse button is released after being pressed, trigger the on_click callback.
+        """
+        mouse_pos: tuple[int, int] = pygame.mouse.get_pos()
+        if self.top_rect.collidepoint(mouse_pos):
+            # Change button face color to indicate hover state
+            self.top_color = pygame.Color(BtnColors.HOVER_COLOR)
+            if pygame.mouse.get_pressed()[0]:
+                # If mouse button is pressed and button is not already in pressed state,
+                # update the state to indicate a press.
+                if not self.state.pressed:
+                    self.state.set_pressed(True)
+            else:
+                # If mouse button is released and button was previously pressed,
+                # trigger the click action.
+                if self.state.pressed:
+                    self.on_click()
+                self.state.set_pressed(False)
+        else:
+            # Reset button color and state if mouse is not over the button
+            self.top_color = pygame.Color(BtnColors.TOP_COLOR)
+            self.state.set_pressed(False)
+
+    def update(self) -> None:
+        """Update the button state and render it if it should be visible.
+
+        Checks for user interaction and redraws the button accordingly.
+        """
+        if self.show_fn():
+            self.check_click()
+            self.draw()

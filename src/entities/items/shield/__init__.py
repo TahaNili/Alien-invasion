@@ -13,10 +13,10 @@ SHIELD_TIME: int = 10
 class Shield(pygame.sprite.Sprite):
     """A shield power-up that spawns randomly and moves downward."""
 
-    def __init__(self, screen: pygame.Surface) -> None:
+    def __init__(self) -> None:
         """Initialize the shield with a random position."""
         super().__init__()
-        self.screen: pygame.Surface = screen
+        self.screen: pygame.Surface = pygame.display.get_surface()
         self.image: pygame.Surface = pygame.transform.scale(
             pygame.image.load("data/assets/shield/shield.png"),
             (25, 25),

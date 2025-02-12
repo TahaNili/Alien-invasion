@@ -6,9 +6,9 @@ from . import input, settings
 
 
 class Ship(pygame.sprite.Sprite):
-    def __init__(self, input: input.Input, screen: pygame.Surface):
+    def __init__(self, input: input.Input):
         """Initialize the ship and set its starting position."""
-        self.screen: pygame.Surface = screen
+        self.screen: pygame.Surface = pygame.display.get_surface()
         self.input = input
 
         # Load the ship image and get its rect.
