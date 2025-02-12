@@ -1,7 +1,7 @@
 """Manages and displays the player's health."""
 
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pygame
 
@@ -17,7 +17,7 @@ MAX_HEARTS: int = 5
 class Health:
     """Handles ship health and shields."""
 
-    screen: pygame.Surface
+    screen: pygame.Surface = field(default_factory=pygame.display.get_surface, init=False)
     current_hearts: int = INIT_HEARTS
     freeze_flag: bool = False
     freeze_time: float = 0

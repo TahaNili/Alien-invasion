@@ -36,7 +36,7 @@ def run_game():
     health.reset()
 
     # Make a ship, and a group for each game sprite.
-    ship = Ship(input, screen)
+    ship = Ship(input)
     bullets = Group()
     aliens = Group()
     cargoes = Group()
