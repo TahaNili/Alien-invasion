@@ -13,9 +13,10 @@ ASSETS_DIR: Path = BASE_DIR / "data" / "assets"
 SOUNDS_DIR: Path = ASSETS_DIR / "sounds"
 
 FONT = pygame.font.Font(
-    BASE_DIR / "data" / "assets" / "fonts" / "sevenSegment.ttf",
-    48,
+    BASE_DIR / "data" / "assets" / "fonts" / "Silkscreen-Regular.ttf",
+    40,
 )
+FONT_ACCENT: int = FONT.get_ascent()
 
 
 HEART_SPEED_FACTOR = 4

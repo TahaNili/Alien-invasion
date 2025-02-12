@@ -2,18 +2,17 @@ import pygame
 from pygame.sprite import Group
 
 import src.game_functions as gf
-from src.button import Button
+from src.entities.ui.elements.button import Button as btn
 from src.entities.ui.elements.scoreboard import Scoreboard
 from src.game_functions import generate_heart
 from src.game_stats import GameStats
 from src.health import Health
 from src.input import Input
-from src.settings import ASSETS_DIR, SCREEN_HEIGHT, SCREEN_WIDTH, SOUNDS_DIR, Settings
+from src.settings import ASSETS_DIR, SCREEN_HEIGHT, SCREEN_WIDTH, Settings
 from src.ship import Ship
 
 
 def run_game():
-    print(SOUNDS_DIR / "fire.ogg")
     pygame.init()
     ai_settings = Settings()
     input = Input()
@@ -32,7 +31,7 @@ def run_game():
     stats = GameStats()
     sb = Scoreboard(screen, stats)
 
-    health = Health(screen)
+    health = Health()
     health.reset()
 
     # Make a ship, and a group for each game sprite.
@@ -44,50 +43,28 @@ def run_game():
     hearts = Group()
     shields = Group()
 
-    # Make the play button.
-    play_button = Button(
-        screen,
-        input,
-        position=(
-            screen.get_rect().centerx - 100,
-            screen.get_rect().centery + 25,
-        ),
-        size=(200, 50),
-        text="Play",
-        foreground_color=(255, 255, 255),
-        background_color=(0, 225, 0),
-        border_width=0,
-        display_condition=lambda: not stats.game_active and not stats.credits_active,
-        on_clicked=lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health),
+    play_button = btn(
+        "start",
+        (240, 64),
+        (screen.get_rect().centerx - 120, screen.get_rect().centery + -74),
+        lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health),
+        lambda: not stats.game_active and not stats.credits_active,
     )
 
-    credits_button = Button(
-        screen,
-        input,
-        position=(
-            screen.get_rect().centerx - 100,
-            screen.get_rect().centery + 100,
-        ),
-        size=(200, 50),
-        text="Credits",
-        foreground_color=(255, 255, 255),
-        background_color=(0, 225, 0),
-        border_width=0,
-        display_condition=lambda: not stats.credits_active and not stats.game_active,
-        on_clicked=lambda: gf.run_credit_button(stats),
+    credits_button = btn(
+        "Credits",
+        (240, 64),
+        (screen.get_rect().centerx - 120, screen.get_rect().centery + 10),
+        lambda: gf.run_credit_button(stats),
+        lambda: not stats.credits_active and not stats.game_active,
     )
 
-    back_button = Button(
-        screen,
-        input,
-        position=(10, 50),
-        size=(200, 50),
-        text="Back",
-        foreground_color=(255, 255, 255),
-        background_color=(0, 225, 0),
-        border_width=0,
-        display_condition=lambda: stats.credits_active,
-        on_clicked=lambda: gf.run_back_button(stats),
+    back_button = btn(
+        "Back",
+        (240, 64),
+        (10, 50),
+        lambda: gf.run_back_button(stats),
+        lambda: stats.credits_active,
     )
 
     alien_spawn_counter = 0

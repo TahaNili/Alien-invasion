@@ -491,7 +491,7 @@ def update_hearts(ship, health, hearts):
 def generate_shields(screen, ai_settings, stats, shield_group):
     if stats.game_active:
         if randint(1, 1000) <= GENERATE_SHIELD_CHANCE:
-            shield = Shield(screen)
+            shield = Shield()
             shield_group.add(shield)
 
 
