@@ -12,6 +12,7 @@ from src.entities.items.shield import GENERATE_SHIELD_CHANCE, Shield
 
 from . import settings
 from .game_stats import GameStats
+from .resources.texture_atlas import TextureAtlas
 
 pygame.mixer.init()
 
@@ -36,15 +37,9 @@ animations = []
 def load_animations(screen: pygame.Surface) -> None:
     global animations
     # animation frames
-    fire_explosion_animation = Animation(
-        "data/assets/animations/explosion4",
-        15,
-        screen,
-        settings.DEFAULT_ANIMATION_LATENCY,
-        4,
-    )
+    fire_explosion_animation = Animation("explosion4", 15, screen, settings.DEFAULT_ANIMATION_LATENCY,4)
 
-    shield_animation = Animation("data/assets/animations/shield3", 11, screen, 0, 2.6, False, 30)
+    shield_animation = Animation("shield3", 11, screen, 0, 2.6, False, 30)
 
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
