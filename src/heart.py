@@ -7,6 +7,7 @@ class Heart(Sprite):
     """A class to manage generated hearts."""
 
     def __init__(self, ai_settings, screen):
+        print("Test")
         super(Heart, self).__init__()
 
         self.ai_settings = ai_settings
