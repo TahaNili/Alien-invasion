@@ -4,6 +4,7 @@ from pygame.sprite import Group
 import src.game_functions as gf
 from src.entities.ui.elements.button import Button as btn
 from src.entities.ui.elements.scoreboard import Scoreboard
+from src.resources.texture_atlas import TextureAtlas
 from src.game_functions import generate_heart
 from src.game_stats import GameStats
 from src.health import Health
@@ -18,6 +19,9 @@ def run_game():
     input = Input()
 
     screen: pygame.Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    TextureAtlas.initialize()
+
     pygame.display.set_caption("Alien Invasion")
     screen_bg: pygame.Surface = pygame.image.load(ASSETS_DIR / "images" / "space3.png")
     screen_bg = pygame.transform.scale(screen_bg, (SCREEN_WIDTH * 2, SCREEN_HEIGHT * 2))

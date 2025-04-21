@@ -1,6 +1,7 @@
 import time
 import pygame
 from src.settings import Settings
+from src.resources.texture_atlas import TextureAtlas
 
 settings = Settings()
 
@@ -28,7 +29,7 @@ class Animation:
         temp_path = frame_path
         for i in range(1, frame_count + 1):
             temp_path = temp_path + f"/f{i}.png"
-            loaded_frame = pygame.image.load(temp_path)
+            loaded_frame = TextureAtlas.get_animation_frame(temp_path)
             loaded_frame = pygame.transform.scale(loaded_frame, (loaded_frame.get_width() / divider,
                                                                  loaded_frame.get_height() / divider))
             loaded_frame.set_alpha(alpha)

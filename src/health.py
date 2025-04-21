@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 import pygame
 
 from src.entities.items.shield import SHIELD_TIME
+from src.resources.texture_atlas import TextureAtlas
 
 from .game_stats import GameStats
 
@@ -53,11 +54,11 @@ class Health:
         """Draw health bar in the top-left corner."""
         heart_size: tuple[int, int] = (20, 20)
         full_heart: pygame.Surface = pygame.transform.scale(
-            pygame.image.load("data/assets/hearts/full_heart.png"),
+            TextureAtlas.get_sprite_texture("heart/full_heart.png"),
             heart_size,
         )
         empty_heart: pygame.Surface = pygame.transform.scale(
-            pygame.image.load("data/assets/hearts/empty_heart.png"),
+            TextureAtlas.get_sprite_texture("heart/empty_heart.png"),
             heart_size,
         )
 

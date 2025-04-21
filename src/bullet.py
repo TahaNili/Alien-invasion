@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 import pygame
 from pygame.sprite import Sprite
 
+from src.resources.texture_atlas import TextureAtlas
+
 from . import settings
 
 
@@ -15,7 +17,7 @@ class Bullet(ABC, Sprite):
         self.screen: pygame.Surface = pygame.display.get_surface()
 
         # Load and scale bullet image
-        self.image: pygame.Surface = pygame.image.load(r"data/assets/sprites/golden_bullet.png")
+        self.image: pygame.Surface = TextureAtlas.get_sprite_texture("bullet/golden_bullet.png")
         self.image_size: tuple[int, int] = self.image.get_size()
         self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.03, self.image_size[1] * 0.03))
         self.rect = self.image.get_rect()
