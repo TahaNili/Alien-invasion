@@ -239,6 +239,9 @@ def update_screen(
             i += 1
 
     if stats.game_active:
+        crosshair = TextureAtlas.get_sprite_texture("misc/crosshair.png")
+        screen.blit(crosshair, pygame.mouse.get_pos())
+
         # Resetting the background when it leaves screen
         if ai_settings.bg_screen_y >= ai_settings.screen_height:
             ai_settings.bg_screen_y = -ai_settings.screen_height * 2
