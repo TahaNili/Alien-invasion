@@ -1,3 +1,4 @@
+import logging
 import pygame
 from pygame.sprite import Group
 
@@ -11,10 +12,17 @@ from src.health import Health
 from src.input import Input
 from src.settings import ASSETS_DIR, SCREEN_HEIGHT, SCREEN_WIDTH, Settings
 from src.ship import Ship
+from src.log_manager import LogManager
 
 
 def run_game():
+    LogManager.init()
     pygame.init()
+
+    logger = logging.getLogger(__name__)
+
+    logger.info("Game started")
+
     ai_settings = Settings()
     input = Input()
 
