@@ -1,4 +1,5 @@
 import pygame
+import logging
 import os
 
 from pathlib import Path
@@ -17,6 +18,8 @@ class TextureAtlas:
     __animations_atlas_mappings: dict[str, dict] = {}
     __animations_atlas_surface: pygame.Surface
 
+    __logger = logging.getLogger(__name__)
+
     @staticmethod
     def initialize() -> None:
         """The initializer of TextureAtlas. This method should only call once at the beginning after
@@ -32,7 +35,7 @@ class TextureAtlas:
 
     @staticmethod
     def __init_sprites():
-        print("Start loading sprite textures...")
+        TextureAtlas.__logger.info("Start loading sprite textures...")
 
         sprite_files = [os.path.join(root, file) for root, dirs, files in os.walk(TextureAtlas.__sprites_folder) for
                         file in files if file.endswith(".png")]
@@ -71,11 +74,11 @@ class TextureAtlas:
             y = TextureAtlas.__sprites_atlas_mappings.get(name).get("y")
             TextureAtlas.__sprites_atlas_surface.blit(image, (x, y))
 
-        print("Sprite textures loading finished")
+        TextureAtlas.__logger.info("Sprite textures loading finished")
 
     @staticmethod
     def __init_animations():
-        print("Start loading animations...")
+        TextureAtlas.__logger.info("Start loading animations...")
 
         animations_files = [os.path.join(root, file) for root, dirs, files in os.walk(TextureAtlas.__animations_folder)
                             for file in files if file.endswith(".png")]
@@ -132,7 +135,7 @@ class TextureAtlas:
                 y = TextureAtlas.__animations_atlas_mappings.get(f"{group}/{file}").get("y")
                 TextureAtlas.__animations_atlas_surface.blit(image, (x, y))
 
-        print("Animation loading finished")
+        TextureAtlas.__logger.info("Animation loading finished")
 
     @staticmethod
     def get_sprite_texture(path: str) -> pygame.Surface | None:
@@ -145,10 +148,10 @@ class TextureAtlas:
                 return TextureAtlas.__sprites_atlas_surface.subsurface(pygame.Rect(texture_mappings.get("x"), texture_mappings.get("y"),
                                                                                    texture_mappings.get("width"), texture_mappings.get("height")))
             else:
-                print(f"Sprite {path} doesn't exist")
+                TextureAtlas.__logger.error(f"Sprite {path} doesn't exist")
                 return None
         else:
-            print("Sprite textures are not loaded")
+            TextureAtlas.__logger.error("Sprite textures are not loaded")
             return None
 
     @staticmethod
@@ -162,10 +165,10 @@ class TextureAtlas:
                 return TextureAtlas.__animations_atlas_surface.subsurface(pygame.Rect(texture_mappings.get("x"), texture_mappings.get("y"),
                                                                                    texture_mappings.get("width"), texture_mappings.get("height")))
             else:
-                print(f"Animation frame {path} doesn't exist")
+                TextureAtlas.__logger.error(f"Animation frame {path} doesn't exist")
                 return None
         else:
-            print("Animations are not loaded")
+            TextureAtlas.__logger.error("Animations are not loaded")
             return None
 
     @staticmethod
