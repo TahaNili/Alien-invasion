@@ -35,7 +35,7 @@ class Region:
             self.background = pygame.transform.scale(image, self.size)
         except FileNotFoundError:
             self.logger.error(f"Background image not found: {DIR / self.background_name}'")
-            self.background = pygame.transform.scale(pygame.image.load(DIR / "Blue Nebula/3.png").convert(), self.size)
+            self.background = pygame.transform.scale(pygame.image.load(DIR / "starfield/1.png").convert(), self.size)
 
 
 class RegionManager:
