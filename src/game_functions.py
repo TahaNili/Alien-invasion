@@ -145,7 +145,7 @@ def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
             fire_bullet(ship, bullets)
 
 
-def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
+def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager):
     """start a new game when the player clicks play."""
     # reset the game settings.
     ai_settings.initialize_dynamic_settings()
@@ -167,6 +167,8 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     # Make health full
     health.reset()
 
+    region_manager.reset()
+
 
 def run_credit_button(stats):
     stats.credits_active = True
@@ -177,6 +179,7 @@ def run_back_button(stats):
 
 
 def update_screen(
+    region_manager,
     ai_settings,
     screen,
     stats,
@@ -187,8 +190,6 @@ def update_screen(
     play_button,
     credits_button,
     back_button,
-    screen_bg,
-    screen_bg_2,
     cargoes,
     alien_bullets,
     health,
@@ -196,10 +197,7 @@ def update_screen(
     shields,
 ):
     """Update image on the screen and flip to the new screen."""
-    # Redraw the screen during each pass through the loop
-    screen.fill(ai_settings.bg_color)
-    screen.blit(screen_bg, (ai_settings.bg_screen_x, ai_settings.bg_screen_y))
-    screen.blit(screen_bg_2, (ai_settings.bg_screen_2_x, ai_settings.bg_screen_2_y))
+    region_manager.update(screen, stats.score, ai_settings.delta_time)
 
     # Redraw all bullets behind ship and aliens.
     for bullet in bullets.sprites():
@@ -241,17 +239,6 @@ def update_screen(
     if stats.game_active:
         crosshair = TextureAtlas.get_sprite_texture("misc/crosshair.png")
         screen.blit(crosshair, pygame.mouse.get_pos())
-
-        # Resetting the background when it leaves screen
-        if ai_settings.bg_screen_y >= ai_settings.screen_height:
-            ai_settings.bg_screen_y = -ai_settings.screen_height * 2
-
-        if ai_settings.bg_screen_2_y >= ai_settings.screen_height:
-            ai_settings.bg_screen_2_y = -ai_settings.screen_height * 2
-
-        # Updating the background when it leaves screen
-        ai_settings.bg_screen_y += ai_settings.bg_screen_scroll_speed
-        ai_settings.bg_screen_2_y += ai_settings.bg_screen_scroll_speed
 
     animations[1].set_position(ship.rect.x, ship.rect.y)
     animations[1].play()
