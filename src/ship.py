@@ -2,6 +2,7 @@ import math
 
 import pygame
 
+from src.resources.texture_atlas import TextureAtlas
 from . import input, settings
 
 
@@ -12,7 +13,7 @@ class Ship(pygame.sprite.Sprite):
         self.input = input
 
         # Load the ship image and get its rect.
-        self.image: pygame.Surface = pygame.image.load(settings.ASSETS_DIR / "sprites" / "ship.png")
+        self.image: pygame.Surface = TextureAtlas.get_sprite_texture("ship/ship.png")
         self.rect: pygame.Rect = self.image.get_rect()
 
         # start each new ship at the bottom center of the screen.

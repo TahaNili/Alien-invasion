@@ -5,6 +5,7 @@ import secrets
 import pygame
 
 from src import settings
+from src.resources.texture_atlas import TextureAtlas
 
 GENERATE_SHIELD_CHANCE: int = 10
 SHIELD_TIME: int = 10
@@ -18,7 +19,7 @@ class Shield(pygame.sprite.Sprite):
         super().__init__()
         self.screen: pygame.Surface = pygame.display.get_surface()
         self.image: pygame.Surface = pygame.transform.scale(
-            pygame.image.load("data/assets/shield/shield.png"),
+            TextureAtlas.get_sprite_texture("shield/shield.png"),
             (25, 25),
         )
         self.rect: pygame.Rect = self.image.get_rect()

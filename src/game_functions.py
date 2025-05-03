@@ -12,6 +12,7 @@ from src.entities.items.shield import GENERATE_SHIELD_CHANCE, Shield
 
 from . import settings
 from .game_stats import GameStats
+from .resources.texture_atlas import TextureAtlas
 
 pygame.mixer.init()
 
@@ -36,15 +37,9 @@ animations = []
 def load_animations(screen: pygame.Surface) -> None:
     global animations
     # animation frames
-    fire_explosion_animation = Animation(
-        "data/assets/animations/explosion4",
-        15,
-        screen,
-        settings.DEFAULT_ANIMATION_LATENCY,
-        4,
-    )
+    fire_explosion_animation = Animation("explosion4", 15, screen, settings.DEFAULT_ANIMATION_LATENCY,4)
 
-    shield_animation = Animation("data/assets/animations/shield3", 11, screen, 0, 2.6, False, 30)
+    shield_animation = Animation("shield3", 11, screen, 0, 2.6, False, 30)
 
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
@@ -54,7 +49,7 @@ def load_credits():
     global text_lines, text_rects
     credit = """
     Developers:
-        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila
+        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila, withpouriya, onabrcom
 
     Assets:
         Ship assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.
@@ -150,7 +145,7 @@ def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
             fire_bullet(ship, bullets)
 
 
-def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
+def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager):
     """start a new game when the player clicks play."""
     # reset the game settings.
     ai_settings.initialize_dynamic_settings()
@@ -172,6 +167,8 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health):
     # Make health full
     health.reset()
 
+    region_manager.reset()
+
 
 def run_credit_button(stats):
     stats.credits_active = True
@@ -182,6 +179,7 @@ def run_back_button(stats):
 
 
 def update_screen(
+    region_manager,
     ai_settings,
     screen,
     stats,
@@ -192,8 +190,6 @@ def update_screen(
     play_button,
     credits_button,
     back_button,
-    screen_bg,
-    screen_bg_2,
     cargoes,
     alien_bullets,
     health,
@@ -201,10 +197,7 @@ def update_screen(
     shields,
 ):
     """Update image on the screen and flip to the new screen."""
-    # Redraw the screen during each pass through the loop
-    screen.fill(ai_settings.bg_color)
-    screen.blit(screen_bg, (ai_settings.bg_screen_x, ai_settings.bg_screen_y))
-    screen.blit(screen_bg_2, (ai_settings.bg_screen_2_x, ai_settings.bg_screen_2_y))
+    region_manager.update(screen, stats.score, ai_settings.delta_time)
 
     # Redraw all bullets behind ship and aliens.
     for bullet in bullets.sprites():
@@ -244,16 +237,8 @@ def update_screen(
             i += 1
 
     if stats.game_active:
-        # Resetting the background when it leaves screen
-        if ai_settings.bg_screen_y >= ai_settings.screen_height:
-            ai_settings.bg_screen_y = -ai_settings.screen_height * 2
-
-        if ai_settings.bg_screen_2_y >= ai_settings.screen_height:
-            ai_settings.bg_screen_2_y = -ai_settings.screen_height * 2
-
-        # Updating the background when it leaves screen
-        ai_settings.bg_screen_y += ai_settings.bg_screen_scroll_speed
-        ai_settings.bg_screen_2_y += ai_settings.bg_screen_scroll_speed
+        crosshair = TextureAtlas.get_sprite_texture("misc/crosshair.png")
+        screen.blit(crosshair, pygame.mouse.get_pos())
 
     animations[1].set_position(ship.rect.x, ship.rect.y)
     animations[1].play()
