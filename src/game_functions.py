@@ -49,7 +49,7 @@ def load_credits():
     global text_lines, text_rects
     credit = """
     Developers:
-        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila
+        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila, withpouriya, onabrcom
 
     Assets:
         Ship assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.
