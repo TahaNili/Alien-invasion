@@ -50,7 +50,7 @@ def load_credits():
     global text_lines, text_rects
     credit = """
     Developers:
-        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila, withpouriya, onabrcom
+        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila, withpouriya, onabrcom, Arshiamov
 
     Assets:
         Ship assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.
@@ -92,7 +92,7 @@ def update_game_sprites(
     health,
     hearts,
     shields,
-    powerup,
+    powerups,
 ):
     ship.update()
     update_bullets(
@@ -110,7 +110,7 @@ def update_game_sprites(
     update_aliens(ai_settings, stats, ship, aliens, cargoes, health)
     update_hearts(ship, health, hearts)
     update_shields(ship, shields, health)
-    update_powerup(ship, powerup)
+    update_powerups(ship, powerups)
 
 
 def check_events(ai_settings, input, screen, stats, ship, bullets):
@@ -198,7 +198,7 @@ def update_screen(
     health,
     hearts,
     shields,
-    powerup,
+    powerups,
 ):
     """Update image on the screen and flip to the new screen."""
     region_manager.update(screen, stats.score, ai_settings.delta_time)
@@ -221,7 +221,7 @@ def update_screen(
     for shield in shields.sprites():
         shield.draw()
     
-    for powerup in powerup.sprites():
+    for powerup in powerups.sprites():
         powerup.draw()
 
     ship.bltime()
@@ -512,15 +512,15 @@ def generate_powerup(stats, powerup_group):
             powerup = PowerUp()
             powerup_group.add(powerup)
 
-def update_powerup(ship, powerup):
-    powerup.update()
+def update_powerups(ship, powerups):
+    powerups.update()
     ship.check()
 
-    check_collideany_ship_powerup = pygame.sprite.spritecollideany(ship, powerup)
+    check_collideany_ship_powerup = pygame.sprite.spritecollideany(ship, powerups)
     if check_collideany_ship_powerup:
         ship.activate_powerup(check_collideany_ship_powerup.power)
         sound_shield_fill.play()
-        powerup.remove(check_collideany_ship_powerup)
+        powerups.remove(check_collideany_ship_powerup)
 
 
 def generate_shields(screen, ai_settings, stats, shield_group):

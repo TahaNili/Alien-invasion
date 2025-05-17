@@ -132,6 +132,7 @@ def run_game():
                 powerup,
             )
         else:
+            ship.reset()
             pygame.event.set_grab(False)
 
         gf.update_screen(

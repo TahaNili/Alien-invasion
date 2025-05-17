@@ -37,9 +37,13 @@ class Ship(pygame.sprite.Sprite):
         self.power = PowerType.NORMAL
 
     def check(self) -> None:
-        """check power-up timer."""
+        """Check power-up timer."""
         if self.power != PowerType.NORMAL and time.time() - self.power_time >= POWER_TIME:
             self.power = PowerType.NORMAL
+
+    def reset(self):
+        """Reset the power-up to its default (normal) state."""
+        self.power = PowerType.NORMAL
     
     def activate_powerup(self, power) -> None:
         """Activate temporary power-up."""
