@@ -22,6 +22,7 @@ class Shield(pygame.sprite.Sprite):
             TextureAtlas.get_sprite_texture("shield/shield.png"),
             (25, 25),
         )
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.centerx = secrets.randbelow(settings.SCREEN_WIDTH - self.rect.width)
         self.rect.top = 0

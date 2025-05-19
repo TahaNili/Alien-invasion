@@ -85,8 +85,8 @@ class Settings:
         self.default_animation_latency = self.delta_time / 500
 
         # Screen settings
-        self.screen_width = 1200
-        self.screen_height = 800
+        self.screen_width = SCREEN_WIDTH
+        self.screen_height = SCREEN_HEIGHT
         self.bg_color = (225, 225, 255)
 
         # Ship settings

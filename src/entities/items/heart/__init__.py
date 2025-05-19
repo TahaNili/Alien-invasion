@@ -20,6 +20,7 @@ class Heart(pygame.sprite.Sprite):
         self.speed_factor: float = settings.HEART_SPEED_FACTOR
 
         self.image: pygame.Surface = pygame.transform.scale(TextureAtlas.get_sprite_texture("heart/full_heart.png"), (25, 25))
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.centerx = secrets.randbelow(self.screen.get_rect().right + 1)
         self.rect.top = 0

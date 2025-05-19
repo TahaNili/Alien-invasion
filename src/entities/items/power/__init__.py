@@ -41,6 +41,7 @@ class PowerUp(pygame.sprite.Sprite):
             TextureAtlas.get_sprite_texture(f"power/power{self.power.value}.png"),
             (40, 40),
         )
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.centerx = secrets.randbelow(settings.SCREEN_WIDTH - self.rect.width)
         self.rect.top = 0
