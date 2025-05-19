@@ -16,7 +16,7 @@ class Ship(pygame.sprite.Sprite):
         self.input = input
 
         # Load the ship image and get its rect.
-        self.image: pygame.Surface = TextureAtlas.get_sprite_texture("ship/ship.png").convert_alpha()
+        self.image: pygame.Surface = TextureAtlas.get_sprite_texture("ship/ship.png")
         self.mask = pygame.mask.from_surface(self.image)
         self.rect: pygame.Rect = self.image.get_rect()
 
