@@ -17,6 +17,7 @@ class Ship(pygame.sprite.Sprite):
 
         # Load the ship image and get its rect.
         self.image: pygame.Surface = TextureAtlas.get_sprite_texture("ship/ship.png")
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect: pygame.Rect = self.image.get_rect()
 
         # start each new ship at the bottom center of the screen.
@@ -75,6 +76,7 @@ class Ship(pygame.sprite.Sprite):
     def bltime(self) -> None:
         """Draw the ship at its current location."""
         rotated_image: pygame.Surface = pygame.transform.rotate(self.image, math.degrees(self.angle))
+        self.mask = pygame.mask.from_surface(rotated_image)
         rotated_rect: pygame.Rect = rotated_image.get_rect(center=self.center)
         self.screen.blit(rotated_image, rotated_rect)
 

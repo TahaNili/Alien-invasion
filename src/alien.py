@@ -22,6 +22,7 @@ class Alien(ABC, Sprite):
         # Load the alien image and set its rect attribute.
         self.original_image = self.get_image()
         self.image = self.original_image
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
 
         # Start each new alien near the top left of the screen.
@@ -64,6 +65,7 @@ class Alien(ABC, Sprite):
 
         # Rotate the alien to face the ship.
         self.image = pygame.transform.rotate(self.original_image, self.angle + 90)
+        self.mask = pygame.mask.from_surface(self.image)
 
         # Keep the alien within the screen bounds.
         screen_rect = self.screen.get_rect()

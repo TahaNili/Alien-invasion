@@ -27,6 +27,7 @@ class Bullet(ABC, Sprite):
 
         self.image_size: tuple[int, int] = self.image.get_size()
         self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.03, self.image_size[1] * 0.03))
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
 
         # Set angle and initial position
@@ -54,6 +55,7 @@ class Bullet(ABC, Sprite):
     def draw(self):
         """Draw the bullet to the screen."""
         rotated_image = pygame.transform.rotate(self.image, math.degrees(self.angle))
+        self.mask = pygame.mask.from_surface(rotated_image)
         rotated_rec = rotated_image.get_rect(center=(self.rect.centerx, self.rect.centery))
         self.screen.blit(rotated_image, rotated_rec)
 
@@ -75,8 +77,8 @@ class ShipBullet(Bullet):
         else:
             angle = source.angle
 
-        x = source.rect.centerx + math.sin(angle) * 30
-        y = source.rect.centery - math.cos(angle) * 30
+        x = source.rect.centerx
+        y = source.rect.centery
         return angle, x, y
 
 

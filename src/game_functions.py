@@ -226,7 +226,7 @@ def update_screen(
 
     ship.bltime()
     aliens.draw(screen)
-    cargoes.draw(screen)
+    # cargoes.draw(screen)
     health.draw()
 
     # Draw the score information.
@@ -244,8 +244,9 @@ def update_screen(
             i += 1
 
     if stats.game_active:
+        pos = pygame.mouse.get_pos()
         crosshair = TextureAtlas.get_sprite_texture("misc/crosshair.png")
-        screen.blit(crosshair, pygame.mouse.get_pos())
+        screen.blit(crosshair, (pos[0]-crosshair.get_width()/2, pos[1]-crosshair.get_height()/2))
 
     animations[1].set_position(ship.rect.x, ship.rect.y)
     animations[1].play()
@@ -334,9 +335,9 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
     # Remove any bullets and aliens that have collided.
     # Check for any bullets that have hit aliens.
     # If so, get rid of the bullet and the alien.
-    collisions_1 = pygame.sprite.groupcollide(bullets, aliens, True, False)
-    collisions_2 = pygame.sprite.groupcollide(bullets, cargoes, True, True)
-    collisions_3 = pygame.sprite.groupcollide(aliens, cargoes, False, True)
+    collisions_1 = pygame.sprite.groupcollide(bullets, aliens, True, False, pygame.sprite.collide_mask)
+    collisions_2 = pygame.sprite.groupcollide(bullets, cargoes, True, True, pygame.sprite.collide_mask)
+    collisions_3 = pygame.sprite.groupcollide(aliens, cargoes, False, True, pygame.sprite.collide_mask)
 
     # if we hit alien
     if collisions_1:
@@ -371,7 +372,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
 
 def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, aliens, alien_bullets, cargoes):
     """Respond to bullet-ship collisions."""
-    collisions = pygame.sprite.spritecollideany(ship, alien_bullets)
+    collisions = pygame.sprite.spritecollideany(ship, alien_bullets, pygame.sprite.collide_mask)
 
     # if alien hit us
     if collisions:
@@ -428,38 +429,18 @@ def spawn_random_alien(ai_settings, screen, aliens):
     aliens.add(alien)
 
 
-def ship_hit(ai_settings, stats, screen, ship, aliens, bullets, cargoes):
-    """Respond to ship being hit by alien."""
-    if stats.ships_left > 0:
-        # Decrement ships_left.
-        stats.ships_left -= 1
-
-        # Empty the list of aliens and bullets.
-        aliens.empty()
-        bullets.empty()
-
-        # Center the ship.
-        ship.center_ship()
-
-        # Pause
-        sleep(0.5)
-    else:
-        stats.game_active = False
-        pygame.mouse.set_visible(True)
-
-
 def update_aliens(ai_settings, stats, ship, aliens, cargoes, health):
     """Check if the fleet is at the edge, and then update the position of all aliens in the fleet."""
     aliens.update(ship)
     cargoes.update()
 
-    check_collideany_ship_alien = pygame.sprite.spritecollideany(ship, aliens)
+    check_collideany_ship_alien = pygame.sprite.spritecollideany(ship, aliens, pygame.sprite.collide_mask)
     if check_collideany_ship_alien:
         sound_explosion.play()
         aliens.remove(check_collideany_ship_alien)
         health.decrease(stats)
 
-    check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens)
+    check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens, pygame.sprite.collide_mask)
     if check_collideany_ship_cargoes:
         sound_explosion.play()
         aliens.remove(check_collideany_ship_cargoes)
@@ -495,7 +476,7 @@ def generate_heart(
 def update_hearts(ship, health, hearts):
     hearts.update()
 
-    check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts)
+    check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts, pygame.sprite.collide_mask)
     if check_collideany_ship_hearts:
         sound_life.play()
         hearts.remove(check_collideany_ship_hearts)
@@ -516,7 +497,7 @@ def update_powerups(ship, powerups):
     powerups.update()
     ship.check()
 
-    check_collideany_ship_powerup = pygame.sprite.spritecollideany(ship, powerups)
+    check_collideany_ship_powerup = pygame.sprite.spritecollideany(ship, powerups, pygame.sprite.collide_mask)
     if check_collideany_ship_powerup:
         ship.activate_powerup(check_collideany_ship_powerup.power)
         sound_shield_fill.play()
@@ -532,7 +513,7 @@ def generate_shields(screen, ai_settings, stats, shield_group):
 def update_shields(ship, shields, health):
     shields.update()
 
-    check_collideany_ship_shields = pygame.sprite.spritecollideany(ship, shields)
+    check_collideany_ship_shields = pygame.sprite.spritecollideany(ship, shields, pygame.sprite.collide_mask)
     if check_collideany_ship_shields:
         health.activate_shield()  # freezing health bar.
         sound_shield_fill.play()
