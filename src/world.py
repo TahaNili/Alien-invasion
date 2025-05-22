@@ -38,7 +38,8 @@ class World:
     def __new__(cls, *args, **kwargs):
         # To make sure there will be only one world per game
         if not cls.__instance:
-            return super(World, cls).__new__(cls)
+            cls.__instance = super(World, cls).__new__(cls)
+            return cls.__instance
         raise RuntimeError("Only one instance of World is allowed.")
 
     def init_regions(self, size: tuple[int, int]) -> RegionManager:
