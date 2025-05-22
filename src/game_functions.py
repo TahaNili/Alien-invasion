@@ -1,6 +1,5 @@
 import sys
 from random import choice, randint
-from time import sleep
 
 import pygame
 
@@ -79,76 +78,52 @@ def load_credits():
         offset += 20
 
 
-def update_game_sprites(
-    ai_settings,
-    screen,
-    stats,
-    sb,
-    ship,
-    aliens,
-    bullets,
-    cargoes,
-    alien_bullets,
-    health,
-    hearts,
-    shields,
-    powerups,
-):
-    ship.update()
-    update_bullets(
-        ai_settings,
-        screen,
-        stats,
-        sb,
-        ship,
-        aliens,
-        bullets,
-        cargoes,
-        alien_bullets,
-        health,
-    )
-    update_aliens(ai_settings, stats, ship, aliens, cargoes, health)
-    update_hearts(ship, health, hearts)
-    update_shields(ship, shields, health)
-    update_powerups(ship, powerups)
+def update_game_sprites(ai_settings, stats, sb, world):
+    world.ship.update()
+
+    update_bullets(ai_settings, stats, sb, world)
+    update_aliens(ai_settings, stats, world.ship, world.aliens, world.cargoes, world.health)
+    update_hearts(world.ship, world.health, world.hearts)
+    update_shields(world.ship, world.shields, world.health)
+    update_powerups(world.ship, world.powerups)
 
 
-def check_events(ai_settings, input, screen, stats, ship, bullets):
+def check_events(inp, stats, world):
     """Respond to key presses and mouse events."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-    check_key_events(input, ship)
-    check_mouse_events(ai_settings, input, screen, stats, ship, bullets)
+    check_key_events(inp, world.ship)
+    check_mouse_events(inp, stats, world.ship, world.player_bullets)
 
 
-def check_key_events(input, ship):
+def check_key_events(inp, ship):
     """Handle key down/up"""
 
-    if input.is_key_pressed(pygame.K_q):
+    if inp.is_key_pressed(pygame.K_q):
         pygame.quit()
         sys.exit()
 
-    ship.moving_right = True if input.is_key_down(pygame.K_RIGHT) or input.is_key_down(pygame.K_d) else False
-    ship.moving_left = True if input.is_key_down(pygame.K_LEFT) or input.is_key_down(pygame.K_a) else False
-    ship.moving_up = True if input.is_key_down(pygame.K_UP) or input.is_key_down(pygame.K_w) else False
-    ship.moving_down = True if input.is_key_down(pygame.K_DOWN) or input.is_key_down(pygame.K_s) else False
+    ship.moving_right = True if inp.is_key_down(pygame.K_RIGHT) or inp.is_key_down(pygame.K_d) else False
+    ship.moving_left = True if inp.is_key_down(pygame.K_LEFT) or inp.is_key_down(pygame.K_a) else False
+    ship.moving_up = True if inp.is_key_down(pygame.K_UP) or inp.is_key_down(pygame.K_w) else False
+    ship.moving_down = True if inp.is_key_down(pygame.K_DOWN) or inp.is_key_down(pygame.K_s) else False
 
-    if input.is_key_down(pygame.K_ESCAPE):
+    if inp.is_key_down(pygame.K_ESCAPE):
         sys.exit()
 
 
-def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
+def check_mouse_events(inp, stats, ship, bullets):
     """Handle mouse button press and movement."""
 
-    if input.is_mouse_button_pressed(0):
+    if inp.is_mouse_button_pressed(0):
         if stats.game_active:
             fire_bullet(ship, bullets)
 
 
-def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager):
+def run_play_button(ai_settings, stats, world):
     """start a new game when the player clicks play."""
     # reset the game settings.
     ai_settings.initialize_dynamic_settings()
@@ -160,17 +135,17 @@ def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, 
     stats.game_active = True
 
     # Empty the list of aliens and bullets.
-    aliens.empty()
-    bullets.empty()
-    cargoes.empty()
+    world.aliens.empty()
+    world.player_bullets.empty()
+    world.cargoes.empty()
 
     # Center the ship.
-    ship.center_ship()
+    world.ship.center_ship()
 
     # Make health full
-    health.reset()
+    world.health.reset()
 
-    region_manager.reset()
+    world.region_manager.reset()
 
 
 def run_credit_button(stats):
@@ -181,30 +156,12 @@ def run_back_button(stats):
     stats.credits_active = False
 
 
-def update_screen(
-    region_manager,
-    ai_settings,
-    screen,
-    stats,
-    sb,
-    ship,
-    aliens,
-    bullets,
-    play_button,
-    credits_button,
-    back_button,
-    cargoes,
-    alien_bullets,
-    health,
-    hearts,
-    shields,
-    powerups,
-):
+def update_screen(ai_settings, stats, sb, play_button, credits_button, back_button, world):
     """Update image on the screen and flip to the new screen."""
-    region_manager.update(screen, stats.score, ai_settings.delta_time)
+    world.region_manager.update(world.screen, stats.score, ai_settings.delta_time)
 
     # Redraw all bullets behind ship and aliens.
-    for bullet in bullets.sprites():
+    for bullet in world.player_bullets.sprites():
         # TODO: There is an interesting bug in here!
         try:
             bullet.draw()
@@ -212,22 +169,22 @@ def update_screen(
             print("HERE")
             pass
 
-    for bullet in alien_bullets.sprites():
+    for bullet in world.alien_bullets.sprites():
         bullet.draw()
 
-    for heart in hearts.sprites():
+    for heart in world.hearts.sprites():
         heart.draw()
 
-    for shield in shields.sprites():
+    for shield in world.shields.sprites():
         shield.draw()
-    
-    for powerup in powerups.sprites():
+
+    for powerup in world.powerups.sprites():
         powerup.draw()
 
-    ship.bltime()
-    aliens.draw(screen)
+    world.ship.bltime()
+    world.aliens.draw(world.screen)
     # cargoes.draw(screen)
-    health.draw()
+    world.health.draw()
 
     # Draw the score information.
     sb.show()
@@ -240,15 +197,15 @@ def update_screen(
         back_button.update()
         i = 0
         for line in text_lines:
-            screen.blit(line, text_rects[i])
+            world.screen.blit(line, text_rects[i])
             i += 1
 
     if stats.game_active:
         pos = pygame.mouse.get_pos()
         crosshair = TextureAtlas.get_sprite_texture("misc/crosshair.png")
-        screen.blit(crosshair, (pos[0]-crosshair.get_width()/2, pos[1]-crosshair.get_height()/2))
+        world.screen.blit(crosshair, (pos[0]-crosshair.get_width()/2, pos[1]-crosshair.get_height()/2))
 
-    animations[1].set_position(ship.rect.x, ship.rect.y)
+    animations[1].set_position(world.ship.rect.x, world.ship.rect.y)
     animations[1].play()
 
     pygame.display.flip()
@@ -286,25 +243,14 @@ def fire_bullet(ship, bullets) -> None:
         sound_fire.play()
 
 
-def update_bullets(
-    ai_settings,
-    screen,
-    stats,
-    sb,
-    ship,
-    aliens,
-    bullets,
-    cargoes,
-    alien_bullets,
-    health,
-):
+def update_bullets(ai_settings, stats, sb, world):
     """Update position of bullets and get rid of old bullets."""
-    bullets.update()
-    alien_bullets.update()
+    world.player_bullets.update()
+    world.alien_bullets.update()
 
     # Get rid of bullets that have disappeared
-    all_bullets = bullets.copy()
-    all_bullets.add(alien_bullets.copy())
+    all_bullets = world.player_bullets.copy()
+    all_bullets.add(world.alien_bullets.copy())
 
     for bullet in all_bullets:
         if (
@@ -313,24 +259,13 @@ def update_bullets(
             or bullet.rect.left < 0
             or bullet.rect.right > ai_settings.screen_width
         ):
-            bullets.remove(bullet)
+            world.player_bullets.remove(bullet)
 
-    check_bullet_alien_collisions(
-        ai_settings,
-        screen,
-        stats,
-        sb,
-        ship,
-        aliens,
-        bullets,
-        cargoes,
-        animations,
-        health,
-    )
-    check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, aliens, alien_bullets, cargoes)
+    check_bullet_alien_collisions(ai_settings, stats, sb, world.ship, world.aliens, world.player_bullets, world.cargoes, world.health)
+    check_bullet_ship_collisions(stats, world.health, world.ship, world.alien_bullets)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, bullets, cargoes, animations, health):
+def check_bullet_alien_collisions(ai_settings, stats, sb, ship, aliens, bullets, cargoes, health):
     """Respond to bullet-alien collisions."""
     # Remove any bullets and aliens that have collided.
     # Check for any bullets that have hit aliens.
@@ -370,7 +305,7 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
             sound_explosion.play()
 
 
-def check_bullet_ship_collisions(ai_settings, screen, stats, health, ship, aliens, alien_bullets, cargoes):
+def check_bullet_ship_collisions(stats, health, ship, alien_bullets):
     """Respond to bullet-ship collisions."""
     collisions = pygame.sprite.spritecollideany(ship, alien_bullets, pygame.sprite.collide_mask)
 
@@ -449,7 +384,7 @@ def update_aliens(ai_settings, stats, ship, aliens, cargoes, health):
     remove_offscreen_aliens(aliens, ai_settings.screen_width, ai_settings.screen_height)
 
 
-def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
+def alien_fire(ai_settings, stats, aliens, alien_bullets, ship):
     if stats.game_active:
         for alien in aliens.sprites():
             if type(alien) is AlienL1:
@@ -462,15 +397,11 @@ def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
                     alien_bullets.add(bullet)
 
 
-def generate_heart(
-    stats: GameStats,
-    screen: pygame.Surface,
-    heart_group: pygame.sprite.Group,
-) -> None:
+def generate_heart(stats: GameStats, world) -> None:
     """."""
     if stats.game_active and randint(1, 1000) <= GENERATE_HEART_CHANCE:
-        heart = Heart(screen)
-        heart_group.add(heart)
+        heart = Heart(world.screen)
+        world.hearts.add(heart)
 
 
 def update_hearts(ship, health, hearts):
@@ -504,7 +435,7 @@ def update_powerups(ship, powerups):
         powerups.remove(check_collideany_ship_powerup)
 
 
-def generate_shields(screen, ai_settings, stats, shield_group):
+def generate_shields(stats, shield_group):
     if stats.game_active:
         if randint(1, 1000) <= GENERATE_SHIELD_CHANCE:
             shield = Shield()
