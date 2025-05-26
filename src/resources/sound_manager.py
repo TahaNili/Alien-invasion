@@ -24,7 +24,7 @@ class SoundManager:
         if SoundManager.__instance is None:
             SoundManager.__instance = SoundManager(max_channels)
         else:
-            SoundManager.__logger.error("SoundManger is already initialized.")
+            SoundManager.__logger.error("SoundManger is already initialized.", stacklevel=2)
 
     @staticmethod
     def get_instance() -> "SoundManager":
@@ -146,9 +146,9 @@ class SoundManager:
                 channel.play(self.sounds[name], fade_ms=fade_ms)
                 self.channels[name] = channel
             else:
-                SoundManager.__logger.warning("No free channel to play sound: ", name)
+                SoundManager.__logger.warning(f"No free channel to play sound: {name}", stacklevel=3)
         else:
-            SoundManager.__logger.error(f"Sound '{name}' not found.")
+            SoundManager.__logger.error(f"Sound '{name}' not found.", stacklevel=3)
 
     def __stop_sound(self, name: str, fade_ms: int) -> None:
         channel: Channel = self.channels.get(name)
