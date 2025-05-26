@@ -5,6 +5,7 @@ import logging
 from typing import Optional
 from pygame.mixer import Channel, Sound
 from pathlib import Path
+from enum import Enum
 from ..settings import SOUNDS_DIR
 
 
@@ -35,18 +36,18 @@ class SoundManager:
         return SoundManager.__instance
 
     @staticmethod
-    def play_sound(name: str, fade_ms: int = 0) -> None:
+    def play_sound(sound: "Sounds", fade_ms: int = 0) -> None:
         """
         Plays a sound by name with optional fade-in.
         """
-        SoundManager.get_instance().__play_sound(name, fade_ms)
+        SoundManager.get_instance().__play_sound(sound.value, fade_ms)
 
     @staticmethod
-    def stop_sound(name: str, fade_ms: int = 0) -> None:
+    def stop_sound(sound: "Sounds", fade_ms: int = 0) -> None:
         """
         Stops a specific sound by name with optional fade-out.
         """
-        SoundManager.get_instance().__stop_sound(name, fade_ms)
+        SoundManager.get_instance().__stop_sound(sound.value, fade_ms)
 
     @staticmethod
     def stop_all_sounds(fade_ms: int = 0) -> None:
@@ -54,14 +55,14 @@ class SoundManager:
         Stops all currently playing sounds with optional fade-out.
         """
         for sound in SoundManager.get_instance().sounds.keys():
-            SoundManager.stop_sound(sound, fade_ms)
+            SoundManager.get_instance().__stop_sound(sound, fade_ms)
 
     @staticmethod
-    def set_volume(name: str, volume: float) -> None:
+    def set_volume(sound: "Sounds", volume: float) -> None:
         """
         ets the volume of a specific sound. Volume must be in the range 0.0 to 1.0.
         """
-        SoundManager.get_instance().__set_sound_volume(name, volume)
+        SoundManager.get_instance().__set_sound_volume(sound.value, volume)
 
     @staticmethod
     def set_global_volume(volume: float) -> None:
@@ -69,14 +70,14 @@ class SoundManager:
         Sets the volume for all loaded sounds.
         """
         for sound in SoundManager.get_instance().sounds.keys():
-            SoundManager.set_volume(sound, volume)
+            SoundManager.get_instance().__set_sound_volume(sound, volume)
 
     @staticmethod
-    def mute_sound(name: str) -> None:
+    def mute_sound(sound: "Sounds") -> None:
         """
          Mutes a specific sound.
         """
-        SoundManager.set_volume(name, 0.0)
+        SoundManager.set_volume(sound, 0.0)
 
     @staticmethod
     def mute_all_sounds() -> None:
@@ -162,3 +163,13 @@ class SoundManager:
         sound: Sound = self.sounds.get(sound_name)
         if sound:
             sound.set_volume(volume)
+
+
+class Sounds(Enum):
+    Fire = "fire.ogg"
+    Damage = "damage.wav"
+    Explosion = "explosion.ogg"
+    Life_Pickup = "life_pickup.flac"
+    Shield_Empty = "shield_empty.wav"
+    Shield_Fill = "shield_fill.wav"
+    Button_Clicked = "button_clicked.mp3"
