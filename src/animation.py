@@ -2,6 +2,7 @@ import time
 import pygame
 from src.settings import Settings
 from src.resources.texture_atlas import TextureAtlas
+from src.resources.sound_manager import SoundManager, Sounds
 
 settings = Settings()
 
@@ -41,7 +42,7 @@ class Animation:
         self.animation_position_x = x
         self.animation_position_y = y
 
-    def set_visibility(self, visibility, timer=False, duration=10, terminate_sound=None):
+    def set_visibility(self, visibility, timer=False, duration=10, terminate_sound: Sounds = None):
         self.animation_visibility = visibility
         if timer:
             self.timer_status = True
@@ -56,7 +57,7 @@ class Animation:
                 if elapsed_play_time >= self.animation_duration:
                     self.set_visibility(False)
                     if self.terminate_sound:
-                        self.terminate_sound.play()
+                        SoundManager.play_sound(self.terminate_sound)
             i = 0
             for frame in self.animation_frames:
                 current_rect = self.animation_rects[i]
