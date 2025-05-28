@@ -7,6 +7,7 @@ from .log_manager import LogManager
 from .input import Input
 from .settings import Settings, SCREEN_WIDTH, SCREEN_HEIGHT
 from .resources.texture_atlas import TextureAtlas
+from .resources.sound_manager import SoundManager
 from .world import World
 from .game_stats import GameStats
 from .entities.ui.elements.scoreboard import Scoreboard
@@ -30,6 +31,9 @@ class Game:
 
         logger.info("Initializing texture atlas...")
         TextureAtlas.initialize()
+
+        logger.info("Initializing sounds manager...")
+        SoundManager.init()
 
         logger.info("Creating the world...")
         self.world: World = World(self.screen, self.inp)

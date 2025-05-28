@@ -13,15 +13,7 @@ from src.entities.items.power import GENERATE_POWER_CHANCE, PowerUp, PowerType
 from . import settings
 from .game_stats import GameStats
 from .resources.texture_atlas import TextureAtlas
-
-pygame.mixer.init()
-
-sound_fire = pygame.mixer.Sound(settings.SOUNDS_DIR / "fire.ogg")
-sound_explosion = pygame.mixer.Sound(settings.SOUNDS_DIR / "explosion.ogg")
-sound_life = pygame.mixer.Sound(settings.SOUNDS_DIR / "life_pickup.flac")
-sound_damage = pygame.mixer.Sound(settings.SOUNDS_DIR / "damage.wav")
-sound_shield_fill = pygame.mixer.Sound(settings.SOUNDS_DIR / "shield_fill.wav")
-sound_shield_empty = pygame.mixer.Sound(settings.SOUNDS_DIR / "shield_empty.wav")
+from .resources.sound_manager import SoundManager, Sounds
 
 text_lines = []
 text_rects = []
@@ -240,7 +232,7 @@ def fire_bullet(ship, bullets) -> None:
         else:
             handle_normal_shot(ship, bullets)
 
-        sound_fire.play()
+        SoundManager.play_sound(Sounds.Fire)
 
 
 def update_bullets(ai_settings, stats, sb, world):
@@ -288,21 +280,21 @@ def check_bullet_alien_collisions(ai_settings, stats, sb, ship, aliens, bullets,
             sb.update()
             if ship.power == PowerType.HEALING:
                 health.increase()
-            sound_explosion.play()
+            SoundManager.play_sound(Sounds.Explosion)
 
     # if we hit cargo:
     if collisions_2:
         for _ in collisions_2.values():
             stats.score -= ai_settings.cargo_points
             sb.update()
-            sound_explosion.play()
+            SoundManager.play_sound(Sounds.Explosion)
 
     # if cargo hit alien:
     if collisions_3:
         for _ in collisions_3.values():
             stats.score -= ai_settings.cargo_points
             sb.update()
-            sound_explosion.play()
+            SoundManager.play_sound(Sounds.Explosion)
 
 
 def check_bullet_ship_collisions(stats, health, ship, alien_bullets):
@@ -311,7 +303,7 @@ def check_bullet_ship_collisions(stats, health, ship, alien_bullets):
 
     # if alien hit us
     if collisions:
-        sound_damage.play()
+        SoundManager.play_sound(Sounds.Damage)
         alien_bullets.remove(collisions)
         health.decrease(stats)
 
@@ -371,13 +363,13 @@ def update_aliens(ai_settings, stats, ship, aliens, cargoes, health):
 
     check_collideany_ship_alien = pygame.sprite.spritecollideany(ship, aliens, pygame.sprite.collide_mask)
     if check_collideany_ship_alien:
-        sound_explosion.play()
+        SoundManager.play_sound(Sounds.Explosion)
         aliens.remove(check_collideany_ship_alien)
         health.decrease(stats)
 
     check_collideany_ship_cargoes = pygame.sprite.spritecollideany(ship, aliens, pygame.sprite.collide_mask)
     if check_collideany_ship_cargoes:
-        sound_explosion.play()
+        SoundManager.play_sound(Sounds.Explosion)
         aliens.remove(check_collideany_ship_cargoes)
         health.decrease(stats)
 
@@ -409,7 +401,7 @@ def update_hearts(ship, health, hearts):
 
     check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts, pygame.sprite.collide_mask)
     if check_collideany_ship_hearts:
-        sound_life.play()
+        SoundManager.play_sound(Sounds.Life_Pickup)
         hearts.remove(check_collideany_ship_hearts)
         health.increase()
 
@@ -431,7 +423,7 @@ def update_powerups(ship, powerups):
     check_collideany_ship_powerup = pygame.sprite.spritecollideany(ship, powerups, pygame.sprite.collide_mask)
     if check_collideany_ship_powerup:
         ship.activate_powerup(check_collideany_ship_powerup.power)
-        sound_shield_fill.play()
+        SoundManager.play_sound(Sounds.Shield_Fill)
         powerups.remove(check_collideany_ship_powerup)
 
 
@@ -447,8 +439,8 @@ def update_shields(ship, shields, health):
     check_collideany_ship_shields = pygame.sprite.spritecollideany(ship, shields, pygame.sprite.collide_mask)
     if check_collideany_ship_shields:
         health.activate_shield()  # freezing health bar.
-        sound_shield_fill.play()
-        animations[1].set_visibility(True, True, 10, sound_shield_empty)
+        SoundManager.play_sound(Sounds.Shield_Fill)
+        animations[1].set_visibility(True, True, 10, Sounds.Shield_Empty)
         shields.remove(check_collideany_ship_shields)
 
     for shield in shields.copy():
