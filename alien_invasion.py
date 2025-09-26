@@ -15,8 +15,8 @@ from src.ship import Ship
 from src.log_manager import LogManager
 from src.region import Region, RegionManager
 from src.recorder import Recorder
-from src.ai_manager_new import AIManager
-# NOTE: the old AI implementation is preserved in `src/ai_manager.py` as a backup.
+from src.ai_manager_combined import AIManager
+# NOTE: legacy implementations preserved in `src/ai_manager.py` and `src/ai_manager_new.py`.
 
 
 def init_regions(screen: pygame.Surface) -> RegionManager:
@@ -129,6 +129,61 @@ def run_game():
     while True:
         input.update()
 
+        # Handle AI toggle key (K) immediately after input.update() so a
+        # user's explicit toggle is detected before any AI may overwrite
+        # input state for this frame. This mirrors the previous AI's
+        # behavior where user input had priority.
+        try:
+            if input.is_key_pressed(pygame.K_k):
+                # user explicitly toggles AI (mark as user-controlled)
+                ai_manager.set_enabled(not ai_manager.ai_enabled, auto=False)
+        except Exception:
+            pass
+
+        # If AI enabled, and the user performed ANY action this frame
+        # (pressing keys, mouse button, or moving the mouse), we should
+        # immediately disable AI so the player regains control. This
+        # matches the legacy behaviour requested: any user activity
+        # disables AI when it was active.
+        try:
+            if ai_manager.ai_enabled:
+                user_did_action = False
+
+                # Key presses (any key pressed this frame)
+                # We check is_key_pressed across a small set of relevant keys
+                # plus a general technique: attempt to detect any change in
+                # the key state tuples sizes safely.
+                # Specific control keys used in gameplay:
+                for k in (pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE, pygame.K_LCTRL, pygame.K_RCTRL, pygame.K_z, pygame.K_x):
+                    try:
+                        if input.is_key_pressed(k):
+                            user_did_action = True
+                            break
+                    except Exception:
+                        continue
+
+                # Mouse presses
+                if not user_did_action:
+                    try:
+                        if input.is_mouse_button_pressed(0) or input.is_mouse_button_pressed(1) or input.is_mouse_button_pressed(2):
+                            user_did_action = True
+                    except Exception:
+                        pass
+
+                # Mouse movement (cursor moved since last frame)
+                if not user_did_action:
+                    try:
+                        if input.get_mouse_cursor_position() != input.previous_mouse_position:
+                            user_did_action = True
+                    except Exception:
+                        pass
+
+                # If user did something, disable AI (treat as user-controlled)
+                if user_did_action:
+                    ai_manager.set_enabled(False, auto=False)
+        except Exception:
+            pass
+
         # If AI enabled, let AI decide movement/actions BEFORE input handlers
         # so simulated mouse/keyboard state will be visible to the same
         # frame's input-processing (check_events / check_mouse_events).
@@ -158,13 +213,7 @@ def run_game():
             # Never let recorder break the game loop
             logger.exception("Recorder failed during record()")
 
-        # handle AI toggle key (K)
-        try:
-            if input.is_key_pressed(pygame.K_k):
-                # user explicitly toggles AI (mark as user-controlled)
-                ai_manager.set_enabled(not ai_manager.ai_enabled, auto=False)
-        except Exception:
-            pass
+        # (AI toggle handled earlier immediately after input.update())
 
         # detect inactivity using time (2 seconds) -> enable AI control
         try:

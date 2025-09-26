@@ -29,7 +29,15 @@ class AIManager:
     - act(stats, ship, aliens, bullets, health, input, ...)
     """
 
-    def __init__(self):
+    def __init__(self, models_dir: str = "models", trainer_cmd: Optional[list] = None, auto_train_interval: int = 120):
+        """Initialize the simple AI.
+
+        This signature accepts the legacy parameters used by the old AI
+        (`models_dir`, `trainer_cmd`, `auto_train_interval`) for backwards
+        compatibility, but they are ignored by this deterministic AI.
+        """
+        # legacy params are intentionally unused; we keep the signature so
+        # existing call sites (alien_invasion.py) work without change.
         self.ai_enabled = False
         self._auto_enabled = False
         self.debug = False
@@ -40,6 +48,17 @@ class AIManager:
 
     def was_auto_enabled(self) -> bool:
         return bool(self._auto_enabled)
+
+    def stop(self) -> None:
+        """Compatibility shim: stop any background work the AI may have.
+
+        The original AI exposed a stop() method that cleaned up trainer
+        threads. This deterministic AI has no background threads, but we
+        provide stop() as a safe no-op so existing call sites and the
+        atexit handler in `alien_invasion.py` won't fail.
+        """
+        # If this AI ever adds background threads, shut them down here.
+        self.ai_enabled = False
 
     def _find_nearest_alien(self, ship, aliens):
         nearest = None
