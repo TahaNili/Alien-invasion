@@ -15,7 +15,8 @@ from src.ship import Ship
 from src.log_manager import LogManager
 from src.region import Region, RegionManager
 from src.recorder import Recorder
-from src.ai_manager import AIManager
+from src.ai_manager_new import AIManager
+# NOTE: the old AI implementation is preserved in `src/ai_manager.py` as a backup.
 
 
 def init_regions(screen: pygame.Surface) -> RegionManager:

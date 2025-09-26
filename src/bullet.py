@@ -18,8 +18,28 @@ class Bullet(ABC, Sprite):
 
         # Load and scale bullet image
         self.image: pygame.Surface = TextureAtlas.get_sprite_texture("bullet/golden_bullet.png")
-        self.image_size: tuple[int, int] = self.image.get_size()
-        self.image = pygame.transform.scale(self.image, (self.image_size[0] * 0.03, self.image_size[1] * 0.03))
+        # Fallback for headless/tests: create a simple surface if atlas not loaded
+        if self.image is None:
+            try:
+                self.image = pygame.Surface((4, 8), pygame.SRCALPHA)
+                self.image.fill((255, 255, 0))
+            except Exception:
+                # Last-resort: create a tiny surface without alpha
+                self.image = pygame.Surface((4, 8))
+                self.image.fill((255, 255, 0))
+
+        # Safely compute image size and scale (ensure integer sizes >= 1)
+        try:
+            self.image_size: tuple[int, int] = self.image.get_size()
+            target_w = max(1, int(self.image_size[0] * 0.03))
+            target_h = max(1, int(self.image_size[1] * 0.03))
+            self.image = pygame.transform.scale(self.image, (target_w, target_h))
+        except Exception:
+            # If scaling fails, keep the original image
+            try:
+                self.image_size = self.image.get_size()
+            except Exception:
+                self.image_size = (4, 8)
         self.rect = self.image.get_rect()
 
         # Set angle and initial position
