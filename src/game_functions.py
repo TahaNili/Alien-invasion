@@ -337,15 +337,21 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
 
     # if we hit alien
     if collisions_1:
+        total_killed = 0
         for aliens_hit in collisions_1.values():
             for alien in aliens_hit:
                 alien.health -= 1
                 animations[0].set_position(alien.rect.x, alien.rect.y)
                 animations[0].play()
                 if alien.health <= 0:
-                    aliens.remove(alien)
+                    try:
+                        aliens.remove(alien)
+                        total_killed += 1
+                    except Exception:
+                        pass
 
-            stats.score += ai_settings.alien_points * len(aliens)
+        if total_killed > 0:
+            stats.score += ai_settings.alien_points * total_killed
             sb.update()
             sound_explosion.play()
 

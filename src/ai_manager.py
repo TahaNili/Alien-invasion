@@ -373,10 +373,11 @@ class AIManager:
                     # comes from ship.angle), avoiding an alternate "cheating"
                     # path where bullets ignore the ship's facing.
                     try:
-                        # Set ship.angle like the player would (this is the same
-                        # value that would result if the player aimed with the
-                        # mouse). Then call the standard fire path which uses
-                        # ship.angle to determine bullet direction.
+                        # Mark that AI intends to fire this frame (recorder/logs
+                        # will read this flag to record a firing event). Then
+                        # set ship.angle and call the normal player firing path
+                        # so AI behavior exactly matches player behavior.
+                        ship._ai_requested_fire = True
                         ship.angle = float(fire_angle)
                         gf.fire_bullet(ship, bullets)
                     except Exception:

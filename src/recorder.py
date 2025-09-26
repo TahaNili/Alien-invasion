@@ -90,7 +90,28 @@ class Recorder:
         ship_angle = float(getattr(ship, "angle", 0.0))
 
         mouse_pos = input.get_mouse_cursor_position() if hasattr(input, "get_mouse_cursor_position") else pygame.mouse.get_pos()
-        mouse_fire = bool(input.is_mouse_button_pressed(0)) if hasattr(input, "is_mouse_button_pressed") else bool(pygame.mouse.get_pressed()[0])
+        # mouse_fire for player, or AI-requested fire if set by AIManager
+        mouse_fire = 0
+        try:
+            if hasattr(input, "is_mouse_button_pressed"):
+                mouse_fire = int(bool(input.is_mouse_button_pressed(0)))
+            else:
+                mouse_fire = int(bool(pygame.mouse.get_pressed()[0]))
+        except Exception:
+            mouse_fire = 0
+
+        # AI may request fire by setting ship._ai_requested_fire; prefer that
+        # when present so AI shots are logged similarly to player shots.
+        try:
+            if getattr(ship, "_ai_requested_fire", False):
+                mouse_fire = 1
+                # clear the flag so it only records once
+                try:
+                    ship._ai_requested_fire = False
+                except Exception:
+                    pass
+        except Exception:
+            pass
 
         bullets_count = len(bullets.sprites()) if hasattr(bullets, "sprites") else int(len(bullets))
         aliens_count = len(aliens.sprites()) if hasattr(aliens, "sprites") else int(len(aliens))
