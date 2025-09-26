@@ -66,9 +66,10 @@ class ShipBullet(Bullet):
         # Default spawn uses the ship's left gun position (forward + lateral)
         # Forward offset (along ship facing): ~30px. Lateral offset to the
         # left: ~-12px (negative moves left relative to forward direction).
-        angle = source.angle  # Use ship's current angle
+        angle = source.angle
+        self.angle = angle  # Use ship's current angle
         forward = 30.0
-        lateral_left = -12.0
+        lateral_left = (-12.0 if math.sin(self.angle) >= 0 else +12.0)
         # Perpendicular (left) vector components
         perp_x = math.cos(angle + math.pi / 2)
         perp_y = math.sin(angle + math.pi / 2)
@@ -86,7 +87,7 @@ class ShipBullet(Bullet):
             self.angle = float(angle)
             # Use same left-gun math as set_angle
             forward = 30.0
-            lateral_left = -12.0
+            lateral_left = (-12.0 if math.sin(self.angle) >= 0 else +12.0)
             perp_x = math.cos(self.angle + math.pi / 2)
             perp_y = math.sin(self.angle + math.pi / 2)
             x = source_ship.rect.centerx + math.sin(self.angle) * forward + perp_x * lateral_left

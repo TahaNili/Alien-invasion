@@ -363,6 +363,7 @@ class AIManager:
 
                             # compute firing angle compatible with ShipBullet.set_angle
                             fire_angle = math.atan2(-(aim_x - s_x), -(aim_y - s_y))
+                            
                     except Exception:
                         pass
 
