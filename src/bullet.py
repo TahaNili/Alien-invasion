@@ -63,10 +63,41 @@ class ShipBullet(Bullet):
         super().__init__(None, ship, settings.BULLET_COLOR, settings.BULLET_SPEED_FACTOR)
 
     def set_angle(self, source, target):
+        # Default spawn uses the ship's left gun position (forward + lateral)
+        # Forward offset (along ship facing): ~30px. Lateral offset to the
+        # left: ~-12px (negative moves left relative to forward direction).
         angle = source.angle  # Use ship's current angle
-        x = source.rect.centerx + math.sin(angle) * 30
-        y = source.rect.centery - math.cos(angle) * 30
+        forward = 30.0
+        lateral_left = -12.0
+        # Perpendicular (left) vector components
+        perp_x = math.cos(angle + math.pi / 2)
+        perp_y = math.sin(angle + math.pi / 2)
+        x = source.rect.centerx + math.sin(angle) * forward + perp_x * lateral_left
+        y = source.rect.centery - math.cos(angle) * forward + perp_y * lateral_left
         return angle, x, y
+
+    def set_angle_override(self, angle, source_ship):
+        """Override bullet angle and position using a ship reference.
+
+        This ensures the bullet's internal angle, rect and float positions are
+        consistent and uses the same nose offset logic as `set_angle`.
+        """
+        try:
+            self.angle = float(angle)
+            # Use same left-gun math as set_angle
+            forward = 30.0
+            lateral_left = -12.0
+            perp_x = math.cos(self.angle + math.pi / 2)
+            perp_y = math.sin(self.angle + math.pi / 2)
+            x = source_ship.rect.centerx + math.sin(self.angle) * forward + perp_x * lateral_left
+            y = source_ship.rect.centery - math.cos(self.angle) * forward + perp_y * lateral_left
+            self.rect.centerx = int(x)
+            self.rect.centery = int(y)
+            self.x = float(self.rect.x)
+            self.y = float(self.rect.y)
+        except Exception:
+            # If override fails, keep existing values
+            pass
 
 
 class AlienBullet(Bullet):

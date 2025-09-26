@@ -366,12 +366,24 @@ class AIManager:
                     except Exception:
                         pass
 
-                    # Use the angle when spawning the bullet so the ship's visual
-                    # rotation is not forced to the aim direction (avoids 'cheating').
+                    # Use the player's firing contract: set the ship's angle to the
+                    # computed aim and fire normally. This ensures AI fires using
+                    # the exact same logic as a human player (bullet direction
+                    # comes from ship.angle), avoiding an alternate "cheating"
+                    # path where bullets ignore the ship's facing.
                     try:
-                        gf.fire_bullet(ship, bullets, angle=fire_angle)
-                    except Exception:
+                        # Set ship.angle like the player would (this is the same
+                        # value that would result if the player aimed with the
+                        # mouse). Then call the standard fire path which uses
+                        # ship.angle to determine bullet direction.
+                        ship.angle = float(fire_angle)
                         gf.fire_bullet(ship, bullets)
+                    except Exception:
+                        # Fallback: try the override path if something fails.
+                        try:
+                            gf.fire_bullet(ship, bullets, angle=fire_angle)
+                        except Exception:
+                            gf.fire_bullet(ship, bullets)
                     fired = True
             except Exception:
                 pass

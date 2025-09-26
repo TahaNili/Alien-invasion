@@ -49,7 +49,7 @@ def load_credits():
     global text_lines, text_rects
     credit = """
     Developers:
-        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila, withpouriya, onabrcom
+        MatinAfzal, BaR1BoD, Taha Moosavi, hussain, sinapila, withpouriya, onabrcom, TahaNili
 
     Assets:
         Ship assets used in this game were created by "Skorpio" and are licensed under CC-BY-SA 3.0.
@@ -246,13 +246,41 @@ def update_screen(
     pygame.display.flip()
 
 
-def fire_bullet(ship, bullets) -> None:
-    """Fire a bullet if limit not reached yet."""
-    # Create a new bullet and add it to the bullets group.
-    if len(bullets) < settings.BULLETS_ALLOWED:
-        new_bullet = ShipBullet(ship)
-        bullets.add(new_bullet)
-        sound_fire.play()
+def fire_bullet(ship, bullets, angle=None) -> None:
+    """Fire a bullet if limit not reached yet.
+
+    If `angle` is provided the bullet will be spawned at the ship nose
+    using that angle (without mutating `ship.angle`) so AI firing does not
+    visually or logically 'cheat'. Also debounce firing to avoid multiple
+    bullets in the same game tick.
+    """
+    # prevent firing more bullets than allowed
+    if len(bullets) >= settings.BULLETS_ALLOWED:
+        return
+
+    # simple same-tick debounce to avoid double-shot when act() is called
+    # multiple times in a single frame for the same ship.
+    try:
+        now = pygame.time.get_ticks()
+        last = getattr(ship, "_last_fire_tick", None)
+        if last is not None and last == now:
+            return
+        ship._last_fire_tick = now
+    except Exception:
+        # If timing isn't available, continue without debounce
+        pass
+
+    # Create the bullet and apply an angle override when requested.
+    new_bullet = ShipBullet(ship)
+    if angle is not None:
+        try:
+            new_bullet.set_angle_override(angle, ship)
+        except Exception:
+            # fallback: ignore override if it fails
+            pass
+
+    bullets.add(new_bullet)
+    sound_fire.play()
 
 
 def update_bullets(
@@ -762,25 +790,42 @@ def fire_bullet(ship, bullets, angle: float | None = None) -> None:
     instantly rotate). If `angle` is None, behavior is unchanged and the
     ship's current angle is used.
     """
+    # Debounce: prevent multiple bullets in the same game tick from the same ship
+    try:
+        now = pygame.time.get_ticks()
+        last = getattr(ship, '_last_fire_tick', None)
+        if last == now:
+            # Already fired this tick; ignore
+            return
+        ship._last_fire_tick = now
+    except Exception:
+        # If anything fails, continue without debounce
+        pass
+
     # Create a new bullet and add it to the bullets group.
     if len(bullets) < settings.BULLETS_ALLOWED:
         new_bullet = ShipBullet(ship)
 
         if angle is not None:
-            # Override the bullet's angle and position so it appears to come from
-            # the ship's nose for the provided aim direction.
+            # Use the bullet's override method which centralizes angle/position logic
             try:
-                new_bullet.angle = float(angle)
-                # place bullet at ship nose using same offset as ShipBullet.set_angle
-                x = ship.rect.centerx + math.sin(new_bullet.angle) * 30
-                y = ship.rect.centery - math.cos(new_bullet.angle) * 30
-                new_bullet.rect.centerx = int(x)
-                new_bullet.rect.centery = int(y)
-                new_bullet.x = float(new_bullet.rect.x)
-                new_bullet.y = float(new_bullet.rect.y)
+                new_bullet.set_angle_override(angle, ship)
             except Exception:
-                # Fallback to normal behavior if any assignment fails
-                pass
+                # If override fails, fall back to setting values directly
+                try:
+                    new_bullet.angle = float(angle)
+                    forward = 30.0
+                    lateral_left = -12.0
+                    perp_x = math.cos(new_bullet.angle + math.pi / 2)
+                    perp_y = math.sin(new_bullet.angle + math.pi / 2)
+                    x = ship.rect.centerx + math.sin(new_bullet.angle) * forward + perp_x * lateral_left
+                    y = ship.rect.centery - math.cos(new_bullet.angle) * forward + perp_y * lateral_left
+                    new_bullet.rect.centerx = int(x)
+                    new_bullet.rect.centery = int(y)
+                    new_bullet.x = float(new_bullet.rect.x)
+                    new_bullet.y = float(new_bullet.rect.y)
+                except Exception:
+                    pass
 
         bullets.add(new_bullet)
         sound_fire.play()

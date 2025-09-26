@@ -35,6 +35,10 @@ class Recorder:
         "nearest_alien_dx",
         "nearest_alien_dy",
         "nearest_alien_distance",
+        # New fields: nearest alien velocity components (units/sec). These are
+        # optional and will be None when no aliens present.
+        "nearest_alien_vx",
+        "nearest_alien_vy",
     ]
 
     def __init__(self, filepath: str | Path, fieldnames: Optional[list[str]] = None):
@@ -95,6 +99,8 @@ class Recorder:
         nearest_dx = None
         nearest_dy = None
         nearest_dist = None
+        nearest_vx = None
+        nearest_vy = None
         try:
             ship_cx = ship.center[0] if hasattr(ship, "center") else ship.rect.centerx
             ship_cy = ship.center[1] if hasattr(ship, "center") else ship.rect.centery
@@ -111,6 +117,9 @@ class Recorder:
                     nearest_dx = dx
                     nearest_dy = dy
                     nearest_dist = dist
+                    # record per-alien vx/vy when available
+                    nearest_vx = getattr(a, "vx", None)
+                    nearest_vy = getattr(a, "vy", None)
         except Exception:
             nearest_dx = nearest_dy = nearest_dist = None
 
@@ -134,6 +143,8 @@ class Recorder:
             "nearest_alien_dx": nearest_dx,
             "nearest_alien_dy": nearest_dy,
             "nearest_alien_distance": nearest_dist,
+            "nearest_alien_vx": nearest_vx,
+            "nearest_alien_vy": nearest_vy,
         }
 
         # Ensure all fields present

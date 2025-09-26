@@ -24,6 +24,11 @@ class Alien(ABC, Sprite):
         self.image = self.original_image
         self.rect = self.image.get_rect()
 
+        # Per-second velocity components (units per second). These are used by
+        # the AI intercept math and by the recorder for training features.
+        self.vx = 0.0
+        self.vy = 0.0
+
         # Start each new alien near the top left of the screen.
         self.x = float(randint(0, ai_settings.screen_width - self.rect.width))
         self.y = float(randint(0, ai_settings.screen_height - self.rect.height))
@@ -56,9 +61,18 @@ class Alien(ABC, Sprite):
             angle_diff -= 360
         self.angle += angle_diff * 0.1  # Adjust this factor for smoother rotation.
 
-        # Update the alien's position.
-        self.x += math.cos(target_angle) * self.ai_settings.alien_speed_factor * self.ai_settings.delta_time
-        self.y += math.sin(target_angle) * self.ai_settings.alien_speed_factor * self.ai_settings.delta_time
+        # Compute per-second velocity (direction * speed_factor) and apply
+        # frame-scaled displacement using delta_time.
+        try:
+            speed = float(self.ai_settings.alien_speed_factor)
+        except Exception:
+            speed = 0.0
+        self.vx = math.cos(target_angle) * speed
+        self.vy = math.sin(target_angle) * speed
+
+        # Update the alien's position using per-frame delta_time.
+        self.x += self.vx * getattr(self.ai_settings, "delta_time", 1.0)
+        self.y += self.vy * getattr(self.ai_settings, "delta_time", 1.0)
         self.rect.x = self.x
         self.rect.y = self.y
 
