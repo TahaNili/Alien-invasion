@@ -802,6 +802,7 @@ def fire_bullet(ship, bullets, angle: float | None = None) -> None:
         last = getattr(ship, '_last_fire_tick', None)
         if last == now:
             # Already fired this tick; ignore
+            print(f"fire_bullet: debounce prevented fire (last={last} now={now})")
             return
         ship._last_fire_tick = now
     except Exception:
@@ -809,6 +810,7 @@ def fire_bullet(ship, bullets, angle: float | None = None) -> None:
         pass
 
     # Create a new bullet and add it to the bullets group.
+    print(f"fire_bullet called: bullets={len(bullets)} allowed={settings.BULLETS_ALLOWED} angle={angle} ship_angle={getattr(ship, 'angle', None)}")
     if len(bullets) < settings.BULLETS_ALLOWED:
         new_bullet = ShipBullet(ship)
 
@@ -834,7 +836,14 @@ def fire_bullet(ship, bullets, angle: float | None = None) -> None:
                     pass
 
         bullets.add(new_bullet)
-        sound_fire.play()
+        print("fire_bullet: bullet added")
+        try:
+            sound_fire.play()
+        except Exception:
+            # Ignore audio errors in headless tests
+            pass
+    else:
+        print("fire_bullet: bullet not added - limit reached")
 
 
 def update_bullets(

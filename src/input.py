@@ -147,7 +147,13 @@ class Input:
 
         if self.current_key_states is None or self.previous_key_states is None:
             return False
-        return self.current_key_states[key_code]
+        try:
+            return bool(self.current_key_states[key_code])
+        except Exception:
+            # Defensive: if the underlying sequence doesn't support the
+            # requested key_code (e.g. AI committed a short tuple), treat as
+            # not pressed instead of raising an IndexError.
+            return False
 
     def is_key_pressed(self, key_code):
         """
@@ -158,10 +164,10 @@ class Input:
 
         if self.current_key_states is None or self.previous_key_states is None:
             return False
-        return (
-            self.current_key_states[key_code]
-            and not self.previous_key_states[key_code]
-        )
+        try:
+            return bool(self.current_key_states[key_code]) and not bool(self.previous_key_states[key_code])
+        except Exception:
+            return False
 
     def is_key_double_pressed(self, key_code):
         """
@@ -170,7 +176,10 @@ class Input:
         :param pygame.Key key_code: The key to check.
         """
 
-        return self.__key_press_states[key_code] == "double"
+        try:
+            return self.__key_press_states[key_code] == "double"
+        except Exception:
+            return False
 
     def is_key_released(self, key_code):
         """
@@ -181,10 +190,10 @@ class Input:
 
         if self.current_key_states is None or self.previous_key_states is None:
             return False
-        return (
-            not self.current_key_states[key_code]
-            and self.previous_key_states[key_code]
-        )
+        try:
+            return (not bool(self.current_key_states[key_code]) and bool(self.previous_key_states[key_code]))
+        except Exception:
+            return False
 
     def get_key_down_duration(self, key_code):
         """
@@ -193,7 +202,10 @@ class Input:
         :param pygame.Key key_code: The key to check.
         """
 
-        return self.__key_press_durations[key_code]
+        try:
+            return self.__key_press_durations[key_code]
+        except Exception:
+            return 0
 
     #
     # mouse methods
@@ -218,7 +230,10 @@ class Input:
             or self.previous_mouse_button_states is None
         ):
             return False
-        return self.current_mouse_button_states[mouse_button]
+        try:
+            return bool(self.current_mouse_button_states[mouse_button])
+        except Exception:
+            return False
 
     def is_mouse_button_pressed(self, mouse_button):
         """
@@ -232,10 +247,10 @@ class Input:
             or self.previous_mouse_button_states is None
         ):
             return False
-        return (
-            self.current_mouse_button_states[mouse_button]
-            and not self.previous_mouse_button_states[mouse_button]
-        )
+        try:
+            return bool(self.current_mouse_button_states[mouse_button]) and not bool(self.previous_mouse_button_states[mouse_button])
+        except Exception:
+            return False
 
     def is_mouse_button_double_pressed(self, mouse_button):
         """
@@ -244,7 +259,10 @@ class Input:
         :param int mouse_button: The mouse button to check.
         """
 
-        return self.__mouse_press_states[mouse_button] == "double"
+        try:
+            return self.__mouse_press_states[mouse_button] == "double"
+        except Exception:
+            return False
 
     def is_mouse_button_released(self, mouse_button):
         """
@@ -258,10 +276,10 @@ class Input:
             or self.previous_mouse_button_states is None
         ):
             return False
-        return (
-            not self.current_mouse_button_states[mouse_button]
-            and self.previous_mouse_button_states[mouse_button]
-        )
+        try:
+            return (not bool(self.current_mouse_button_states[mouse_button]) and bool(self.previous_mouse_button_states[mouse_button]))
+        except Exception:
+            return False
 
     def get_mouse_button_down_duration(self, mouse_button):
         """
@@ -270,4 +288,7 @@ class Input:
         :param int mouse_button: The mouse button to check.
         """
 
-        return self.__mouse_button_durations[mouse_button]
+        try:
+            return self.__mouse_button_durations[mouse_button]
+        except Exception:
+            return 0

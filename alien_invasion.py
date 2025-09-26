@@ -127,6 +127,28 @@ def run_game():
     last_active_time = pygame.time.get_ticks()
     while True:
         input.update()
+
+        # If AI enabled, let AI decide movement/actions BEFORE input handlers
+        # so simulated mouse/keyboard state will be visible to the same
+        # frame's input-processing (check_events / check_mouse_events).
+        if ai_manager.ai_enabled:
+            try:
+                ai_manager.act(
+                    stats,
+                    ship,
+                    aliens,
+                    bullets,
+                    health,
+                    input,
+                    alien_bullets=alien_bullets,
+                    items=None,
+                    cargoes=cargoes,
+                    shields=shields,
+                    hearts=hearts,
+                )
+            except Exception:
+                pass
+
         # Record current frame only when game is active (best-effort)
         try:
             if recorder is not None and stats.game_active:
@@ -134,6 +156,7 @@ def run_game():
         except Exception:
             # Never let recorder break the game loop
             logger.exception("Recorder failed during record()")
+
         # handle AI toggle key (K)
         try:
             if input.is_key_pressed(pygame.K_k):

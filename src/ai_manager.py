@@ -8,6 +8,7 @@ import sys
 
 import joblib
 import math
+import pygame
 
 import src.game_functions as gf
 from . import settings
@@ -190,6 +191,51 @@ class AIManager:
         ship_cx = ship.center[0] if hasattr(ship, "center") else ship.rect.centerx
         ship_cy = ship.center[1] if hasattr(ship, "center") else ship.rect.centery
 
+        # Prepare key/mouse buffers to simulate player input. These will be
+        # copied into the `input` object at the end of act() so the rest of
+        # the game treats AI decisions as normal user input.
+        try:
+            key_len = len(input.current_key_states)
+        except Exception:
+            key_len = 512
+        prev_key_buf = [False] * key_len
+        cur_key_buf = [False] * key_len
+
+        def set_key_state(key_code, value):
+            try:
+                if 0 <= key_code < len(cur_key_buf):
+                    cur_key_buf[key_code] = bool(value)
+            except Exception:
+                pass
+
+        # mouse buffers (left, middle, right)
+        try:
+            prev_mouse_buf = list(input.current_mouse_button_states)
+        except Exception:
+            prev_mouse_buf = [False, False, False]
+        cur_mouse_buf = [False, False, False]
+
+        def set_mouse_press(left=False, middle=False, right=False):
+            try:
+                cur_mouse_buf[0] = bool(left)
+                cur_mouse_buf[1] = bool(middle)
+                cur_mouse_buf[2] = bool(right)
+            except Exception:
+                pass
+
+        def commit_input_states():
+            try:
+                if hasattr(input, 'previous_key_states'):
+                    input.previous_key_states = tuple(prev_key_buf)
+                if hasattr(input, 'current_key_states'):
+                    input.current_key_states = tuple(cur_key_buf)
+                if hasattr(input, 'previous_mouse_button_states'):
+                    input.previous_mouse_button_states = tuple(prev_mouse_buf)
+                if hasattr(input, 'current_mouse_button_states'):
+                    input.current_mouse_button_states = tuple(cur_mouse_buf)
+            except Exception:
+                pass
+
         def move_toward(tx, ty, thresh=8):
             dx = tx - ship_cx
             dy = ty - ship_cy
@@ -238,20 +284,24 @@ class AIManager:
                     except Exception:
                         pass
                     if ship_cx < screen_w / 2:
-                        ship.moving_right = True
-                        ship.moving_left = False
+                        set_key_state(pygame.K_RIGHT, True)
+                        set_key_state(pygame.K_LEFT, False)
                     else:
-                        ship.moving_left = True
-                        ship.moving_right = False
-                    ship.moving_up = True
-                    ship.moving_down = False
+                        set_key_state(pygame.K_LEFT, True)
+                        set_key_state(pygame.K_RIGHT, False)
+                    set_key_state(pygame.K_UP, True)
+                    set_key_state(pygame.K_DOWN, False)
                     return
         except Exception:
             pass
 
         # 3) Attack nearest alien
         if len(alien_sprites) == 0:
-            ship.moving_left = ship.moving_right = ship.moving_up = ship.moving_down = False
+            # clear movement keys
+            set_key_state(pygame.K_LEFT, False)
+            set_key_state(pygame.K_RIGHT, False)
+            set_key_state(pygame.K_UP, False)
+            set_key_state(pygame.K_DOWN, False)
             return
 
         try:
@@ -273,13 +323,13 @@ class AIManager:
                 move_toward(aim_x, aim_y, thresh=6)
             else:
                 if aim_x < ship_cx:
-                    ship.moving_left = True
-                    ship.moving_right = False
+                    set_key_state(pygame.K_LEFT, True)
+                    set_key_state(pygame.K_RIGHT, False)
                 else:
-                    ship.moving_right = True
-                    ship.moving_left = False
-                ship.moving_up = abs(aim_y - ship_cy) > 20 and (aim_y < ship_cy)
-                ship.moving_down = abs(aim_y - ship_cy) > 20 and (aim_y > ship_cy)
+                    set_key_state(pygame.K_RIGHT, True)
+                    set_key_state(pygame.K_LEFT, False)
+                set_key_state(pygame.K_UP, abs(aim_y - ship_cy) > 20 and (aim_y < ship_cy))
+                set_key_state(pygame.K_DOWN, abs(aim_y - ship_cy) > 20 and (aim_y > ship_cy))
 
             fired = False
             try:
@@ -375,11 +425,44 @@ class AIManager:
                     try:
                         # Mark that AI intends to fire this frame (recorder/logs
                         # will read this flag to record a firing event). Then
-                        # set ship.angle and call the normal player firing path
-                        # so AI behavior exactly matches player behavior.
+                        # emulate player input: move the mouse cursor to the
+                        # computed aim point so `Ship.update()` computes the
+                        # same `ship.angle` as when a human aims with mouse.
+                        # Also simulate a one-frame left-button mouse press so
+                        # any input-based logic that reads mouse state behaves
+                        # identically for AI.
                         ship._ai_requested_fire = True
+
+                        # Set input mouse cursor (used by Ship.update to set angle)
+                        try:
+                            if hasattr(input, 'current_mouse_position'):
+                                # ensure a tuple (x, y)
+                                input.current_mouse_position = (int(aim_x), int(aim_y))
+                        except Exception:
+                            pass
+
+                        # Simulate a single-frame left mouse press so input.is_mouse_button_pressed(0)
+                        # will return True for this frame. We set previous to unpressed
+                        # and current to pressed. Input.update() runs before act(), so
+                        # this change will be visible to the rest of the frame (e.g., ship.update).
+                        try:
+                            # record simulated mouse press in our buffer
+                            set_mouse_press(left=True)
+                        except Exception:
+                            pass
+
+                        # Also set ship.angle to ensure immediate consistency
                         ship.angle = float(fire_angle)
-                        gf.fire_bullet(ship, bullets)
+
+                        # Emulate a one-frame left-mouse press so the game's
+                        # regular mouse handling will call the player's firing
+                        # contract. We set previous to unpressed and current
+                        # to pressed so input.is_mouse_button_pressed(0)
+                        # returns True in the upcoming check_events call.
+                        try:
+                            set_mouse_press(left=True)
+                        except Exception:
+                            pass
                     except Exception:
                         # Fallback: try the override path if something fails.
                         try:
@@ -401,3 +484,9 @@ class AIManager:
                 ship.moving_left = ship.moving_right = ship.moving_up = ship.moving_down = False
             except Exception:
                 pass
+        # Apply simulated key/mouse buffers to the input object so the
+        # rest of the loop treats AI decisions as normal player input.
+        try:
+            commit_input_states()
+        except Exception:
+            pass
