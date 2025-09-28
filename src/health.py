@@ -54,11 +54,11 @@ class Health:
         """Draw health bar in the top-left corner."""
         heart_size: tuple[int, int] = (20, 20)
         full_heart: pygame.Surface = pygame.transform.scale(
-            TextureAtlas.get_sprite_texture("heart/full_heart.png"),
+            TextureAtlas.get_sprite_texture("heart/full_heart.png"), # type: ignore
             heart_size,
         )
         empty_heart: pygame.Surface = pygame.transform.scale(
-            TextureAtlas.get_sprite_texture("heart/empty_heart.png"),
+            TextureAtlas.get_sprite_texture("heart/empty_heart.png"), # type: ignore
             heart_size,
         )
 
