@@ -1,10 +1,12 @@
 import logging
+import sys
 import pygame
 from pygame.sprite import Group
 
 import src.game_functions as gf
 from src.entities.ui.elements.button import Button as btn
 from src.entities.ui.elements.scoreboard import Scoreboard
+from src.recorder import Recorder, collect_frame_features
 from src.resources.texture_atlas import TextureAtlas
 from src.game_functions import generate_heart
 from src.game_stats import GameStats
@@ -44,6 +46,10 @@ def run_game():
     logger = logging.getLogger(__name__)
 
     logger.info("Starting game...")
+    logger.info("Initializing game recorder...")
+    rec = Recorder()
+    csv_path = rec.start_session('gameplay')
+    frame_idx = 0
 
     ai_settings = Settings()
     input = Input()
@@ -151,6 +157,22 @@ def run_game():
             shields,
         )
 
+        # Record frame data
+        features = collect_frame_features(
+            ship=ship,
+            input_obj=input,
+            stats=stats,
+            bullets=bullets,
+            aliens=aliens,
+            cargoes=cargoes,
+            alien_bullets=alien_bullets,
+            hearts=hearts,
+            shields=shields,
+            region_manager=region_manager,
+        )
+        rec.record_frame(frame_idx, clock.get_time(), features)
+        frame_idx += 1
+
         clock.tick(ai_settings.fps)
 
         # Aliens fire timer
@@ -175,6 +197,17 @@ def run_game():
             cargoes.empty()
             hearts.empty()
             shields.empty()
+
+        # Check for exit and save data
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                data_path = rec.stop()
+                if data_path:
+                    print(f"Data has Saved ({data_path})")
+                else:
+                    print("Data NOT saved!")
+                pygame.quit()
+                sys.exit()
 
 
 run_game()

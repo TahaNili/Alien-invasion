@@ -13,7 +13,10 @@ class Ship(pygame.sprite.Sprite):
         self.input = input
 
         # Load the ship image and get its rect.
-        self.image: pygame.Surface = TextureAtlas.get_sprite_texture("ship/ship.png")
+        image = TextureAtlas.get_sprite_texture("ship/ship.png")
+        if image is None:
+            raise ValueError("Failed to load ship texture")
+        self.image: pygame.Surface = image
         self.rect: pygame.Rect = self.image.get_rect()
 
         # start each new ship at the bottom center of the screen.

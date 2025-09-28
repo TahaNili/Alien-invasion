@@ -132,7 +132,7 @@ class RegionManager:
         self.__fade_alpha = 0
 
     def __update_fade(self, dt: float) -> None:
-        self.__fade_alpha += 1.5 * self.__fade_direction * dt
+        self.__fade_alpha = int(self.__fade_alpha + 1.5 * self.__fade_direction * dt)
 
         if self.__fade_alpha >= 255:
             self.__fade_alpha = 255
