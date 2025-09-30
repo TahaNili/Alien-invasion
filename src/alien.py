@@ -27,8 +27,8 @@ class Alien(ABC, Sprite):
         # Start each new alien near the top left of the screen.
         self.x = float(randint(0, ai_settings.screen_width - self.rect.width))
         self.y = float(randint(0, ai_settings.screen_height - self.rect.height))
-        self.rect.x = self.x
-        self.rect.y = self.y
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 
     def check_edges(self):
         """Return True if alien is at edge of screen."""
@@ -75,7 +75,11 @@ class Alien(ABC, Sprite):
 
     @abstractmethod
     def get_image(self):
-        pass  # This is an abstract method, no implementation here.
+        """Return the alien's image."""
+        image = TextureAtlas.get_sprite_texture("alien/alien_default.png")
+        if image is None:
+            raise RuntimeError("Sprite 'alien/alien_default.png' not found")
+        return pygame.transform.rotate(image, 180)
 
 
 class CargoAlien(Alien):
@@ -89,32 +93,34 @@ class CargoAlien(Alien):
 
     def update(self, ship):
         super().update(ship)
-        self.rect.y -= self.ai_settings.cargo_speed_facto
-
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_cargo.png")
+        if image is None:
+            raise RuntimeError("Sprite 'alien/alien_cargo.png' not found")
+        image_size = image.get_size()
+        new_size = (int(image_size[0] * 0.2), int(image_size[1] * 0.2))
+        return pygame.transform.scale(image, new_size)
         image_size = image.get_size()
         return pygame.transform.scale(image, (image_size[0] * 0.2, image_size[1] * 0.2))
 
 
 class AlienL1(Alien):
-    """A class to represent a single alien."""
-
     def __init__(self, ai_settings, screen):
         super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
 
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_l1.png")
+        if image is None:
+            raise RuntimeError("Sprite 'alien/alien_l1.png' not found")
         return pygame.transform.rotate(image, 180)
 
-
 class AlienL2(Alien):
-    """A class to represent a single alien."""
-
     def __init__(self, ai_settings, screen):
         super().__init__(ai_settings, screen, ai_settings.alien_l2_health)
 
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_l2.png")
+        if image is None:
+            raise RuntimeError("Sprite 'alien/alien_l2.png' not found")
         image = pygame.transform.scale(image, (60, 57))
         return pygame.transform.rotate(image, 180)

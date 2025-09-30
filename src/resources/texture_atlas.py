@@ -70,9 +70,11 @@ class TextureAtlas:
         # Create and fill the sprites atlas
         TextureAtlas.__sprites_atlas_surface = pygame.Surface((atlas_width, atlas_height), pygame.SRCALPHA)
         for name, image, _, _ in sprites:
-            x = TextureAtlas.__sprites_atlas_mappings.get(name).get("x")
-            y = TextureAtlas.__sprites_atlas_mappings.get(name).get("y")
-            TextureAtlas.__sprites_atlas_surface.blit(image, (x, y))
+            mapping = TextureAtlas.__sprites_atlas_mappings.get(name)
+            if mapping:
+                x = int(mapping.get("x", 0))
+                y = int(mapping.get("y", 0))
+                TextureAtlas.__sprites_atlas_surface.blit(image, (x, y))
 
         TextureAtlas.__logger.info("Sprite textures loading finished")
 
@@ -93,7 +95,7 @@ class TextureAtlas:
             frame = file.split("/")[1]
 
             if group in grouped_animations.keys():
-                curr_group = grouped_animations.get(group)
+                curr_group = grouped_animations[group]
                 curr_group.append((frame, image, width, height))
                 grouped_animations[group] = curr_group
             else:
@@ -131,8 +133,11 @@ class TextureAtlas:
             for frame in frames:
                 file, image, _, _ = frame
 
-                x = TextureAtlas.__animations_atlas_mappings.get(f"{group}/{file}").get("x")
-                y = TextureAtlas.__animations_atlas_mappings.get(f"{group}/{file}").get("y")
+                mapping = TextureAtlas.__animations_atlas_mappings.get(f"{group}/{file}")
+                if mapping is None:
+                    continue
+                x = int(mapping.get("x", 0))
+                y = int(mapping.get("y", 0))
                 TextureAtlas.__animations_atlas_surface.blit(image, (x, y))
 
         TextureAtlas.__logger.info("Animation loading finished")
@@ -145,8 +150,8 @@ class TextureAtlas:
                 path += ".png"
             if path in TextureAtlas.__sprites_atlas_mappings.keys():
                 texture_mappings = TextureAtlas.__sprites_atlas_mappings.get(path)
-                return TextureAtlas.__sprites_atlas_surface.subsurface(pygame.Rect(texture_mappings.get("x"), texture_mappings.get("y"),
-                                                                                   texture_mappings.get("width"), texture_mappings.get("height")))
+                return TextureAtlas.__sprites_atlas_surface.subsurface(pygame.Rect(texture_mappings.get("x"), texture_mappings.get("y"), # type: ignore
+                                                                                   texture_mappings.get("width"), texture_mappings.get("height"))) # type: ignore
             else:
                 TextureAtlas.__logger.error(f"Sprite {path} doesn't exist")
                 return None
@@ -162,8 +167,8 @@ class TextureAtlas:
                 path += ".png"
             if path in TextureAtlas.__animations_atlas_mappings.keys():
                 texture_mappings = TextureAtlas.__animations_atlas_mappings.get(path)
-                return TextureAtlas.__animations_atlas_surface.subsurface(pygame.Rect(texture_mappings.get("x"), texture_mappings.get("y"),
-                                                                                   texture_mappings.get("width"), texture_mappings.get("height")))
+                return TextureAtlas.__animations_atlas_surface.subsurface(pygame.Rect(texture_mappings.get("x"), texture_mappings.get("y"), # type: ignore
+                                                                                   texture_mappings.get("width"), texture_mappings.get("height"))) # type: ignore
             else:
                 TextureAtlas.__logger.error(f"Animation frame {path} doesn't exist")
                 return None

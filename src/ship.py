@@ -66,3 +66,30 @@ class Ship(pygame.sprite.Sprite):
         """Center the ship on the screen."""
         self.center[0] = self.screen.get_rect().centerx
         self.center[1] = self.screen.get_rect().bottom - self.rect.height
+
+    def apply_action(self, action: int) -> None:
+        """Apply an AI-predicted action to control ship movement.
+        
+        Args:
+            action (int): The action to apply:
+                0 = none (no movement)
+                1 = move left
+                2 = move right
+                3 = move up
+                4 = move down
+        """
+        # Reset all movement flags
+        self.moving_left = False
+        self.moving_right = False
+        self.moving_up = False
+        self.moving_down = False
+        
+        # Set the appropriate flag based on the action
+        if action == 1:
+            self.moving_left = True
+        elif action == 2:
+            self.moving_right = True
+        elif action == 3:
+            self.moving_up = True
+        elif action == 4:
+            self.moving_down = True

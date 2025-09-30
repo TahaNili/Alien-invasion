@@ -194,10 +194,11 @@ def collect_frame_features(
                 f["ship_angle"] = None
         else:
             f["ship_angle"] = None
-        f["moving_right"] = bool(getattr(ship, "moving_right", False))
-        f["moving_left"] = bool(getattr(ship, "moving_left", False))
-        f["moving_up"] = bool(getattr(ship, "moving_up", False))
-        f["moving_down"] = bool(getattr(ship, "moving_down", False))
+        # Get movement states from input_obj instead of ship
+        f["moving_right"] = bool(getattr(input_obj, "right_pressed", False) if input_obj else False)
+        f["moving_left"] = bool(getattr(input_obj, "left_pressed", False) if input_obj else False)
+        f["moving_up"] = bool(getattr(input_obj, "up_pressed", False) if input_obj else False)
+        f["moving_down"] = bool(getattr(input_obj, "down_pressed", False) if input_obj else False)
     except Exception:
         pass
 

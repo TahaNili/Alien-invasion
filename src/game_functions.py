@@ -39,7 +39,7 @@ def load_animations(screen: pygame.Surface) -> None:
     # animation frames
     fire_explosion_animation = Animation("explosion4", 15, screen, settings.DEFAULT_ANIMATION_LATENCY,4)
 
-    shield_animation = Animation("shield3", 11, screen, 0, 2.6, False, 30)
+    shield_animation = Animation("shield3", 11, screen, 0, 2.6, False, 30) # type: ignore
 
     animations.append(fire_explosion_animation)
     animations.append(shield_animation)
