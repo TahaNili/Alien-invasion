@@ -9,6 +9,7 @@ from src.animation import Animation
 from src.bullet import AlienBullet, ShipBullet
 from src.entities.items.heart import GENERATE_HEART_CHANCE, Heart
 from src.entities.items.shield import GENERATE_SHIELD_CHANCE, Shield
+from src.item_agent import should_pickup, on_pickup
 
 from . import settings
 from .game_stats import GameStats
@@ -108,8 +109,8 @@ def update_game_sprites(
         health,
     )
     update_aliens(ai_settings, stats, ship, aliens, cargoes, health)
-    update_hearts(ship, health, hearts)
-    update_shields(ship, shields, health)
+    update_hearts(ship, health, hearts, aliens)
+    update_shields(ship, shields, health, aliens)
 
 
 def check_events(ai_settings, input, screen, stats, ship, bullets):
@@ -392,8 +393,7 @@ def spawn_random_alien(ai_settings, screen, aliens):
         x = screen_width + 50
         y = randint(0, screen_height)
 
-    # Create the alien and set its initial position
-    alien = create_alien(ai_settings, screen)
+    # Set the previously-created alien's initial position (offscreen)
     alien.rect.x = x
     alien.rect.y = y
     alien.x = float(alien.rect.x)
@@ -467,14 +467,28 @@ def generate_heart(
         heart_group.add(heart)
 
 
-def update_hearts(ship, health, hearts):
+def update_hearts(ship, health, hearts, aliens=None):
     hearts.update()
 
+    # Ship picks up heart
     check_collideany_ship_hearts = pygame.sprite.spritecollideany(ship, hearts)
     if check_collideany_ship_hearts:
         sound_life.play()
         hearts.remove(check_collideany_ship_hearts)
         health.increase()
+
+    # Aliens can also pick up hearts if item_agent allows
+    if aliens is not None:
+        collisions = pygame.sprite.groupcollide(aliens, hearts, False, False)
+        for alien, hearts_hit in collisions.items():
+            for heart in hearts_hit:
+                try:
+                    if should_pickup(alien, 'heart'):
+                        on_pickup(alien, 'heart')
+                        hearts.remove(heart)
+                except Exception:
+                    # keep game robust if item agent fails
+                    pass
 
     for heart in hearts.copy():
         if heart.rect.bottom <= 0:
@@ -488,15 +502,28 @@ def generate_shields(screen, ai_settings, stats, shield_group):
             shield_group.add(shield)
 
 
-def update_shields(ship, shields, health):
+def update_shields(ship, shields, health, aliens=None):
     shields.update()
 
+    # Ship picks up shield
     check_collideany_ship_shields = pygame.sprite.spritecollideany(ship, shields)
     if check_collideany_ship_shields:
         health.activate_shield()  # freezing health bar.
         sound_shield_fill.play()
         animations[1].set_visibility(True, True, 10, sound_shield_empty)
         shields.remove(check_collideany_ship_shields)
+
+    # Aliens can also pick up shields if allowed by item_agent
+    if aliens is not None:
+        collisions = pygame.sprite.groupcollide(aliens, shields, False, False)
+        for alien, shields_hit in collisions.items():
+            for shield in shields_hit:
+                try:
+                    if should_pickup(alien, 'shield'):
+                        on_pickup(alien, 'shield')
+                        shields.remove(shield)
+                except Exception:
+                    pass
 
     for shield in shields.copy():
         if shield.rect.bottom <= 0:

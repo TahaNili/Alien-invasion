@@ -7,7 +7,7 @@ import pygame
 from src import settings
 from src.resources.texture_atlas import TextureAtlas
 
-GENERATE_HEART_CHANCE: int = 10
+GENERATE_HEART_CHANCE: int = 60
 
 
 class Heart(pygame.sprite.Sprite):
@@ -19,7 +19,10 @@ class Heart(pygame.sprite.Sprite):
         self.screen: pygame.Surface = screen
         self.speed_factor: float = settings.HEART_SPEED_FACTOR
 
-        self.image: pygame.Surface = pygame.transform.scale(TextureAtlas.get_sprite_texture("heart/full_heart.png"), (25, 25))
+        img = TextureAtlas.get_sprite_texture("heart/full_heart.png")
+        if img is None:
+            raise RuntimeError("Sprite 'heart/full_heart.png' not found")
+        self.image: pygame.Surface = pygame.transform.scale(img, (25, 25))
         self.rect: pygame.Rect = self.image.get_rect()
         self.rect.centerx = secrets.randbelow(self.screen.get_rect().right + 1)
         self.rect.top = 0

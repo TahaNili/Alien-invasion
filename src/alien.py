@@ -19,6 +19,16 @@ class Alien(ABC, Sprite):
         self.health = 1  # Default health
         self.angle = 0
         self._controller = None  # Will be set by DifficultyManager
+        # Load the alien image and set its rect attribute.
+        self.original_image = self.get_image()
+        self.image = self.original_image
+        self.rect = self.image.get_rect()
+
+        # Default starting position (can be overridden by spawn functions)
+        self.x = float(randint(0, max(1, self.ai_settings.screen_width - self.rect.width)))
+        self.y = float(randint(0, max(1, self.ai_settings.screen_height - self.rect.height)))
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
         
     @property
     def controller(self) -> object:
@@ -31,17 +41,6 @@ class Alien(ABC, Sprite):
     def controller(self, value: object):
         """Set the alien's controller"""
         self._controller = value
-
-        # Load the alien image and set its rect attribute.
-        self.original_image = self.get_image()
-        self.image = self.original_image
-        self.rect = self.image.get_rect()
-
-        # Start each new alien near the top left of the screen.
-        self.x = float(randint(0, self.ai_settings.screen_width - self.rect.width))
-        self.y = float(randint(0, self.ai_settings.screen_height - self.rect.height))
-        self.rect.x = int(self.x)
-        self.rect.y = int(self.y)
 
     def check_edges(self):
         """Return True if alien is at edge of screen."""

@@ -42,6 +42,12 @@ class DifficultyScreen:
                 on_click=lambda d=diff: self._on_difficulty_selected(d),
                 show_fn=lambda: self.active
             )
+        # Temporary animated message state
+        self._msg_red = None
+        self._msg_green = None
+        self._msg_alpha = 255
+        self._msg_timer = 0
+        self._msg_duration_ms = 2000
     
     def show(self):
         """Display the difficulty selection screen"""
@@ -79,3 +85,35 @@ class DifficultyScreen:
         # Update all buttons
         for button in self.buttons.values():
             button.update()
+
+        # Draw temporary messages if present
+        if self._msg_red or self._msg_green:
+            # compute alpha fade based on timer
+            self._msg_timer += int(pygame.time.get_ticks() % 1000)
+            # simple fade: reduce alpha over duration
+            # Note: use pygame.time.get_ticks() delta would be better, keep simple
+            a = max(0, self._msg_alpha - (int(self._msg_timer / self._msg_duration_ms * 255)))
+            if self._msg_red:
+                surf_r = FONT.render(self._msg_red, True, (255, 50, 50))
+                surf_r.set_alpha(a)
+                rect_r = surf_r.get_rect(center=(SCREEN_WIDTH//2, 60))
+                self.screen.blit(surf_r, rect_r)
+            if self._msg_green:
+                surf_g = FONT.render(self._msg_green, True, (50, 200, 50))
+                surf_g.set_alpha(a)
+                rect_g = surf_g.get_rect(center=(SCREEN_WIDTH//2, 100))
+                self.screen.blit(surf_g, rect_g)
+            if a <= 0:
+                # clear messages
+                self._msg_red = None
+                self._msg_green = None
+                self._msg_alpha = 255
+                self._msg_timer = 0
+
+    def show_temporary_message(self, red_text: str | None, green_text: str | None, duration_ms: int = 2000):
+        """Show a transient red/green message on the difficulty screen."""
+        self._msg_red = red_text
+        self._msg_green = green_text
+        self._msg_alpha = 255
+        self._msg_timer = 0
+        self._msg_duration_ms = duration_ms

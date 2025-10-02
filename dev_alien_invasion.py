@@ -19,6 +19,7 @@ from src.ship import Ship
 from src.log_manager import LogManager
 from src.region import Region, RegionManager
 from src.difficulty_manager import DifficultyManager
+from pathlib import Path
 
 
 def init_regions(screen: pygame.Surface) -> RegionManager:
@@ -42,13 +43,7 @@ def init_regions(screen: pygame.Surface) -> RegionManager:
         Region("Violet Void Stage - 5", "violet void/5.png", 4300, size)
     )
 
-def handle_difficulty_selection(difficulty: str, 
-                             difficulty_manager: DifficultyManager,
-                             ai_settings, stats, ship, aliens, 
-                             cargoes, bullets, health, region_manager):
-    """Handle difficulty selection and start the game"""
-    difficulty_manager.set_preset(difficulty)
-    gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager)
+# handle_difficulty_selection will be defined inside run_game so it can access difficulty_screen
 
 def run_game():
     LogManager.init()
@@ -74,6 +69,32 @@ def run_game():
 
     pygame.display.set_caption("Alien Invasion")
 
+    def handle_difficulty_selection(difficulty: str):
+        """Handle difficulty selection and start the game"""
+        difficulty_manager.set_preset(difficulty)
+        # If selected difficulty uses MLController, ensure models exist
+        controller_cls = difficulty_manager.preset.get('controller')
+        # check for model files
+        models_dir = Path(__file__).parent.parent / 'data' / 'models'
+        model_files = list(models_dir.glob('*.joblib')) if models_dir.exists() else []
+        # if MLController required and models missing -> show helpful message
+        from src.controllers.ml_controller import MLController
+        if controller_cls is MLController and not model_files:
+            # check if recordings exist
+            rec_dir = Path(__file__).parent.parent / 'data' / 'recordings'
+            has_recordings = any(rec_dir.glob('*.csv')) if rec_dir.exists() else False
+            if has_recordings:
+                # models missing but dataset available
+                difficulty_screen.show_temporary_message('AI models not found.', 'Run ai_manager.py to train the models (see README.md for details).')
+                return
+            else:
+                # no recordings -> first-time player
+                difficulty_screen.show_temporary_message('AI models not found.', 'No recordings found. Play and record sessions or run ai_manager.py to train models.')
+                return
+
+        # otherwise proceed to start the game
+        gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager)
+
     clock = pygame.time.Clock()
     alien_spawn_timer = pygame.time.get_ticks()
 
@@ -94,9 +115,7 @@ def run_game():
     shields = Group()
 
     # Create difficulty selection screen
-    difficulty_screen = DifficultyScreen(lambda diff: handle_difficulty_selection(
-        diff, difficulty_manager, ai_settings, stats, ship, aliens, 
-        cargoes, bullets, health, region_manager))
+    difficulty_screen = DifficultyScreen(handle_difficulty_selection)
 
     def show_difficulty_screen():
         """Show difficulty selection screen instead of starting game directly"""
@@ -107,7 +126,7 @@ def run_game():
         (240, 64),
         (screen.get_rect().centerx - 120, screen.get_rect().centery + -74),
         show_difficulty_screen,  # Changed to show difficulty screen first
-        lambda: not stats.game_active and not stats.credits_active,
+        lambda: not stats.game_active and not stats.credits_active and not difficulty_screen.active,
     )
 
     credits_button = btn(
@@ -134,15 +153,37 @@ def run_game():
     logger.info("Game started")
 
     # Start the main loop for the game.
-    while True:
-        input.update()
-        gf.check_events(ai_settings, input, screen, stats, ship, bullets)
-        if stats.game_active:
-            # Prevent mouse from going out of screen.
-            pygame.event.set_grab(True)
+    try:
+        while True:
+            input.update()
+            gf.check_events(ai_settings, input, screen, stats, ship, bullets)
+            if stats.game_active:
+                # Prevent mouse from going out of screen.
+                pygame.event.set_grab(True)
 
-            # Update game sprites
-            gf.update_game_sprites(
+                # Update game sprites
+                gf.update_game_sprites(
+                    ai_settings,
+                    screen,
+                    stats,
+                    sb,
+                    ship,
+                    aliens,
+                    bullets,
+                    cargoes,
+                    alien_bullets,
+                    health,
+                    hearts,
+                    shields,
+                )
+            else:
+                pygame.event.set_grab(False)
+            
+            # Update difficulty screen if active
+            difficulty_screen.update()
+
+            gf.update_screen(
+                region_manager,
                 ai_settings,
                 screen,
                 stats,
@@ -150,92 +191,70 @@ def run_game():
                 ship,
                 aliens,
                 bullets,
+                play_button,
+                credits_button,
+                back_button,
                 cargoes,
                 alien_bullets,
                 health,
                 hearts,
                 shields,
             )
+
+            # Record frame data
+            features = collect_frame_features(
+                ship=ship,
+                input_obj=input,
+                stats=stats,
+                bullets=bullets,
+                aliens=aliens,
+                cargoes=cargoes,
+                alien_bullets=alien_bullets,
+                hearts=hearts,
+                shields=shields,
+                region_manager=region_manager,
+            )
+            rec.record_frame(frame_idx, clock.get_time(), features)
+            frame_idx += 1
+
+            clock.tick(ai_settings.fps)
+
+            # Aliens fire timer
+            current_time = pygame.time.get_ticks()
+
+            if region_manager.can_spawn_objects():
+                if current_time - alien_spawn_timer > 100:
+                    gf.alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship)
+
+                    generate_heart(stats, screen, hearts)
+                    gf.generate_shields(screen, ai_settings, stats, shields)
+                    if alien_spawn_counter % 10 == 0:
+                        if stats.game_active:
+                            # Use difficulty manager to create aliens
+                            alien = difficulty_manager.create_alien(
+                                lambda: cast(Any, gf.create_alien(ai_settings, screen)))
+                            aliens.add(alien)
+
+                    alien_spawn_counter += 1
+                    alien_spawn_timer = current_time
+            else:
+                bullets.empty()
+                aliens.empty()
+                alien_bullets.empty()
+                cargoes.empty()
+                hearts.empty()
+                shields.empty()
+
+    except Exception:
+        # Allow exception to propagate after cleanup
+        raise
+    finally:
+        data_path = rec.stop()
+        if data_path:
+            print(f"Data has Saved ({data_path})")
         else:
-            pygame.event.set_grab(False)
-
-        gf.update_screen(
-            region_manager,
-            ai_settings,
-            screen,
-            stats,
-            sb,
-            ship,
-            aliens,
-            bullets,
-            play_button,
-            credits_button,
-            back_button,
-            cargoes,
-            alien_bullets,
-            health,
-            hearts,
-            shields,
-        )
-
-        # Update difficulty screen if active
-        difficulty_screen.update()
-
-        # Record frame data
-        features = collect_frame_features(
-            ship=ship,
-            input_obj=input,
-            stats=stats,
-            bullets=bullets,
-            aliens=aliens,
-            cargoes=cargoes,
-            alien_bullets=alien_bullets,
-            hearts=hearts,
-            shields=shields,
-            region_manager=region_manager,
-        )
-        rec.record_frame(frame_idx, clock.get_time(), features)
-        frame_idx += 1
-
-        clock.tick(ai_settings.fps)
-
-        # Aliens fire timer
-        current_time = pygame.time.get_ticks()
-
-        if region_manager.can_spawn_objects():
-            if current_time - alien_spawn_timer > 100:
-                gf.alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship)
-
-                generate_heart(stats, screen, hearts)
-                gf.generate_shields(screen, ai_settings, stats, shields)
-                if alien_spawn_counter % 10 == 0:
-                    if stats.game_active:
-                        # Use difficulty manager to create aliens
-                        alien = difficulty_manager.create_alien(
-                            lambda: cast(Any, gf.create_alien(ai_settings, screen)))
-                        aliens.add(alien)
-                        aliens.add(alien)
-
-                alien_spawn_counter += 1
-                alien_spawn_timer = current_time
-        else:
-            bullets.empty()
-            aliens.empty()
-            alien_bullets.empty()
-            cargoes.empty()
-            hearts.empty()
-            shields.empty()
-
-        # Check for exit and save data
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                data_path = rec.stop()
-                if data_path:
-                    print(f"Data has Saved ({data_path})")
-                else:
-                    print("Data NOT saved!")
-                pygame.quit()
-                sys.exit()
+            print("Data NOT saved!")
+        pygame.quit()
 
 
 run_game()
