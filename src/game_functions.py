@@ -25,13 +25,15 @@ sound_shield_empty = pygame.mixer.Sound(settings.SOUNDS_DIR / "shield_empty.wav"
 
 text_lines = []
 text_rects = []
+animations = []
 
 one_time_do_bullet_hit_flag = False
 
-# animations
-animations = []
-#  index 0 -> fire explosion animation.
-#  index 1 -> shield animation
+def create_random_alien(ai_settings, screen):
+    """Create a random alien (L1 or L2)"""
+    if randint(1, 100) <= ai_settings.alien_l2_spawn_chance:
+        return AlienL2(ai_settings, screen)
+    return AlienL1(ai_settings, screen)
 
 
 def load_animations(screen: pygame.Surface) -> None:
@@ -368,9 +370,15 @@ def spawn_random_alien(ai_settings, screen, aliens):
     screen_width = ai_settings.screen_width
     screen_height = ai_settings.screen_height
 
+    # Create a new alien
+    alien = create_random_alien(ai_settings, screen)
+        
+    # Initialize default positions
+    x = 0
+    y = 0
+    
     # Select a random direction from which the alien will spawn
     direction = choice(["top", "bottom", "left", "right"])
-    x, y = (0, 0)
     if direction == "top":  # From the top edge
         x = randint(0, screen_width)  # Random x-coordinate along the top edge
         y = -50  # Just above the screen

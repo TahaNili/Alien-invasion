@@ -10,14 +10,27 @@ from src.resources.texture_atlas import TextureAtlas
 class Alien(ABC, Sprite):
     """An abstract class to create aliens."""
 
-    def __init__(self, ai_settings, screen, health):
+    def __init__(self, ai_settings, screen):
         """Initialize the alien and set its starting position."""
         super(Alien, self).__init__()
 
         self.screen = screen
         self.ai_settings = ai_settings
-        self.health = health
+        self.health = 1  # Default health
         self.angle = 0
+        self._controller = None  # Will be set by DifficultyManager
+        
+    @property
+    def controller(self) -> object:
+        """Get the alien's controller"""
+        if self._controller is None:
+            self._controller = object()  # Default controller
+        return self._controller
+        
+    @controller.setter
+    def controller(self, value: object):
+        """Set the alien's controller"""
+        self._controller = value
 
         # Load the alien image and set its rect attribute.
         self.original_image = self.get_image()
@@ -25,8 +38,8 @@ class Alien(ABC, Sprite):
         self.rect = self.image.get_rect()
 
         # Start each new alien near the top left of the screen.
-        self.x = float(randint(0, ai_settings.screen_width - self.rect.width))
-        self.y = float(randint(0, ai_settings.screen_height - self.rect.height))
+        self.x = float(randint(0, self.ai_settings.screen_width - self.rect.width))
+        self.y = float(randint(0, self.ai_settings.screen_height - self.rect.height))
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
 
@@ -86,13 +99,14 @@ class CargoAlien(Alien):
     """A class to represent a single cargo alien."""
 
     def __init__(self, ai_settings, screen):
-        super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
-
+        super().__init__(ai_settings, screen)
+        self.health = ai_settings.alien_l1_health  # Use L1 health for cargo aliens
         self.rect.x = randint(10, ai_settings.screen_width - 10)
         self.rect.y = self.ai_settings.screen_height + 100
 
     def update(self, ship):
         super().update(ship)
+        
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_cargo.png")
         if image is None:
@@ -100,13 +114,12 @@ class CargoAlien(Alien):
         image_size = image.get_size()
         new_size = (int(image_size[0] * 0.2), int(image_size[1] * 0.2))
         return pygame.transform.scale(image, new_size)
-        image_size = image.get_size()
-        return pygame.transform.scale(image, (image_size[0] * 0.2, image_size[1] * 0.2))
 
 
 class AlienL1(Alien):
     def __init__(self, ai_settings, screen):
-        super().__init__(ai_settings, screen, ai_settings.alien_l1_health)
+        super().__init__(ai_settings, screen)
+        self.health = ai_settings.alien_l1_health
 
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_l1.png")
@@ -116,7 +129,8 @@ class AlienL1(Alien):
 
 class AlienL2(Alien):
     def __init__(self, ai_settings, screen):
-        super().__init__(ai_settings, screen, ai_settings.alien_l2_health)
+        super().__init__(ai_settings, screen)
+        self.health = ai_settings.alien_l2_health
 
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_l2.png")

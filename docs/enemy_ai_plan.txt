@@ -1,0 +1,89 @@
+Enemy AI — طرح پیاده‌سازی ماژولار (خلاصهٔ ساده و مرتب)
+
+1) هدف کلی
+- اضافه کردن دشمنان هوشمند به بازی به‌صورت ماژولار، بدون نیاز به دست‌کاری پایه‌ای کد بازی.
+- قابلیت‌ها: دنبال کردن بازیکن، شلیک، برداشتن و استفاده از آیتم (heart, shield)، سطوح مختلف سختی از Easy تا Unbeatable.
+
+2) ایدهٔ معماری (ماژولار)
+- هر دشمن یک "Controller" دارد که تنها مسئول تصمیم‌گیری است (نه رسم یا فیزیک).
+- Controllerها قابل توسعه‌اند: BaseController، MLController، BehaviorController.
+- DifficultyManager هنگام اسپاون دشمن تعیین می‌کند چه Controller و چه پارامترهایی به آن اختصاص یابد.
+- ItemSystem جدا خواهد بود (pickup/use) و با Controllerها تعامل می‌کند.
+
+3) Controllerها (چی بسازی و چه کار کنند)
+- BaseController:
+  - بازتولید رفتار فعلی کلاس `Alien.update()` (بدون AI).
+  - خروجی: action ساده (move/shoot).
+- MLController:
+  - از `AIManager.predict(features)` برای گرفتن action (حرکت/شلیک) استفاده کند.
+  - fallback به BaseController در صورت نبود مدل.
+  - تصمیم‌گیری هر N فریم برای کاهش بار (مثلاً هر 150ms).
+- BehaviorController:
+  - state-machine: patrol → chase → fight → pickup → flee.
+  - رفتارهای پیشرفته: dodge، predictive shooting، استفاده از آیتم.
+
+4) Item pickup & usage (منطق ساده)
+- زمانی که دشمن به آیتم نزدیک شد (distance < pickup_radius):
+  - Controller تصمیم می‌گیرد آیا برداریم (مثلاً اگر HP پایین باشد یا shield نداریم).
+- آیتم‌ها به inventory دشمن اضافه می‌شوند (counts یا flags).
+- استفادهٔ آیتم بر اساس شرط‌ها: مثال: اگر HP < 40% از heart استفاده کن.
+
+5) درجات سختی (پنج سطح عملی؛ Easy تا Unbeatable)
+- Easy: هیچ AI جدید؛ همان BaseController (رفتار فعلی).
+- Normal: MLController — مدل‌های آموزش‌دیده حرکت/شلیک را تعیین می‌کنند. Pickup/dodge بر پایهٔ قوانین ساده باشد.
+- Hard: BehaviorController با state-machine، dodge، pickup و فازهای شبیه باس (phase-based behavior).
+- Very Hard: مثل Hard با spawn-rate بالاتر و احتمال تاکتیک‌های گروهی.
+- Unbeatable: HP و spawn خیلی بالا، AI قوی (ترکیب ML و behavior)، reaction time کم.
+
+6) پارامترهای DifficultyManager
+- برای هر سطح مقداردهی کن: HP multiplier، speed multiplier، decision_latency (کم‌تر = واکنش سریع‌تر)، spawn_frequency.
+- DifficultyManager هنگام `spawn_random_alien` کنترل می‌کند کدام Controller ساخته شود و پارامترها را تزریق می‌کند.
+
+7) نقش و استفاده از `AIManager` (که فعلاً پروژه دارد)
+- چه‌کار می‌کند:
+  - بارگذاری و ذخیرهٔ مدل‌ها در `models/`.
+  - آموزش مدل‌ها از CSV های ضبط‌شده تحت `data/recordings/` با `train_models`.
+  - متدهای مهم: `get_ai_manager()`, `train_models_if_needed(force=False)`, `predict(features)`.
+- چطور در MLController استفاده شود:
+  1) از game_state یک dict features بساز (مشابه `collect_frame_features`).
+  2) `ai = get_ai_manager()`؛ سپس `preds = ai.predict(features)`.
+  3) از `preds` برای انتخاب action استفاده کن (مثلاً کلاس حرکت).
+- نکات مهم: ورودی `predict` باید ستون‌های عددی مطابق با `trained_feature_names` باشد؛ AIManager تلاش می‌کند reindex کند ولی بهتر است سازگار باشی.
+
+8) نکات performance
+- inference برای هر دشمن سنگین است؛ راهکارها:
+  - تصمیم‌گیری هر چند فریم (مثلاً هر 150ms).
+  - batch prediction: چند دشمن را یکجا به AIManager بده.
+  - فقط تعدادی از دشمنان ML-driven باشند؛ بقیه rule-based.
+
+9) ترتیب پیشنهاد پیاده‌سازی (گام‌به‌گام)
+- قدم 1: اسکلت فایل‌های controllers بساز: `controllers/base_controller.py`, `controllers/ml_controller.py`, `controllers/behavior_controller.py`.
+- قدم 2: BaseController را پیاده کن که رفتار فعلی Alien را تکرار کند.
+- قدم 3: item_agent.py بساز برای pickup/use logic ساده.
+- قدم 4: MLController پیاده کن که از `AIManager.predict()` استفاده کند و fallback داشته باشد.
+- قدم 5: BehaviorController پیاده کن (state-machine + dodge).
+- قدم 6: DifficultyManager بساز که هنگام spawn پارامترها و controller را ست کند.
+- قدم 7: در `spawn_random_alien` یا لایه اسپاونینگ، hook بزن تا به جای ساخت مستقیم Alien، آن را از DifficultyManager بسازد.
+- قدم 8: تست مرحله‌ای (Easy → Normal → Hard → Very Hard → Unbeatable).
+
+10) تست و جمع‌آوری داده
+- برای Normal به دادهٔ متنوع نیاز داری: بازی کن و حرکات مختلف انجام بده تا recorder داده ضبط کنه.
+- بعد از ذخیرهٔ CSV، از pipeline در `src/train_models/` استفاده کن تا مدل‌ها ساخته شوند.
+
+11) ترفندها و ایده‌های اضافه (برای آینده)
+- boss phase system: فازها با triggerهای HP.
+- squad tactics: leader/follower ساده.
+- online learning: دشمنان به مرور رفتار بازیکن را یاد بگیرند (پیچیده).
+
+12) چک‌لیست سریع قبل از شروع کدنویسی
+- [ ] پوشهٔ `controllers/` بساز
+- [ ] BaseController پیاده‌سازی
+- [ ] item_agent پیاده‌سازی
+- [ ] MLController با fallback
+- [ ] BehaviorController برای Hard
+- [ ] DifficultyManager و اتصال به spawn
+- [ ] تست فاز به فاز
+
+--
+فایل بالا نسخهٔ منظم‌شدهٔ راهنمایی‌ای است که خواستی — ساده و عملی.
+هر وقت خواستی، می‌تونم برای هر فایل skeleton دقیق‌تری با اسم متدها و shape داده‌ها آماده کنم (بدون کد اجراکننده؛ فقط interface و مثال شکل دیتا). دوست داری کدوم یکی رو اول بدم؟

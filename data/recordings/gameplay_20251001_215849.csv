@@ -1,0 +1,1 @@
+frame,timestamp,dt,ship_centerx,ship_centery,ship_angle,moving_right,moving_left,moving_up,moving_down,bullets_count,aliens_count,cargoes_count,alien_bullets_count,hearts_count,shields_count,mouse_x,mouse_y,mouse_buttons,score,ships_left,current_region_index,region_name

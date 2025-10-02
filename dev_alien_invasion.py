@@ -2,9 +2,11 @@ import logging
 import sys
 import pygame
 from pygame.sprite import Group
+from typing import Any, cast
 
 import src.game_functions as gf
 from src.entities.ui.elements.button import Button as btn
+from src.entities.ui.elements.difficulty_screen import DifficultyScreen
 from src.entities.ui.elements.scoreboard import Scoreboard
 from src.recorder import Recorder, collect_frame_features
 from src.resources.texture_atlas import TextureAtlas
@@ -16,6 +18,7 @@ from src.settings import SCREEN_HEIGHT, SCREEN_WIDTH, Settings
 from src.ship import Ship
 from src.log_manager import LogManager
 from src.region import Region, RegionManager
+from src.difficulty_manager import DifficultyManager
 
 
 def init_regions(screen: pygame.Surface) -> RegionManager:
@@ -39,6 +42,14 @@ def init_regions(screen: pygame.Surface) -> RegionManager:
         Region("Violet Void Stage - 5", "violet void/5.png", 4300, size)
     )
 
+def handle_difficulty_selection(difficulty: str, 
+                             difficulty_manager: DifficultyManager,
+                             ai_settings, stats, ship, aliens, 
+                             cargoes, bullets, health, region_manager):
+    """Handle difficulty selection and start the game"""
+    difficulty_manager.set_preset(difficulty)
+    gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager)
+
 def run_game():
     LogManager.init()
     pygame.init()
@@ -53,6 +64,7 @@ def run_game():
 
     ai_settings = Settings()
     input = Input()
+    difficulty_manager = DifficultyManager()
 
     screen: pygame.Surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -81,11 +93,20 @@ def run_game():
     hearts = Group()
     shields = Group()
 
+    # Create difficulty selection screen
+    difficulty_screen = DifficultyScreen(lambda diff: handle_difficulty_selection(
+        diff, difficulty_manager, ai_settings, stats, ship, aliens, 
+        cargoes, bullets, health, region_manager))
+
+    def show_difficulty_screen():
+        """Show difficulty selection screen instead of starting game directly"""
+        difficulty_screen.show()
+
     play_button = btn(
         "start",
         (240, 64),
         (screen.get_rect().centerx - 120, screen.get_rect().centery + -74),
-        lambda: gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager),
+        show_difficulty_screen,  # Changed to show difficulty screen first
         lambda: not stats.game_active and not stats.credits_active,
     )
 
@@ -157,6 +178,9 @@ def run_game():
             shields,
         )
 
+        # Update difficulty screen if active
+        difficulty_screen.update()
+
         # Record frame data
         features = collect_frame_features(
             ship=ship,
@@ -184,9 +208,13 @@ def run_game():
 
                 generate_heart(stats, screen, hearts)
                 gf.generate_shields(screen, ai_settings, stats, shields)
-
                 if alien_spawn_counter % 10 == 0:
-                    gf.spawn_random_alien(ai_settings, screen, aliens)
+                    if stats.game_active:
+                        # Use difficulty manager to create aliens
+                        alien = difficulty_manager.create_alien(
+                            lambda: cast(Any, gf.create_alien(ai_settings, screen)))
+                        aliens.add(alien)
+                        aliens.add(alien)
 
                 alien_spawn_counter += 1
                 alien_spawn_timer = current_time

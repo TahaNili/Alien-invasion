@@ -186,8 +186,15 @@ class AIManager:
             }
             
             # Save model
-            joblib.dump(model, self.models_dir / f"{name}.joblib")
-            logger.info(f"Trained {name} model (accuracy: {score:.2f})")
+            # Save model together with feature metadata so inference can reindex inputs
+            out_obj = {
+                'model': model,
+                'features': list(self.trained_feature_names) if hasattr(self, 'trained_feature_names') else list(X.columns),
+                'score': float(score),
+                'trained_at': datetime.now().isoformat()
+            }
+            joblib.dump(out_obj, self.models_dir / f"{name}.joblib")
+            logger.info(f"Trained {name} model (accuracy: {score:.2f}) saved to {self.models_dir / f'{name}.joblib'}")
         
         self.models = models
         return True
@@ -200,15 +207,18 @@ class AIManager:
             try:
                 model_path = self.models_dir / f"{name}.joblib"
                 if model_path.exists():
-                    self.models[name] = joblib.load(model_path)
-                    logger.info(f"Loaded {name} model")
-                    # If model exposes feature names recorded during fit, keep them
-                    try:
+                    obj = joblib.load(model_path)
+                    # obj may be either raw model or dict with metadata
+                    if isinstance(obj, dict) and 'model' in obj:
+                        self.models[name] = obj['model']
+                        if 'features' in obj:
+                            loaded_feature_sets.append(list(obj['features']))
+                    else:
+                        self.models[name] = obj
                         feat = getattr(self.models[name], 'feature_names_in_', None)
                         if feat is not None:
                             loaded_feature_sets.append(list(feat))
-                    except Exception:
-                        pass
+                    logger.info(f"Loaded {name} model from {model_path}")
             except Exception as e:
                 logger.error(f"Error loading {name} model: {e}")
         # If one or more models provided feature name metadata, choose the
@@ -290,3 +300,22 @@ def get_ai_manager():
     if _instance is None:
         _instance = AIManager()
     return _instance
+
+
+def main_cli():
+    import argparse
+    parser = argparse.ArgumentParser(description="AI Manager utility")
+    parser.add_argument('--train', action='store_true', help='Train models from recordings')
+    parser.add_argument('--force', action='store_true', help='Force retraining even if models are up-to-date')
+    args = parser.parse_args()
+
+    mgr = get_ai_manager()
+    ok = mgr.train_models_if_needed(force=args.force) if args.train else mgr.train_models_if_needed()
+    if not ok:
+        print('AI training did not complete successfully. See logs for details.')
+    else:
+        print('AI models trained or verified successfully.')
+
+
+if __name__ == '__main__':
+    main_cli()

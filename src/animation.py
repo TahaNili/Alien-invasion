@@ -30,8 +30,14 @@ class Animation:
         for i in range(1, frame_count + 1):
             temp_path = temp_path + f"/f{i}.png"
             loaded_frame = TextureAtlas.get_animation_frame(temp_path)
-            loaded_frame = pygame.transform.scale(loaded_frame, (loaded_frame.get_width() / divider,
-                                                                 loaded_frame.get_height() / divider))
+            if loaded_frame is None:
+                # skip frames that failed to load
+                temp_path = frame_path  # reset to actual path.
+                continue
+            # ensure integer dimensions for scaling and avoid zero size
+            width = max(1, loaded_frame.get_width() // divider)
+            height = max(1, loaded_frame.get_height() // divider)
+            loaded_frame = pygame.transform.scale(loaded_frame, (width, height))
             loaded_frame.set_alpha(alpha)
             self.animation_frames.append(loaded_frame)
             self.animation_rects.append((loaded_frame.get_rect()))
