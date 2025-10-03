@@ -7,7 +7,7 @@ from typing import Callable, Dict
 import pygame
 
 from src.settings import FONT, SCREEN_HEIGHT, SCREEN_WIDTH
-from src.entities.ui.elements.button import Button, BtnColors
+from src.entities.ui.elements.button import Button as btn, BtnColors
 
 @dataclass
 class DifficultyScreen:
@@ -23,25 +23,53 @@ class DifficultyScreen:
         self.on_select = on_select
         self.active = False
         
-        # Calculate button positions
-        center_x = SCREEN_WIDTH // 2
-        start_y = SCREEN_HEIGHT // 2 - 200
-        button_spacing = 80
+        # Standard button size like other game buttons
         button_size = (240, 64)
         
-        # Create difficulty buttons
-        difficulties = ["Easy", "Normal", "Hard", "VeryHard", "Unbeatable"]
-        self.buttons = {}
+        # Button vertical spacing
+        start_y = SCREEN_HEIGHT // 2 - 150
+        spacing_y = 80
         
-        for i, diff in enumerate(difficulties):
-            button_y = start_y + (i * button_spacing)
-            self.buttons[diff] = Button(
-                text=diff,
-                size=button_size,
-                pos=(center_x - button_size[0]//2, button_y),
-                on_click=lambda d=diff: self._on_difficulty_selected(d),
-                show_fn=lambda: self.active
+        # Create difficulty buttons centered horizontally
+        center_x = SCREEN_WIDTH // 2 - 120  # Same x-position calculation as main menu buttons
+        
+        self.buttons = {
+            "Easy": btn(
+                "Easy",
+                button_size,
+                (center_x, start_y),
+                lambda: self._on_difficulty_selected("Easy"),
+                lambda: self.active
+            ),
+            "Normal": btn(
+                "Normal", 
+                button_size,
+                (center_x, start_y + spacing_y),
+                lambda: self._on_difficulty_selected("Normal"),
+                lambda: self.active
+            ),
+            "Hard": btn(
+                "Hard",
+                button_size,
+                (center_x, start_y + spacing_y * 2),
+                lambda: self._on_difficulty_selected("Hard"),
+                lambda: self.active
+            ),
+            "VeryHard": btn(
+                "VeryHard",
+                button_size,
+                (center_x, start_y + spacing_y * 3),
+                lambda: self._on_difficulty_selected("VeryHard"),
+                lambda: self.active
+            ),
+            "Unbeatable": btn(
+                "Unbeatable",
+                button_size,
+                (center_x, start_y + spacing_y * 4),
+                lambda: self._on_difficulty_selected("Unbeatable"),
+                lambda: self.active
             )
+        }
         # Temporary animated message state
         self._msg_red = None
         self._msg_green = None
@@ -51,10 +79,13 @@ class DifficultyScreen:
     
     def show(self):
         """Display the difficulty selection screen"""
+        print("DEBUG: DifficultyScreen.show() called")  # Debug log
         self.active = True
+        print(f"DEBUG: DifficultyScreen.active = {self.active}")  # Debug log
     
     def hide(self):
         """Hide the difficulty selection screen"""
+        print("DEBUG: DifficultyScreen.hide() called")  # Debug log
         self.active = False
     
     def _on_difficulty_selected(self, difficulty: str):
@@ -71,19 +102,40 @@ class DifficultyScreen:
         if not self.active:
             return
             
-        # Draw semi-transparent background
+        print("DEBUG: DifficultyScreen.update() drawing...")  # Debug log
+        
+        # Draw semi-transparent background that blocks clicks
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         overlay.set_alpha(128)
         overlay.fill((0, 0, 0))
         self.screen.blit(overlay, (0, 0))
         
+        # Handle mouse events to prevent click-through
+        mouse_pos = pygame.mouse.get_pos()
+        mouse_clicked = pygame.mouse.get_pressed()[0]
+        
+        # If clicked outside any difficulty button, ignore the click
+        if mouse_clicked:
+            clicked_any_button = False
+            for button in self.buttons.values():
+                if button.top_rect.collidepoint(mouse_pos):
+                    clicked_any_button = True
+                    break
+            if not clicked_any_button:
+                # Block the click by consuming it
+                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
+                pygame.event.clear(pygame.MOUSEBUTTONUP)
+        
         # Draw title
-        title = FONT.render("Select Difficulty", True, BtnColors.TEXT_COLOR)
-        title_rect = title.get_rect(center=(SCREEN_WIDTH//2, 100))
+        title = FONT.render("Choose Difficulty Level", True, BtnColors.TEXT_COLOR)
+        title_rect = title.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 150))
         self.screen.blit(title, title_rect)
         
         # Update all buttons
+        print("DEBUG: Updating difficulty buttons...")  # Debug log
         for button in self.buttons.values():
+            if not button.show_fn():
+                print(f"DEBUG: Button {button.text} hidden by show_fn")  # Debug log
             button.update()
 
         # Draw temporary messages if present
