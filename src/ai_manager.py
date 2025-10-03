@@ -24,22 +24,34 @@ logger = logging.getLogger(__name__)
 class AIManager:
     """Manages ML models for the game's AI system."""
 
-    def __init__(self, models_dir='models', recordings_dir='data/recordings'):
-        self.models_dir = Path(models_dir)
-        self.recordings_dir = Path(recordings_dir)
+    def __init__(self, models_dir='data/models', recordings_dir='data/recordings'):
+        # Convert relative paths to absolute paths from project root
+        project_root = Path(__file__).parent.parent
+        self.models_dir = project_root / models_dir
+        self.recordings_dir = project_root / recordings_dir
         self.models = {}
         self.latest_features = None
         self.latest_predictions = {}
         self.model_metrics = {}
+        
+        # Ensure both directories exist
+        logger.info(f"Initializing AI manager with models_dir={self.models_dir}, recordings_dir={self.recordings_dir}")
+        self.models_dir.mkdir(parents=True, exist_ok=True)
+        self.recordings_dir.mkdir(parents=True, exist_ok=True)
         
         # Ensure directories exist
         self.models_dir.mkdir(parents=True, exist_ok=True)
         
     def _find_latest_recording(self):
         """Find the most recent CSV recording file."""
+        if not self.recordings_dir.exists():
+            logger.warning(f"Recordings directory not found: {self.recordings_dir}")
+            return None
         files = glob.glob(str(self.recordings_dir / "*.csv"))
         if not files:
+            logger.warning(f"No CSV files found in {self.recordings_dir}")
             return None
+        logger.info(f"Found {len(files)} recording files in {self.recordings_dir}")
         return max(files, key=os.path.getctime)
     
     def _prepare_training_data(self, csv_path):
@@ -304,13 +316,26 @@ def get_ai_manager():
 
 def main_cli():
     import argparse
+    
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     parser = argparse.ArgumentParser(description="AI Manager utility")
     parser.add_argument('--train', action='store_true', help='Train models from recordings')
     parser.add_argument('--force', action='store_true', help='Force retraining even if models are up-to-date')
     args = parser.parse_args()
 
     mgr = get_ai_manager()
-    ok = mgr.train_models_if_needed(force=args.force) if args.train else mgr.train_models_if_needed()
+    if args.train or args.force:
+        logger.info("Starting model training (force=%s)...", args.force)
+        ok = mgr.train_models_if_needed(force=args.force)
+    else:
+        logger.info("Checking if models need training...")
+        ok = mgr.train_models_if_needed()
+        
     if not ok:
         print('AI training did not complete successfully. See logs for details.')
     else:

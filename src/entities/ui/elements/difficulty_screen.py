@@ -110,6 +110,12 @@ class DifficultyScreen:
         overlay.fill((0, 0, 0))
         self.screen.blit(overlay, (0, 0))
         
+        # Draw title text
+        font = pygame.font.Font(None, 48)  # Use default font at size 48
+        title = font.render("SELECT DIFFICULTY", True, (255, 255, 255))  # White text
+        title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        self.screen.blit(title, title_rect)
+        
         # Handle mouse events to prevent click-through
         mouse_pos = pygame.mouse.get_pos()
         mouse_clicked = pygame.mouse.get_pressed()[0]

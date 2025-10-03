@@ -137,15 +137,19 @@ def run_game():
 
     # Start the main loop for the game.
     while True:
+        # Handle input first
         input.update()
-        gf.check_events(ai_settings, input, screen, stats, ship, bullets)
         
         # Clear screen at start of frame
         screen.fill((0, 0, 0))
         
+        # Check if difficulty screen is active
         if difficulty_screen.active:
-            # Update and draw difficulty screen
+            # Let difficulty screen handle events first when active
             difficulty_screen.update()
+        else:
+            # Only process game events when difficulty screen is not active
+            gf.check_events(ai_settings, input, screen, stats, ship, bullets)
         
         if stats.game_active:
             # Prevent mouse from going out of screen.
@@ -169,6 +173,7 @@ def run_game():
         else:
             pygame.event.set_grab(False)
 
+        # Draw main game UI first
         gf.update_screen(
             region_manager,
             ai_settings,
@@ -187,7 +192,15 @@ def run_game():
             hearts,
             shields,
         )
-
+        
+        # Draw difficulty screen with semi-transparent overlay when active
+        # Let the difficulty screen handle its own drawing when active
+        if difficulty_screen.active:
+            difficulty_screen.update()
+        
+        # Update display at end of frame
+        pygame.display.flip()
+        
         clock.tick(ai_settings.fps)
 
         # Aliens fire timer
