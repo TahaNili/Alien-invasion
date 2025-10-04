@@ -113,7 +113,7 @@ def update_game_sprites(
     update_shields(ship, shields, health, aliens)
 
 
-def check_events(ai_settings, input, screen, stats, ship, bullets):
+def check_events(ai_settings, input, screen, stats, ship, bullets, difficulty_screen=None):
     """Respond to key presses and mouse events."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -121,7 +121,7 @@ def check_events(ai_settings, input, screen, stats, ship, bullets):
             sys.exit()
 
     check_key_events(input, ship)
-    check_mouse_events(ai_settings, input, screen, stats, ship, bullets)
+    check_mouse_events(ai_settings, input, screen, stats, ship, bullets, difficulty_screen)
 
 
 def check_key_events(input, ship):
@@ -140,12 +140,17 @@ def check_key_events(input, ship):
         sys.exit()
 
 
-def check_mouse_events(ai_settings, input, screen, stats, ship, bullets):
+def check_mouse_events(ai_settings, input, screen, stats, ship, bullets, difficulty_screen=None):
     """Handle mouse button press and movement."""
 
     if input.is_mouse_button_pressed(0):
         if stats.game_active:
             fire_bullet(ship, bullets)
+        elif difficulty_screen and difficulty_screen.active:
+            # Get the current mouse position
+            mouse_pos = pygame.mouse.get_pos()
+            # Pass the click to the difficulty screen
+            difficulty_screen.handle_click(mouse_pos)
 
 
 def run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager):

@@ -97,52 +97,29 @@ class DifficultyScreen:
         self.hide()
         self.on_select(difficulty)
     
+    def handle_click(self, pos):
+        """Handle mouse click at the given position"""
+        if not self.active:
+            return False
+            
+        # Check if any button was clicked
+        for button in self.buttons.values():
+            if button.show_fn():  # Only check visible buttons
+                button.update()  # Make sure button state is up to date
+                
+        return False  # No button was clicked
+
     def update(self):
         """Update and draw the difficulty screen"""
         if not self.active:
             return
-            
-        print("DEBUG: DifficultyScreen.update() drawing...")  # Debug log
-        
-        # Draw semi-transparent background that blocks clicks
-        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        overlay.set_alpha(128)
-        overlay.fill((0, 0, 0))
-        self.screen.blit(overlay, (0, 0))
-        
-        # Draw title text
-        font = pygame.font.Font(None, 48)  # Use default font at size 48
-        title = font.render("SELECT DIFFICULTY", True, (255, 255, 255))  # White text
-        title_rect = title.get_rect(center=(SCREEN_WIDTH // 2, 100))
-        self.screen.blit(title, title_rect)
-        
-        # Handle mouse events to prevent click-through
-        mouse_pos = pygame.mouse.get_pos()
-        mouse_clicked = pygame.mouse.get_pressed()[0]
-        
-        # If clicked outside any difficulty button, ignore the click
-        if mouse_clicked:
-            clicked_any_button = False
-            for button in self.buttons.values():
-                if button.top_rect.collidepoint(mouse_pos):
-                    clicked_any_button = True
-                    break
-            if not clicked_any_button:
-                # Block the click by consuming it
-                pygame.event.clear(pygame.MOUSEBUTTONDOWN)
-                pygame.event.clear(pygame.MOUSEBUTTONUP)
-        
-        # Draw title
-        title = FONT.render("Choose Difficulty Level", True, BtnColors.TEXT_COLOR)
-        title_rect = title.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 150))
-        self.screen.blit(title, title_rect)
-        
-        # Update all buttons
-        print("DEBUG: Updating difficulty buttons...")  # Debug log
+
+        # Update button states
         for button in self.buttons.values():
-            if not button.show_fn():
-                print(f"DEBUG: Button {button.text} hidden by show_fn")  # Debug log
             button.update()
+        
+        # Draw the screen (includes buttons and messages)
+        self.draw(self.screen)
 
         # Draw temporary messages if present
         if self._msg_red or self._msg_green:
@@ -172,6 +149,46 @@ class DifficultyScreen:
         """Show a transient red/green message on the difficulty screen."""
         self._msg_red = red_text
         self._msg_green = green_text
-        self._msg_alpha = 255
-        self._msg_timer = 0
+        self._msg_timer = pygame.time.get_ticks()  # Store current time instead of 0
         self._msg_duration_ms = duration_ms
+        
+    def draw(self, screen):
+        """Draw the difficulty screen"""
+        if not self.active:
+            return
+
+        # Draw semi-transparent background
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
+        overlay.set_alpha(128)
+        overlay.fill((0, 0, 0))
+        screen.blit(overlay, (0, 0))
+        
+        # Draw title
+        title = FONT.render("Choose Difficulty Level", True, BtnColors.TEXT_COLOR)
+        title_rect = title.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 200))
+        screen.blit(title, title_rect)
+        
+        # Draw buttons
+        for button in self.buttons.values():
+            if button.show_fn():  # Only draw if button should be visible
+                button.update()  # Update button state
+                
+        # Draw messages if present
+        current_time = pygame.time.get_ticks()
+        if self._msg_red or self._msg_green:
+            elapsed = current_time - self._msg_timer
+            if elapsed < self._msg_duration_ms:
+                alpha = 255 * (1 - (elapsed / self._msg_duration_ms))
+                if self._msg_red:
+                    surf_r = FONT.render(self._msg_red, True, (255, 50, 50))
+                    surf_r.set_alpha(int(alpha))
+                    rect_r = surf_r.get_rect(center=(SCREEN_WIDTH//2, 60))
+                    screen.blit(surf_r, rect_r)
+                if self._msg_green:
+                    surf_g = FONT.render(self._msg_green, True, (50, 200, 50))
+                    surf_g.set_alpha(int(alpha))
+                    rect_g = surf_g.get_rect(center=(SCREEN_WIDTH//2, 100))
+                    screen.blit(surf_g, rect_g)
+            else:
+                self._msg_red = None
+                self._msg_green = None

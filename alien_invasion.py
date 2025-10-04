@@ -109,7 +109,7 @@ def run_game():
     # Start the main loop for the game.
     while True:
         input.update()
-        gf.check_events(ai_settings, input, screen, stats, ship, bullets)
+        gf.check_events(ai_settings, input, screen, stats, ship, bullets, None)
         if stats.game_active:
             # Prevent mouse from going out of screen.
             pygame.event.set_grab(True)

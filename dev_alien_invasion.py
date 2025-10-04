@@ -143,13 +143,8 @@ def run_game():
         # Clear screen at start of frame
         screen.fill((0, 0, 0))
         
-        # Check if difficulty screen is active
-        if difficulty_screen.active:
-            # Let difficulty screen handle events first when active
-            difficulty_screen.update()
-        else:
-            # Only process game events when difficulty screen is not active
-            gf.check_events(ai_settings, input, screen, stats, ship, bullets)
+        # Always check events, but let difficulty screen handle them when active
+        gf.check_events(ai_settings, input, screen, stats, ship, bullets, difficulty_screen)
         
         if stats.game_active:
             # Prevent mouse from going out of screen.
