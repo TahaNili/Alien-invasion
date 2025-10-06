@@ -376,8 +376,20 @@ def spawn_random_alien(ai_settings, screen, aliens):
     screen_width = ai_settings.screen_width
     screen_height = ai_settings.screen_height
 
-    # Create a new alien
-    alien = create_random_alien(ai_settings, screen)
+    # Create a new alien using DifficultyManager to apply difficulty presets
+    from src.difficulty_manager import DifficultyManager
+    # Assume a global or singleton DifficultyManager exists (should be passed or imported)
+    # If not, fallback to default Normal
+    try:
+        difficulty_manager = globals().get('difficulty_manager', None)
+        if difficulty_manager is None:
+            # Try to import from main context
+            import __main__
+            difficulty_manager = getattr(__main__, 'difficulty_manager', DifficultyManager())
+    except Exception:
+        difficulty_manager = DifficultyManager()
+    # Ensure create_alien returns an object implementing AlienProtocol
+    alien = difficulty_manager.create_alien(lambda: create_alien(ai_settings, screen))  # type: ignore
         
     # Initialize default positions
     x = 0
@@ -399,10 +411,11 @@ def spawn_random_alien(ai_settings, screen, aliens):
         y = randint(0, screen_height)
 
     # Set the previously-created alien's initial position (offscreen)
-    alien.rect.x = x
-    alien.rect.y = y
-    alien.x = float(alien.rect.x)
-    alien.y = float(alien.rect.y)
+    if hasattr(alien, "rect") and hasattr(alien.rect, "x") and hasattr(alien.rect, "y"):
+        alien.rect.x = x  # type: ignore[attr-defined]
+        alien.rect.y = y  # type: ignore[attr-defined]
+    else:
+        raise AttributeError("Alien object does not have a rect attribute with x and y properties.")
 
     # Add the alien to the group
     aliens.add(alien)

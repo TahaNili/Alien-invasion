@@ -13,7 +13,7 @@ from src.entities.ui.elements.button import Button as btn, BtnColors
 class DifficultyScreen:
     """Manages the difficulty selection screen UI"""
     
-    def __init__(self, on_select: Callable[[str], None]):
+    def __init__(self, on_select: Callable[[str], None], on_train: Callable[[], None] | None = None):
         """Initialize the difficulty selection screen
         
         Args:
@@ -70,12 +70,23 @@ class DifficultyScreen:
                 lambda: self.active
             )
         }
+        # Optional Train AI button (placed below difficulties)
+        self._on_train = on_train
+        self.train_button = btn(
+            "Train AI",
+            button_size,
+            (center_x, start_y + spacing_y * 5),
+            self._on_train_clicked,
+            lambda: self.active,
+        )
         # Temporary animated message state
         self._msg_red = None
         self._msg_green = None
         self._msg_alpha = 255
         self._msg_timer = 0
         self._msg_duration_ms = 2000
+        # Training state - when True, Train button is disabled
+        self._training_active = False
     
     def show(self):
         """Display the difficulty selection screen"""
@@ -106,6 +117,9 @@ class DifficultyScreen:
         for button in self.buttons.values():
             if button.show_fn():  # Only check visible buttons
                 button.update()  # Make sure button state is up to date
+        # check train button
+        if self.train_button.show_fn():
+            self.train_button.update()
                 
         return False  # No button was clicked
 
@@ -172,6 +186,9 @@ class DifficultyScreen:
         for button in self.buttons.values():
             if button.show_fn():  # Only draw if button should be visible
                 button.update()  # Update button state
+        # draw train button
+        if self.train_button.show_fn():
+            self.train_button.update()
                 
         # Draw messages if present
         current_time = pygame.time.get_ticks()
@@ -192,3 +209,26 @@ class DifficultyScreen:
             else:
                 self._msg_red = None
                 self._msg_green = None
+
+    def _on_train_clicked(self):
+        """Internal handler for Train AI button click - invokes optional on_train callback."""
+        if self._on_train is None:
+            # No handler provided
+            self.show_temporary_message("No training handler available", None)
+            return
+        try:
+            # Call the provided training callback (expected to be non-blocking)
+            self._on_train()
+            self.show_temporary_message(None, "Training started")
+            self._training_active = True  # Set training active
+        except Exception as e:
+            self.show_temporary_message("Failed to start training", None)
+        # NOTE: Do NOT clear _training_active here — background trainer should clear it
+
+    def set_training_active(self, active: bool):
+        """Set or clear the training active flag (used by external background trainer)."""
+        self._training_active = bool(active)
+
+    def clear_training_active(self):
+        """Convenience to clear the training flag."""
+        self._training_active = False

@@ -16,6 +16,9 @@ class AlienProtocol(Protocol):
     health: int
     ai_settings: AISettings
     controller: object
+    rect: object
+    x: float
+    y: float
 
 from src.controllers.base_controller import BaseController
 from src.controllers.ml_controller import MLController
@@ -38,9 +41,9 @@ class DifficultyManager:
         self.preset_name = preset_name
         self.preset = self.PRESETS.get(preset_name, self.PRESETS["Normal"])
 
-    def create_alien(self, alien_factory: Callable[[], AlienProtocol]):
+    def create_alien(self, alien_factory: Callable[[], AlienProtocol]) -> AlienProtocol:
         # alien_factory should be a callable that returns a new alien instance
-        alien = alien_factory()
+        alien: AlienProtocol = alien_factory()
         controller_cls = self.preset["controller"]
         params = {"decision_interval_ms": self.preset.get("decision_interval_ms", 150)}
         setattr(alien, 'controller', controller_cls(alien, params))

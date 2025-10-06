@@ -93,11 +93,21 @@ def run_game():
     def handle_difficulty_selection(difficulty: str):
         """Handle difficulty selection and start the game"""
         difficulty_manager.set_preset(difficulty)
-        # Check for ML models if needed
-        if difficulty_manager.preset.get('controller') == MLController:
-            models_dir = Path('data/models')
+        # For this project, any difficulty other than 'Easy' requires trained ML models.
+        # If models are missing, block starting the selected difficulty and inform the user.
+        if str(difficulty).lower() != 'easy':
+            models_dir = getattr(ai_manager, 'models_dir', Path('data/models'))
             model_files = list(models_dir.glob('*.joblib')) if models_dir.exists() else []
             if not model_files:
+                msg = (
+                    f"AI models not found in {models_dir}. "
+                    "Please run: python -m src.ai_manager --train to create models before starting this difficulty."
+                )
+                logger.warning(msg)
+                try:
+                    print(msg)
+                except Exception:
+                    pass
                 difficulty_screen.show_temporary_message(
                     'AI models not found.',
                     'Run ai_manager.py to train models (see README)'
@@ -107,7 +117,37 @@ def run_game():
         gf.run_play_button(ai_settings, stats, ship, aliens, cargoes, bullets, health, region_manager)
         
     # Create difficulty screen
-    difficulty_screen = DifficultyScreen(handle_difficulty_selection)
+    # Background trainer: runs ai_manager.train in a separate thread and reports status
+    import threading
+    import subprocess
+
+    def start_background_training():
+        def _train():
+            try:
+                difficulty_screen.set_training_active(True)
+                difficulty_screen.show_temporary_message(None, 'Training started...', 3000)
+                # Run ai_manager in a subprocess to isolate from game process
+                cmd = ["python", "-m", "src.ai_manager", "--train"]
+                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                out, err = proc.communicate()
+                if proc.returncode == 0:
+                    difficulty_screen.show_temporary_message(None, 'Training completed', 4000)
+                    logger.info('AI training finished successfully')
+                else:
+                    difficulty_screen.show_temporary_message('Training failed', None, 4000)
+                    logger.warning('AI training failed: %s', err)
+            except Exception as e:
+                difficulty_screen.show_temporary_message('Training error', None, 4000)
+                logger.exception('Error running background training: %s', e)
+            finally:
+                try:
+                    difficulty_screen.clear_training_active()
+                except Exception:
+                    pass
+        t = threading.Thread(target=_train, daemon=True)
+        t.start()
+
+    difficulty_screen = DifficultyScreen(handle_difficulty_selection, on_train=start_background_training)
     
     play_button = btn(
         "START",
