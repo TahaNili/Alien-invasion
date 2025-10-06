@@ -91,64 +91,103 @@ We appreciate your contributions and look forward to building something great.
 ```
 
 
-- Finally, run the game:
- - Finally, run the game:
-  
-```
-  python3 alien_invasion.py
-```
+## Quick Start (run the game)
 
-## Run & Train (developer-focused instructions)
+These steps assume you're working on Windows (PowerShell) or a POSIX shell. Use the commands that match your environment.
 
-These instructions explain the recommended order for running tools and game entrypoints when working with ML models and recordings.
+1. Install dependencies (one-time):
 
-1) Install dependencies
-
-```
+```powershell
 pip install -r requirements.txt
 ```
 
-2) (Optional) Train or prepare ML models before running the game
+2. Run the normal entrypoint (packaged for end users):
 
-If you plan to run the game with a non-Easy difficulty that uses ML controllers, prepare models first. The AI utilities will look for model files under `data/models/`.
-
-From project root you can run the AI manager to train or verify models:
-
-```
-python -m src.ai_manager --train
-# or to force retrain
-python -m src.ai_manager --train --force
+```powershell
+python alien_invasion.py
 ```
 
-If no recordings exist yet, train will fail — in that case play a few sessions in Easy difficulty to create recordings (see step 4).
+3. For development (extra logging, recorder integration), use the dev entrypoint:
 
-3) Run the dev entrypoint (recommended for development)
-
-The repo includes a developer entrypoint with extra logging and recorder integration. Use this to capture gameplay recordings easily:
-
-```
+```powershell
 python dev_alien_invasion.py
 ```
 
-4) How recording works (Easy difficulty)
+The developer entrypoint will automatically start the recorder when gameplay begins and print recording paths when sessions end.
 
-- Starting a gameplay session (press START → choose difficulty) will begin the game. When gameplay becomes active the game will automatically open a Recorder session.
-- While playing, per-frame features are collected via `src.recorder.collect_frame_features` and written into a CSV file.
-- When the gameplay session ends or you quit, the recorder flushes and closes the CSV and prints the saved path to the console (for example `data/recordings/gameplay_Easy_YYYYmmdd_HHMMSS.csv`).
-- If you want to generate recordings without ML models present, run the game in `Easy` difficulty and play a variety of actions (move in all directions, fire, pick up items) for the dataset to be useful.
+## Run, Train & Development (developer-focused)
 
-5) Where files are saved
+This project includes utilities for recording gameplay and training ML models used by enemy controllers. The recommended workflow depends on what you want to do:
 
-- Recordings: `data/recordings/*.csv` — created automatically by the recorder when gameplay starts.
-- Models: `data/models/*.joblib` — saved by training utilities like `src.train_models.*` or `src.ai_manager`.
+- Play as an end-user (no ML training required): run `alien_invasion.py`.
+- Develop or collect data for ML: run the `dev_alien_invasion.py` entrypoint to get recorder integration.
+- Train or retrain ML models: use `src.ai_manager` or the training helper scripts.
 
-6) Git safety (already configured)
+Recommended sequence for ML workflows:
 
-- The repository `.gitignore` excludes generated data directories such as `data/recordings/` and `data/models/` to avoid committing large/binary files.
+1) Install dependencies (PowerShell):
 
-7) Quick troubleshooting
+```powershell
+pip install -r requirements.txt
+```
 
-- If you start the game with a non-Easy difficulty and the game refuses to start because models are missing, either train models (step 2) or play and record gameplay in Easy first (step 4) to produce recordings and then train.
-- If you expect a recording to be created but cannot find the file, check the game console for a message like `Recording saved to: data/recordings/<filename>.csv` after you stop playing.
+2) Generate recordings (if you don't have any models yet)
 
-If you'd like, I can add a short `RUNNING.md` with these steps and a couple example commands for Windows PowerShell.
+- Run the developer entrypoint to capture per-frame features automatically:
+
+```powershell
+python dev_alien_invasion.py
+```
+
+- Press START → choose `Easy` difficulty to ensure the game doesn't block recording (Easy does not require ML models).
+- Play several sessions (try movement, firing, picking up items, getting hit). When you quit a session the recorder will print the saved CSV path, e.g.:
+
+```
+Recording saved to: data/recordings/gameplay_Easy_20251006_143215.csv
+```
+
+3) Train ML models
+
+- Once you have recordings, train models with the AI manager. From the project root:
+
+```powershell
+python -m src.ai_manager --train
+# force retrain
+python -m src.ai_manager --train --force
+```
+
+- Trained models are saved under `data/models/*.joblib`.
+
+4) Run the normal or dev game with trained models
+
+- If trained models exist and you want enemies to use them, you can choose `Normal` or higher difficulties in the difficulty screen. The game will refuse to start those difficulties if models are missing and will prompt you to train.
+
+```powershell
+python alien_invasion.py      # end-user run
+python dev_alien_invasion.py  # development run (recorder + extra logging)
+```
+
+Where files are saved
+
+- Recordings: `data/recordings/*.csv` (auto-created by the recorder when gameplay begins in the dev entrypoint).
+- Models: `data/models/*.joblib` (saved by training utilities like `src.ai_manager`).
+
+Git & safety
+
+- `.gitignore` already excludes generated directories such as `data/recordings/` and `data/models/` to avoid committing large files.
+
+Troubleshooting tips
+
+- Game refuses to start non-Easy difficulty:
+  - This means ML models required for that difficulty are missing. Train models (`python -m src.ai_manager --train`) or generate recordings in Easy and re-run training.
+
+- Recordings not appearing:
+  - Make sure you ran `dev_alien_invasion.py` (recorder is enabled there).
+  - Watch the console log for the `Recording saved to:` message.
+
+- Difficulty changes not applying to enemies:
+  - The project applies presets when enemies are spawned via `DifficultyManager`. If you observe all enemies behaving like Easy, ensure you start the game using the difficulty screen so presets are applied.
+
+Want a runnable quick reference file?
+
+I can add a short `RUNNING.md` containing the PowerShell commands above and a tiny checklist for devs. Say "yes" and I'll add it.
