@@ -20,6 +20,7 @@ from src.difficulty_manager import DifficultyManager
 from src.ai_manager import AIManager
 from src.item_agent import on_pickup, should_pickup
 from src.controllers.ml_controller import MLController
+from src.recorder import Recorder, collect_frame_features
 
 
 def init_regions(screen: pygame.Surface) -> RegionManager:
@@ -73,6 +74,10 @@ def run_game():
     stats = GameStats()
     sb = Scoreboard(screen, stats)
 
+    # Recorder: we will start/stop sessions when gameplay starts/stops
+    recorder = Recorder()
+    recording_active = False
+
     health = Health()
     health.reset()
 
@@ -117,7 +122,7 @@ def run_game():
         (240, 64),
         (screen.get_rect().centerx - 120, screen.get_rect().centery + 10),
         lambda: gf.run_credit_button(stats),
-        lambda: not stats.credits_active and not stats.game_active,
+        lambda: not stats.credits_active and not stats.game_active and not difficulty_screen.active,
     )
 
     back_button = btn(
@@ -165,6 +170,33 @@ def run_game():
                 hearts,
                 shields,
             )
+            # If recorder not active, start a session named by difficulty
+            if not recording_active:
+                # Use the DifficultyManager.preset_name (fallback to 'Easy')
+                preset = getattr(difficulty_manager, 'preset_name', 'Easy') or 'Easy'
+                try:
+                    recorder.start_session(f"gameplay_{preset}")
+                    recording_active = True
+                except Exception as e:
+                    print(f"Failed to start recorder: {e}")
+            # Record a single frame's features
+            try:
+                features = collect_frame_features(
+                    ship=ship,
+                    input_obj=input,
+                    stats=stats,
+                    bullets=bullets,
+                    aliens=aliens,
+                    cargoes=cargoes,
+                    alien_bullets=alien_bullets,
+                    hearts=hearts,
+                    shields=shields,
+                    region_manager=region_manager,
+                )
+                # dt in seconds
+                recorder.record_frame(pygame.time.get_ticks(), clock.get_time() / 1000.0, features)
+            except Exception:
+                pass
         else:
             pygame.event.set_grab(False)
 
@@ -220,6 +252,16 @@ def run_game():
             cargoes.empty()
             hearts.empty()
             shields.empty()
+
+        # If the game is not active and recording was active, stop and save
+        if not stats.game_active and recording_active:
+            try:
+                path = recorder.stop()
+                if path:
+                    print(f"Recording stopped and saved to: {path}")
+            except Exception as e:
+                print(f"Error stopping recorder: {e}")
+            recording_active = False
 
 
 run_game()

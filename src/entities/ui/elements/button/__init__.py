@@ -7,6 +7,7 @@ Provides a simple button with elevation, hover effect, and click handling.
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
+import logging
 
 import pygame
 
@@ -114,12 +115,12 @@ class Button:
         if self.top_rect.collidepoint(mouse_pos):
             # Change button face color to indicate hover state
             self.top_color = pygame.Color(BtnColors.HOVER_COLOR)
-            print(f"DEBUG: Mouse over {self.text} button")  # Debug log
+            # (debug logging removed to avoid noisy console output)
             if pygame.mouse.get_pressed()[0]:
                 # If mouse button is pressed and button is not already in pressed state,
                 # update the state to indicate a press.
                 if not self.state.pressed:
-                    print(f"DEBUG: {self.text} button pressed")  # Debug log
+                    # (debug logging removed to avoid noisy console output)
                     self.state.set_pressed(True)
             else:
                 # If mouse button is released and button was previously pressed,

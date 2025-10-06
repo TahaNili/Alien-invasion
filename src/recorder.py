@@ -23,6 +23,7 @@ import csv
 import json
 # dataclasses removed: use a simple class to avoid import-time introspection issues
 from datetime import datetime
+import pygame
 from pathlib import Path
 from typing import Any, Dict, Iterable, Optional
 
@@ -110,10 +111,22 @@ class Recorder:
         if self._writer is None:
             raise RuntimeError("Recorder session is not started. Call start_session().")
 
+        # Validate input parameters
+        if not isinstance(frame, (int, float)):
+            raise ValueError("Frame must be a number")
+        if not isinstance(dt, (int, float)):
+            raise ValueError("dt must be a number")
+        if not isinstance(features, dict):
+            raise ValueError("features must be a dictionary")
+
         # ensure we have a concrete list of columns
         fieldnames_resolved = list(self.fieldnames) if self.fieldnames is not None else []
         row: dict = {key: None for key in fieldnames_resolved}
-        row.update({"frame": frame, "dt": dt, "timestamp": datetime.now().isoformat()})
+        row.update({
+            "frame": int(frame),  # Ensure frame is integer
+            "dt": float(dt),  # Ensure dt is float
+            "timestamp": datetime.now().isoformat()
+        })
 
         # convert non-primitive objects to JSON-friendly strings where reasonable
         for k, v in (features or {}).items():
@@ -121,14 +134,20 @@ class Recorder:
                 # ignore unexpected columns by default
                 continue
             try:
-                if v is None or isinstance(v, (int, float, str, bool)):
+                if v is None:
+                    row[k] = None
+                elif isinstance(v, bool):
+                    row[k] = bool(v)  # Ensure boolean type
+                elif isinstance(v, (int, float)):
+                    row[k] = v if not isinstance(v, bool) else int(v)  # Handle numeric types
+                elif isinstance(v, str):
                     row[k] = v
                 elif isinstance(v, (list, tuple, dict)):
                     row[k] = json.dumps(v, ensure_ascii=False)
                 else:
                     # try to extract primitive attributes, otherwise stringify
                     row[k] = str(v)
-            except Exception:
+            except Exception as e:
                 row[k] = str(v)
 
         self._writer.writerow(row)
@@ -137,22 +156,40 @@ class Recorder:
         """Close the current recording file and return its path."""
         if self._file:
             try:
-                self._file.flush()
+                self._file.flush()  # Ensure all data is written to disk
                 self._file.close()
+                # Inform the user where the recording was saved
+                try:
+                    print(f"Recording saved to: {self._path}")
+                except Exception:
+                    pass
+                return self._path
+            except Exception as e:
+                print(f"Error closing recording file: {e}")
+                return None
             finally:
                 self._file = None
                 self._writer = None
-        return self._path
+        return None  # Return None if no file was open
 
 
 def _safe_len(maybe_group) -> int:
+    """Safely get the length of various types of collections."""
+    if maybe_group is None:
+        return 0
     try:
+        # Try direct len() first
         return len(maybe_group)
     except Exception:
         try:
+            # For iterator-like objects, convert to list first
             return len(list(maybe_group))
         except Exception:
-            return 0
+            try:
+                # For pygame sprite groups, try sprites attribute
+                return len(getattr(maybe_group, "sprites", lambda: [])())
+            except Exception:
+                return 0
 
 
 def collect_frame_features(
@@ -194,24 +231,82 @@ def collect_frame_features(
                 f["ship_angle"] = None
         else:
             f["ship_angle"] = None
-        # Get movement states from input_obj instead of ship
-        f["moving_right"] = bool(getattr(input_obj, "right_pressed", False) if input_obj else False)
-        f["moving_left"] = bool(getattr(input_obj, "left_pressed", False) if input_obj else False)
-        f["moving_up"] = bool(getattr(input_obj, "up_pressed", False) if input_obj else False)
-        f["moving_down"] = bool(getattr(input_obj, "down_pressed", False) if input_obj else False)
+        # Get movement states from input_obj. Prefer using input_obj's query
+        # methods (is_key_down) when available; fall back to attribute names
+        # for older Input implementations.
+        try:
+            if input_obj is not None:
+                # First try using the modern is_key_down method
+                if hasattr(input_obj, "is_key_down"):
+                    f["moving_right"] = bool(
+                        input_obj.is_key_down(pygame.K_RIGHT) or input_obj.is_key_down(pygame.K_d)
+                    )
+                    f["moving_left"] = bool(
+                        input_obj.is_key_down(pygame.K_LEFT) or input_obj.is_key_down(pygame.K_a)
+                    )
+                    f["moving_up"] = bool(
+                        input_obj.is_key_down(pygame.K_UP) or input_obj.is_key_down(pygame.K_w)
+                    )
+                    f["moving_down"] = bool(
+                        input_obj.is_key_down(pygame.K_DOWN) or input_obj.is_key_down(pygame.K_s)
+                    )
+                # Fallback to checking key states directly (common pattern: key_states mapping)
+                elif hasattr(input_obj, "key_states"):
+                    key_states = getattr(input_obj, "key_states", {})
+                    f["moving_right"] = bool(key_states.get(pygame.K_RIGHT, False) or key_states.get(pygame.K_d, False))
+                    f["moving_left"] = bool(key_states.get(pygame.K_LEFT, False) or key_states.get(pygame.K_a, False))
+                    f["moving_up"] = bool(key_states.get(pygame.K_UP, False) or key_states.get(pygame.K_w, False))
+                    f["moving_down"] = bool(key_states.get(pygame.K_DOWN, False) or key_states.get(pygame.K_s, False))
+                # Last resort: check legacy pressed attributes
+                else:
+                    f["moving_right"] = bool(getattr(input_obj, "right_pressed", False))
+                    f["moving_left"] = bool(getattr(input_obj, "left_pressed", False))
+                    f["moving_up"] = bool(getattr(input_obj, "up_pressed", False))
+                    f["moving_down"] = bool(getattr(input_obj, "down_pressed", False))
+            else:
+                # No input facade provided: fallback to pygame global state so recorder still captures player input
+                try:
+                    keys = pygame.key.get_pressed()
+                    f["moving_right"] = bool(keys[pygame.K_RIGHT] or keys[pygame.K_d])
+                    f["moving_left"] = bool(keys[pygame.K_LEFT] or keys[pygame.K_a])
+                    f["moving_up"] = bool(keys[pygame.K_UP] or keys[pygame.K_w])
+                    f["moving_down"] = bool(keys[pygame.K_DOWN] or keys[pygame.K_s])
+                except Exception:
+                    f["moving_right"] = False
+                    f["moving_left"] = False
+                    f["moving_up"] = False
+                    f["moving_down"] = False
+        except Exception:
+            f["moving_right"] = False
+            f["moving_left"] = False
+            f["moving_up"] = False
+            f["moving_down"] = False
     except Exception:
         pass
 
     # input / mouse
     try:
-        if input_obj is not None and hasattr(input_obj, "get_mouse_cursor_position"):
-            mx, my = input_obj.get_mouse_cursor_position()
+        if input_obj is not None:
+            # Try modern method first
+            if hasattr(input_obj, "get_mouse_cursor_position"):
+                mx, my = input_obj.get_mouse_cursor_position()
+            # Fallback to direct pygame mouse position
+            else:
+                mx, my = pygame.mouse.get_pos()
             f["mouse_x"] = int(mx)
             f["mouse_y"] = int(my)
-        if input_obj is not None and hasattr(input_obj, "current_mouse_button_states"):
-            f["mouse_buttons"] = list(getattr(input_obj, "current_mouse_button_states", []))
-    except Exception:
-        pass
+
+            # Get mouse button states
+            if hasattr(input_obj, "current_mouse_button_states"):
+                f["mouse_buttons"] = list(getattr(input_obj, "current_mouse_button_states", []))
+            elif hasattr(input_obj, "get_mouse_button_state"):
+                f["mouse_buttons"] = [input_obj.get_mouse_button_state(i) for i in range(3)]
+            else:
+                f["mouse_buttons"] = list(pygame.mouse.get_pressed())
+    except Exception as e:
+        f["mouse_x"] = 0
+        f["mouse_y"] = 0
+        f["mouse_buttons"] = []
 
     # counts of groups
     f["bullets_count"] = _safe_len(bullets)

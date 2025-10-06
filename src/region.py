@@ -72,10 +72,25 @@ class RegionManager:
             Args:
                 score (int): Player score.
         """
-        if self.current_region_index + 1 <= self.__last_region_index:
-            if score >= self.regions[self.current_region_index + 1].min_score and not self.__fading:
-                self.current_region_index += 1
-                self.__start_fade()
+        # Find the highest region index for which min_score <= score
+        target_index = 0
+        for idx, region in enumerate(self.regions):
+            try:
+                if score >= region.min_score:
+                    target_index = idx
+            except Exception:
+                continue
+
+        # If region changed and not currently fading, update and start fade
+        if target_index != self.current_region_index and not self.__fading:
+            # Advance or retreat to the desired region
+            self.current_region_index = target_index
+            # Prepare the to_draw pair so the new region appears as the incoming background
+            next_bg = self.get_current_region().background
+            # If the next_bg is different than currently drawn second background, mark for fade
+            fade_flag = False if next_bg == self.__to_draw[1][0] else True
+            self.__to_draw = [self.__to_draw[1], (next_bg, fade_flag)]
+            self.__start_fade()
 
     def get_current_region(self) -> Region:
         """Returns the current region.
