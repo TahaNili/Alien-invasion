@@ -164,3 +164,11 @@ logs/
 data/recordings/
 data/models/
 dev_alien_invasion.py
+# Documentation and debug/analysis files
+docs/
+docs/error_fixes/
+docs/ai_enhancement_documentation.md
+docs/ai_manager.md
+docs/difficulty_screen_analysis.md
+docs/enemy_ai_plan.txt
+docs/ui_start_button_analysis.md
