@@ -92,7 +92,63 @@ We appreciate your contributions and look forward to building something great.
 
 
 - Finally, run the game:
+ - Finally, run the game:
   
 ```
-   python3 alien_invasion.py
+  python3 alien_invasion.py
 ```
+
+## Run & Train (developer-focused instructions)
+
+These instructions explain the recommended order for running tools and game entrypoints when working with ML models and recordings.
+
+1) Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+2) (Optional) Train or prepare ML models before running the game
+
+If you plan to run the game with a non-Easy difficulty that uses ML controllers, prepare models first. The AI utilities will look for model files under `data/models/`.
+
+From project root you can run the AI manager to train or verify models:
+
+```
+python -m src.ai_manager --train
+# or to force retrain
+python -m src.ai_manager --train --force
+```
+
+If no recordings exist yet, train will fail — in that case play a few sessions in Easy difficulty to create recordings (see step 4).
+
+3) Run the dev entrypoint (recommended for development)
+
+The repo includes a developer entrypoint with extra logging and recorder integration. Use this to capture gameplay recordings easily:
+
+```
+python dev_alien_invasion.py
+```
+
+4) How recording works (Easy difficulty)
+
+- Starting a gameplay session (press START → choose difficulty) will begin the game. When gameplay becomes active the game will automatically open a Recorder session.
+- While playing, per-frame features are collected via `src.recorder.collect_frame_features` and written into a CSV file.
+- When the gameplay session ends or you quit, the recorder flushes and closes the CSV and prints the saved path to the console (for example `data/recordings/gameplay_Easy_YYYYmmdd_HHMMSS.csv`).
+- If you want to generate recordings without ML models present, run the game in `Easy` difficulty and play a variety of actions (move in all directions, fire, pick up items) for the dataset to be useful.
+
+5) Where files are saved
+
+- Recordings: `data/recordings/*.csv` — created automatically by the recorder when gameplay starts.
+- Models: `data/models/*.joblib` — saved by training utilities like `src.train_models.*` or `src.ai_manager`.
+
+6) Git safety (already configured)
+
+- The repository `.gitignore` excludes generated data directories such as `data/recordings/` and `data/models/` to avoid committing large/binary files.
+
+7) Quick troubleshooting
+
+- If you start the game with a non-Easy difficulty and the game refuses to start because models are missing, either train models (step 2) or play and record gameplay in Easy first (step 4) to produce recordings and then train.
+- If you expect a recording to be created but cannot find the file, check the game console for a message like `Recording saved to: data/recordings/<filename>.csv` after you stop playing.
+
+If you'd like, I can add a short `RUNNING.md` with these steps and a couple example commands for Windows PowerShell.
