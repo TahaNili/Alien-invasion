@@ -19,6 +19,9 @@ class Alien(ABC, Sprite):
         self.health = 1  # Default health
         self.angle = 0
         self._controller = None  # Will be set by DifficultyManager
+        self.has_shield = False
+        self.shield_time = 0
+        self.shield_duration = 10000  # 10 seconds in milliseconds
         # Load the alien image and set its rect attribute.
         self.original_image = self.get_image()
         self.image = self.original_image
@@ -105,6 +108,33 @@ class CargoAlien(Alien):
 
     def update(self, ship):
         super().update(ship)
+        # Update shield timer if shield is active
+        if self.has_shield:
+            self.shield_time -= self.ai_settings.delta_time
+            if self.shield_time <= 0:
+                self.has_shield = False
+                
+    def collect_item(self, item_type: str) -> None:
+        """Handle item collection"""
+        if item_type == "heart":
+            self.health += 1
+        elif item_type == "shield":
+            self.has_shield = True
+            self.shield_time = self.shield_duration
+            
+    def collide_with_player(self, player) -> bool:
+        """Handle collision with player"""
+        if self.has_shield:
+            # If both have shields, both survive but shields are consumed
+            if player.has_shield:
+                self.has_shield = False
+                return False
+            else:
+                # Player takes damage if they don't have a shield
+                player.health -= 1
+                self.has_shield = False
+                return True
+        return False
         
     def get_image(self):
         image = TextureAtlas.get_sprite_texture("alien/alien_cargo.png")
