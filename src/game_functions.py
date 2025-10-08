@@ -395,12 +395,20 @@ def spawn_random_alien(ai_settings, screen, aliens):
     x = 0
     y = 0
     
-    # Spawn only from sides (50% left, 50% right)
-    if randint(0, 1) == 0:  # Left side
-        x = -50
-        y = randint(0, screen_height)
-    else:  # Right side
+    # Select a random direction from which the alien will spawn (equal chance from all sides)
+    direction = randint(0, 3)  # 0: top, 1: right, 2: bottom, 3: left
+    
+    if direction == 0:  # Top
+        x = randint(0, screen_width)
+        y = -50
+    elif direction == 1:  # Right
         x = screen_width + 50
+        y = randint(0, screen_height)
+    elif direction == 2:  # Bottom
+        x = randint(0, screen_width)
+        y = screen_height + 50
+    else:  # Left
+        x = -50
         y = randint(0, screen_height)
 
     # Set the previously-created alien's initial position (offscreen)
