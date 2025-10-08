@@ -28,10 +28,10 @@ from src.controllers.behavior_controller import BehaviorController
 class DifficultyManager:
     PRESETS = {
         "Easy": {"controller": BaseController, "hp_mult": 1.0, "speed_mult": 1.0, "decision_interval_ms": 500, "spawn_multiplier": 1.0},
-        "Normal": {"controller": MLController, "hp_mult": 1.2, "speed_mult": 1.0, "decision_interval_ms": 200, "spawn_multiplier": 1.0},
-        "Hard": {"controller": BehaviorController, "hp_mult": 1.5, "speed_mult": 1.1, "decision_interval_ms": 120, "spawn_multiplier": 1.0},
-        "VeryHard": {"controller": BehaviorController, "hp_mult": 2.0, "speed_mult": 1.2, "decision_interval_ms": 100, "spawn_multiplier": 1.5},
-        "Unbeatable": {"controller": BehaviorController, "hp_mult": 3.0, "speed_mult": 1.3, "decision_interval_ms": 60, "spawn_multiplier": 3.0},
+        "Normal": {"controller": MLController, "hp_mult": 2.0, "speed_mult": 1.2, "decision_interval_ms": 200, "spawn_multiplier": 1.0},
+        "Hard": {"controller": BehaviorController, "hp_mult": 3.0, "speed_mult": 1.4, "decision_interval_ms": 120, "spawn_multiplier": 1.0},
+        "VeryHard": {"controller": BehaviorController, "hp_mult": 4.0, "speed_mult": 1.6, "decision_interval_ms": 100, "spawn_multiplier": 1.5},
+        "Unbeatable": {"controller": BehaviorController, "hp_mult": 6.0, "speed_mult": 2.0, "decision_interval_ms": 60, "spawn_multiplier": 3.0},
     }
 
     def __init__(self, preset_name: str = "Normal"):
