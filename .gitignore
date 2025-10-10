@@ -165,3 +165,7 @@ dev_alien_invasion.py
 # Documentation: only keep changelog images
 docs/*
 !docs/changelog/
+ 
+# Ignore generated models and gameplay recordings
+data/models/
+data/recordings/
