@@ -7,7 +7,9 @@ from pygame.sprite import Sprite
 from src.resources.texture_atlas import TextureAtlas
 
 
-class Alien(ABC, Sprite):
+from src.protocols import AlienProtocol, ControllerProtocol
+
+class Alien(ABC, Sprite, AlienProtocol):
     """An abstract class to create aliens."""
 
     def __init__(self, ai_settings, screen):
@@ -18,7 +20,7 @@ class Alien(ABC, Sprite):
         self.ai_settings = ai_settings
         self.health = 1  # Default health
         self.angle = 0
-        self._controller = None  # Will be set by DifficultyManager
+        self._controller: ControllerProtocol | None = None  # Will be set by DifficultyManager
         self.has_shield = False
         self.shield_time = 0
         self.shield_duration = 10000  # 10 seconds in milliseconds
@@ -34,14 +36,15 @@ class Alien(ABC, Sprite):
         self.rect.y = int(self.y)
         
     @property
-    def controller(self) -> object:
+    def controller(self) -> ControllerProtocol:
         """Get the alien's controller"""
         if self._controller is None:
-            self._controller = object()  # Default controller
+            from src.controllers.default_controller import DefaultController
+            self._controller = DefaultController(self, {})
         return self._controller
         
     @controller.setter
-    def controller(self, value: object):
+    def controller(self, value: ControllerProtocol):
         """Set the alien's controller"""
         self._controller = value
 
