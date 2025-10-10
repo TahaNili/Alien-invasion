@@ -1,6 +1,16 @@
 # We Can Make This Game Better!
 
-Welcome to the Alien Invasion project. This is an open-source effort where serious developers, designers, and gamers come together to create something extraordinary. We’re focused on pushing the limits of what this game can be, and we need your expertise to make that happen.
+Welcome to the Alien Invasion project. This is an open-source effort where ser## Advanced Features: AI-Powered Gameplay
+
+This game features advanced AI enemies on higher difficulty levels! Here's what you need to know:
+
+### ML Features
+
+- **Easy Mode**: No AI required - perfect for casual play
+- **Normal and Above**: AI-powered enemies for extra challenge
+- **ML Training**: Optional feature to enable advanced difficulties
+
+### Setting Up AI Featureslopers, designers, and gamers come together to create something extraordinary. We’re focused on pushing the limits of what this game can be, and we need your expertise to make that happen.
 
 The foundation is set, but now it’s time to build something even better. If you’re ready to contribute, collaborate, and help take this project to the next level, we’re excited to have you on board.
 
@@ -94,22 +104,19 @@ We appreciate your contributions and look forward to building something great.
 
 ## Quick Start
 
-These steps work for both Windows (PowerShell) and POSIX shells. Use the commands that match your environment.
+Getting started with Alien Invasion is easy! These steps work on all platforms:
 
 1. Install dependencies:
-  ```powershell
-  pip install -r requirements.txt
-  ```
+```powershell
+pip install -r requirements.txt
+```
 
-2. Run the main game (for players):
-  ```powershell
-  python alien_invasion.py
-  ```
+2. Launch the game:
+```powershell
+python alien_invasion.py
+```
 
-3. For development (extra logging, gameplay recording):
-  ```powershell
-  python dev_alien_invasion.py
-  ```
+That's it! You're ready to start playing. Choose Easy difficulty to begin - it's perfect for new players and requires no additional setup.
 
 The developer entrypoint automatically starts the recorder when gameplay begins and prints the recording file path when you quit.
 
@@ -122,56 +129,46 @@ This project supports gameplay recording and ML-based enemy controllers. Here’
 - **Develop or collect data:** Run `dev_alien_invasion.py` (enables recorder and extra logging).
 - **Train ML models:** Use `src/ai_manager` or helper scripts.
 
-### ML Workflow
+To enable advanced AI features:
 
-1. **Install dependencies:**
+1. **Train the AI models** (one-time setup):
    ```powershell
-   pip install -r requirements.txt
+   # From the project root
+   python -m src.ai_manager --train
+   ```
+   This will create the necessary AI models in `data/models/`.
+
+2. **Launch the game normally**:
+   ```powershell
+   python alien_invasion.py
    ```
 
-2. **Generate recordings:**
-   - Run the developer entrypoint:
-     ```powershell
-     python dev_alien_invasion.py
-     ```
-   - Press START, choose `Easy` difficulty (does not require ML models).
-   - Play several sessions (move, fire, pick up items, get hit). When you quit, the recorder prints the CSV path, e.g.:
-     ```
-     Recording saved to: data/recordings/gameplay_Easy_20251006_143215.csv
-     ```
+3. **Select your difficulty**:
+   - Easy: No AI required
+   - Normal and above: Uses trained AI models
 
-3. **Train ML models:**
-   - From the project root:
-     ```powershell
-     python -m src.ai_manager --train
-     # To force retrain:
-     python -m src.ai_manager --train --force
-     ```
-   - Trained models are saved in `data/models/*.joblib`.
+Don't worry about missing this step - the game will guide you through the process when you try to play higher difficulties. You can always enjoy the full game experience on Easy mode without any AI setup.
 
-4. **Run with trained models:**
-   - Choose `Normal` or higher difficulty in the game. If models are missing, the game will prompt you to train.
-   - Run either entrypoint:
-     ```powershell
-     python alien_invasion.py      # end-user
-     python dev_alien_invasion.py  # developer
-     ```
+## Game Files
 
-### File Locations
+Important locations:
+- `data/models/`: AI model files (created when you train)
+- `src/`: Source code files
+- `data/assets/`: Game graphics and sounds
 
-- **Recordings:** `data/recordings/*.csv` (created automatically)
-- **Models:** `data/models/*.joblib` (created by training)
+## Troubleshooting
 
-### Git Safety
+Common questions and solutions:
 
-- `.gitignore` excludes generated data and dev entrypoints by default.
+- **"Can't select Normal/Hard difficulty"**
+  - Solution: Run `python -m src.ai_manager --train` to enable advanced difficulties
+  
+- **"Changes to difficulty not working"**
+  - Solution: Make sure to use the in-game difficulty screen
+  - Changes take effect when new enemies spawn
 
-### Troubleshooting
-
-- **Game refuses non-Easy difficulty:**
-  - ML models are missing. Train models or record gameplay in Easy and retrain.
-- **No recordings found:**
-  - Use `dev_alien_invasion.py` and check for `Recording saved to:` in the console.
-- **Difficulty changes not applied:**
-  - Make sure you use the difficulty screen; presets are applied on spawn.
+- **"Game is too hard/easy"**
+  - Easy mode: Best for learning the game
+  - Normal: Requires AI models, provides more challenge
+  - Hard and above: For experienced players only!
 
