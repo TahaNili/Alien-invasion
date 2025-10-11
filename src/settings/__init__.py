@@ -60,7 +60,7 @@ ALIEN_L1_HEALTH: int = 1
 ALIEN_L2_SPAWN_CHANCE: int = 5
 
 # Spawn settings
-BASE_SPAWN_INTERVAL: float = 1000.0  # Base spawn interval in milliseconds
+BASE_SPAWN_INTERVAL: float = 1200.0  # Base spawn interval in milliseconds (increased for better control)
 
 # Difficulty Presets
 DIFFICULTY_PRESETS = {
@@ -69,35 +69,40 @@ DIFFICULTY_PRESETS = {
         "hp_mult": 1.0,
         "speed_mult": 1.0,
         "decision_interval_ms": 500,
-        "spawn_multiplier": 1.5
+        "spawn_multiplier": 0.8,
+    "score_mult": 1.0  # Base score
     },
     "Normal": {
         "controller": "MLController",
-        "hp_mult": 2.0,
+        "hp_mult": 1.5,
         "speed_mult": 1.0,
-        "decision_interval_ms": 200,
-        "spawn_multiplier": 3.0
+        "decision_interval_ms": 300,
+        "spawn_multiplier": 1.2,
+    "score_mult": 1.5  # 50% more score
     },
     "Hard": {
         "controller": "MLController",
-        "hp_mult": 3.0,
-        "speed_mult": 1.0,
-        "decision_interval_ms": 120,
-        "spawn_multiplier": 5.5
+        "hp_mult": 2.0,
+        "speed_mult": 1.1,
+        "decision_interval_ms": 200,
+        "spawn_multiplier": 1.5,
+    "score_mult": 2.0  # Double score
     },
     "VeryHard": {
         "controller": "MLController",
-        "hp_mult": 4.0,
-        "speed_mult": 1.0,
-        "decision_interval_ms": 100,
-        "spawn_multiplier": 8.0
+        "hp_mult": 2.0,
+        "speed_mult": 1.1,
+        "decision_interval_ms": 200,
+        "spawn_multiplier": 1.8,
+    "score_mult": 2.5  # Two and a half times score
     },
     "Unbeatable": {
         "controller": "MLController",
-        "hp_mult": 6.0,
-        "speed_mult": 1.0,
-        "decision_interval_ms": 60,
-        "spawn_multiplier": 10.0
+        "hp_mult": 3.0,
+        "speed_mult": 1.3,
+        "decision_interval_ms": 100,
+        "spawn_multiplier": 2.0,
+        "score_mult": 3.0  # Triple score
     }
 }
 
@@ -185,8 +190,9 @@ class Settings:
         self.cargo_speed_factor = 0.5
         self.cargo_drop_chance = 0
 
-        # Scoring
-        self.alien_points = 10
+    # Scoring - use defined constants
+        self.alien_points = ALIEN_POINTS
+        self.cargo_points = CARGO_POINTS
 
     def increase_speed(self):
         """Increase speed settings."""
