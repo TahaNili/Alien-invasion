@@ -59,6 +59,45 @@ ALIEN_L2_HEALTH: int = 2
 ALIEN_L1_HEALTH: int = 1
 ALIEN_L2_SPAWN_CHANCE: int = 5
 
+# Difficulty Presets
+DIFFICULTY_PRESETS = {
+    "Easy": {
+        "controller": "BaseController",
+        "hp_mult": 1.0,
+        "speed_mult": 1.0,
+        "decision_interval_ms": 500,
+        "spawn_multiplier": 1.5
+    },
+    "Normal": {
+        "controller": "MLController",
+        "hp_mult": 2.0,
+        "speed_mult": 1.0,
+        "decision_interval_ms": 200,
+        "spawn_multiplier": 3.0
+    },
+    "Hard": {
+        "controller": "MLController",
+        "hp_mult": 3.0,
+        "speed_mult": 1.0,
+        "decision_interval_ms": 120,
+        "spawn_multiplier": 5.5
+    },
+    "VeryHard": {
+        "controller": "MLController",
+        "hp_mult": 4.0,
+        "speed_mult": 1.0,
+        "decision_interval_ms": 100,
+        "spawn_multiplier": 8.0
+    },
+    "Unbeatable": {
+        "controller": "MLController",
+        "hp_mult": 6.0,
+        "speed_mult": 1.0,
+        "decision_interval_ms": 60,
+        "spawn_multiplier": 10.0
+    }
+}
+
 # Game progression
 SPEEDUP_SCALE: float = 1.1
 SCORE_SCALE: float = 1.5
