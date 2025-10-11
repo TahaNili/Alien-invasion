@@ -274,15 +274,21 @@ def run_game():
         current_time = pygame.time.get_ticks()
 
         if region_manager.can_spawn_objects():
-            if current_time - alien_spawn_timer > 100:
+            # Calculate spawn interval based on difficulty
+            spawn_multiplier = difficulty_manager.preset.get("spawn_multiplier", 1.0)
+            adjusted_interval = ai_settings.base_spawn_interval / spawn_multiplier
+            
+            if current_time - alien_spawn_timer > adjusted_interval:
                 gf.alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship)
-
+                
                 generate_heart(stats, screen, hearts)
                 gf.generate_shields(screen, ai_settings, stats, shields)
-
-                if alien_spawn_counter % 10 == 0:
+                
+                # Spawn aliens more frequently based on spawn_multiplier
+                spawn_frequency = max(1, int(10 / spawn_multiplier))
+                if alien_spawn_counter % spawn_frequency == 0:
                     gf.spawn_random_alien(ai_settings, screen, aliens)
-
+                
                 alien_spawn_counter += 1
                 alien_spawn_timer = current_time
         else:

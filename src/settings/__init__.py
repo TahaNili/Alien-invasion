@@ -59,6 +59,9 @@ ALIEN_L2_HEALTH: int = 2
 ALIEN_L1_HEALTH: int = 1
 ALIEN_L2_SPAWN_CHANCE: int = 5
 
+# Spawn settings
+BASE_SPAWN_INTERVAL: float = 1000.0  # Base spawn interval in milliseconds
+
 # Difficulty Presets
 DIFFICULTY_PRESETS = {
     "Easy": {
@@ -151,6 +154,9 @@ class Settings:
         self.alien_l2_health = 2
         self.alien_l1_health = 1
         self.alien_l2_spawn_chance = 5
+        
+        # Spawn settings
+        self.base_spawn_interval = 1000.0  # Base spawn interval in milliseconds
 
         # How quickly the game speeds up
         self.speedup_scale = 1.1
