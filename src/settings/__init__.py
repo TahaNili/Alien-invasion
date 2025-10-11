@@ -70,7 +70,7 @@ DIFFICULTY_PRESETS = {
         "speed_mult": 1.0,
         "decision_interval_ms": 500,
         "spawn_multiplier": 0.8,
-    "score_mult": 1.0  # Base score
+        "score_mult": 1.0  # Base score
     },
     "Normal": {
         "controller": "MLController",
@@ -78,7 +78,7 @@ DIFFICULTY_PRESETS = {
         "speed_mult": 1.0,
         "decision_interval_ms": 300,
         "spawn_multiplier": 1.2,
-    "score_mult": 1.5  # 50% more score
+        "score_mult": 1.5  # 50% more score
     },
     "Hard": {
         "controller": "MLController",
@@ -86,7 +86,7 @@ DIFFICULTY_PRESETS = {
         "speed_mult": 1.1,
         "decision_interval_ms": 200,
         "spawn_multiplier": 1.5,
-    "score_mult": 2.0  # Double score
+        "score_mult": 2.0  # Double score
     },
     "VeryHard": {
         "controller": "MLController",
