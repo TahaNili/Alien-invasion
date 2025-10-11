@@ -94,7 +94,7 @@ DIFFICULTY_PRESETS = {
         "speed_mult": 1.1,
         "decision_interval_ms": 200,
         "spawn_multiplier": 1.8,
-    "score_mult": 2.5  # Two and a half times score
+        "score_mult": 2.5  # Two and a half times score
     },
     "Unbeatable": {
         "controller": "MLController",

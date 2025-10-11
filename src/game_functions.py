@@ -481,16 +481,26 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, sb, ship, aliens, 
     # if we hit alien
     if collisions_1:
         for aliens_hit in collisions_1.values():
+            # Get current difficulty score multiplier
+            difficulty_manager = get_difficulty_manager()
+            score_mult = difficulty_manager.current_score_mult
+
+            # Process each hit alien
+            destroyed_aliens = 0
             for alien in aliens_hit:
                 alien.health -= 1
                 animations[0].set_position(alien.rect.x, alien.rect.y)
                 animations[0].play()
                 if alien.health <= 0:
                     aliens.remove(alien)
+                    destroyed_aliens += 1
 
-            stats.score += ai_settings.alien_points * len(aliens)
-            sb.update()
-            sound_explosion.play()
+            # Calculate score based on actually destroyed aliens and difficulty multiplier
+            if destroyed_aliens > 0:
+                score_to_add = int(ai_settings.alien_points * score_mult * destroyed_aliens)
+                stats.score += score_to_add
+                sb.update()
+                sound_explosion.play()
 
     # if we hit cargo:
     if collisions_2:
