@@ -109,7 +109,8 @@ DIFFICULTY_PRESETS = {
         "speed_mult": 1.3,
         "decision_interval_ms": 100,
         "spawn_multiplier": 4.5,
-        "score_mult": 0.2
+        "score_mult": 0.2,
+        "item_spawn_mult": 0.5
     }
 }
 
