@@ -43,6 +43,9 @@ class DifficultyManager:
         self.preset_name = preset_name
         self.preset = DIFFICULTY_PRESETS.get(preset_name, DIFFICULTY_PRESETS["Normal"])
         self.current_score_mult = self.preset.get("score_mult", 1.0)
+        # Update global current difficulty
+        from src import settings
+        settings.CURRENT_DIFFICULTY = preset_name
 
     def create_alien(self, alien_factory: Callable[[], AlienProtocol]) -> AlienProtocol:
         # alien_factory should be a callable that returns a new alien instance

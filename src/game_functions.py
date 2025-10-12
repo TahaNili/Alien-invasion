@@ -27,8 +27,8 @@ from src.alien import AlienL1, AlienL2, CargoAlien, AlienProtocol
 from src.settings import Settings as AISettings
 from src.animation import Animation
 from src.bullet import AlienBullet, ShipBullet
-from src.entities.items.heart import GENERATE_HEART_CHANCE, Heart
-from src.entities.items.shield import GENERATE_SHIELD_CHANCE, Shield
+from src.entities.items.heart import get_heart_chance, Heart
+from src.entities.items.shield import get_shield_chance, Shield
 from src.item_agent import should_pickup, on_pickup
 from src.protocols import AlienProtocol
 
@@ -735,7 +735,7 @@ def generate_heart(
     heart_group: pygame.sprite.Group,
 ) -> None:
     """."""
-    if stats.game_active and randint(1, 1000) <= GENERATE_HEART_CHANCE:
+    if stats.game_active and randint(1, 1000) <= get_heart_chance():
         heart = Heart(screen)
         heart_group.add(heart)
 
@@ -770,7 +770,7 @@ def update_hearts(ship, health, hearts, aliens=None):
 
 def generate_shields(screen, ai_settings, stats, shield_group):
     if stats.game_active:
-        if randint(1, 1000) <= GENERATE_SHIELD_CHANCE:
+        if randint(1, 1000) <= get_shield_chance():
             shield = Shield()
             shield_group.add(shield)
 

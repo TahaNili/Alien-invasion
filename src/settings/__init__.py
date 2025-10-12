@@ -59,8 +59,11 @@ ALIEN_L2_HEALTH: int = 2
 ALIEN_L1_HEALTH: int = 1
 ALIEN_L2_SPAWN_CHANCE: int = 5
 
+# Current difficulty level (updated by the game)
+CURRENT_DIFFICULTY: str = "Normal"
+
 # Spawn settings
-BASE_SPAWN_INTERVAL: float = 1200.0  # Base spawn interval in milliseconds (increased for better control)
+BASE_SPAWN_INTERVAL: float = 1200.0 # Base spawn interval in milliseconds (increased for better control)
 
 # Difficulty Presets
 DIFFICULTY_PRESETS = {
@@ -69,40 +72,44 @@ DIFFICULTY_PRESETS = {
         "hp_mult": 1.0,
         "speed_mult": 1.0,
         "decision_interval_ms": 500,
-        "spawn_multiplier": 0.8,
-        "score_mult": 1.0  # Base score
+        "spawn_multiplier": 2.5,
+        "score_mult": 1.0,
+        "item_spawn_mult": 2.0    # Higher item spawn rate in Easy mode
     },
     "Normal": {
         "controller": "MLController",
         "hp_mult": 1.5,
         "speed_mult": 1.0,
         "decision_interval_ms": 300,
-        "spawn_multiplier": 1.2,
-        "score_mult": 1.5  # 50% more score
+        "spawn_multiplier": 3.5,
+        "score_mult": 0.8,
+        "item_spawn_mult": 1.5    # Medium item spawn rate
     },
     "Hard": {
         "controller": "MLController",
         "hp_mult": 2.0,
         "speed_mult": 1.1,
         "decision_interval_ms": 200,
-        "spawn_multiplier": 1.5,
-        "score_mult": 2.0  # Double score
+        "spawn_multiplier": 3.5,
+        "score_mult": 0.6,
+        "item_spawn_mult": 1.0    # Normal item spawn rate
     },
     "VeryHard": {
         "controller": "MLController",
         "hp_mult": 2.0,
         "speed_mult": 1.1,
         "decision_interval_ms": 200,
-        "spawn_multiplier": 1.8,
-        "score_mult": 2.5  # Two and a half times score
+        "spawn_multiplier": 4.0,
+        "score_mult": 1.2,
+        "item_spawn_mult": 0.7    # Lower item spawn rate
     },
     "Unbeatable": {
         "controller": "MLController",
         "hp_mult": 3.0,
         "speed_mult": 1.3,
         "decision_interval_ms": 100,
-        "spawn_multiplier": 2.0,
-        "score_mult": 3.0  # Triple score
+        "spawn_multiplier": 4.5,
+        "score_mult": 0.2
     }
 }
 

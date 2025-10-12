@@ -5,9 +5,19 @@ import secrets
 import pygame
 
 from src import settings
+from src.game_stats import GameStats
 from src.resources.texture_atlas import TextureAtlas
 
-GENERATE_HEART_CHANCE: int = 60
+# Base chance to generate a heart
+# Base chance to generate a heart
+BASE_HEART_CHANCE: int = 60
+
+def get_heart_chance() -> int:
+    """Calculate the actual heart spawn chance based on difficulty."""
+    preset = settings.DIFFICULTY_PRESETS.get(settings.CURRENT_DIFFICULTY, 
+                                           settings.DIFFICULTY_PRESETS["Normal"])
+    item_mult = preset.get("item_spawn_mult", 1.0)
+    return int(BASE_HEART_CHANCE * item_mult)
 
 
 class Heart(pygame.sprite.Sprite):

@@ -7,7 +7,15 @@ import pygame
 from src import settings
 from src.resources.texture_atlas import TextureAtlas
 
-GENERATE_SHIELD_CHANCE: int = 60
+# Base chance to generate a shield
+BASE_SHIELD_CHANCE: int = 60
+
+def get_shield_chance() -> int:
+    """Calculate the actual shield spawn chance based on difficulty."""
+    preset = settings.DIFFICULTY_PRESETS.get(settings.CURRENT_DIFFICULTY, 
+                                           settings.DIFFICULTY_PRESETS["Normal"])
+    item_mult = preset.get("item_spawn_mult", 1.0)
+    return int(BASE_SHIELD_CHANCE * item_mult)
 SHIELD_TIME: int = 10
 
 
