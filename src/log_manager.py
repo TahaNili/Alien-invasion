@@ -10,6 +10,28 @@ class LevelFilter(logging.Filter):
     def filter(self, record):
         return record.levelno == self.level
 
+
+class SuppressMessagesFilter(logging.Filter):
+    """Filter that suppresses log records containing any of the configured patterns.
+
+    This filter is intended to be attached to console handlers so the messages are
+    not printed to stdout/stderr but still reach other handlers (like the file
+    handler) which do not use this filter.
+    """
+    def __init__(self, patterns=None):
+        super().__init__()
+        self.patterns = patterns or []
+
+    def filter(self, record):
+        try:
+            msg = record.getMessage()
+        except Exception:
+            return True
+        for p in self.patterns:
+            if p in msg:
+                return False
+        return True
+
 class LogManager:
     __CONFIG = {
         "version": 1,
@@ -45,6 +67,13 @@ class LogManager:
                 "()": LevelFilter,
                 "level": logging.DEBUG
             },
+            "suppress_messages": {
+                "()": SuppressMessagesFilter,
+                "patterns": [
+                    "Created new DifficultyManager instance",
+                    "Generated spawn point"
+                ]
+            },
             "warning_only": {
                 "()": LevelFilter,
                 "level": logging.WARNING
@@ -59,14 +88,14 @@ class LogManager:
                 "class": "logging.StreamHandler",
                 "level": "INFO",
                 "formatter": "info_formatter",
-                "filters": ["info_only"],
+                "filters": ["info_only", "suppress_messages"],
                 "stream": "ext://sys.stdout"
             },
             "console_debug": {
                 "class": "logging.StreamHandler",
                 "level": "DEBUG",
                 "formatter": "debug_formatter",
-                "filters": ["debug_only"],
+                "filters": ["debug_only", "suppress_messages"],
                 "stream": "ext://sys.stdout"
             },
             "console_warning": {
