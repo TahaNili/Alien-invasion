@@ -94,8 +94,8 @@ class LogManager:
         },
         "loggers": {
             "": {
-                "handlers": ["console_warning", "console_error", "file"],
-                "level": "WARNING",
+                "handlers": ["console_info", "console_debug", "console_warning", "console_error", "file"],
+                "level": "DEBUG",
                 "propagate": False
             }
         }
