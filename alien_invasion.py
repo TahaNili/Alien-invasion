@@ -1,4 +1,7 @@
 import logging
+# Set logging level to WARNING to hide DEBUG and INFO messages
+logging.basicConfig(level=logging.WARNING)
+
 import pygame
 from pathlib import Path
 from pygame.sprite import Group
