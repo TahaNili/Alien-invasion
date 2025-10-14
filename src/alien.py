@@ -116,14 +116,6 @@ class CargoAlien(Alien):
             self.shield_time -= self.ai_settings.delta_time
             if self.shield_time <= 0:
                 self.has_shield = False
-                
-    def collect_item(self, item_type: str) -> None:
-        """Handle item collection"""
-        if item_type == "heart":
-            self.health += 1
-        elif item_type == "shield":
-            self.has_shield = True
-            self.shield_time = self.shield_duration
             
     def collide_with_player(self, player) -> bool:
         """Handle collision with player"""
