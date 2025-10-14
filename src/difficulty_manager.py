@@ -55,8 +55,30 @@ class DifficultyManager:
         controller_name = self.preset["controller"]
         controller_cls = self._CONTROLLER_MAP[controller_name]
         
+        # Base params from preset
         params = {"decision_interval_ms": self.preset.get("decision_interval_ms", 150)}
+
+        # Inject per-alien personality with a small random variation to diversify behaviors
+        try:
+            import random
+            personality = {
+                "aggression": float(self.preset.get("base_aggression", 1.0) * (0.85 + random.random() * 0.3)),
+                "accuracy": float(self.preset.get("base_accuracy", 1.0) * (0.6 + random.random() * 0.8)),
+                "reaction_jitter_ms": int(params["decision_interval_ms"] * (0.8 + random.random() * 0.4)),
+                "dodge_tendency": float(self.preset.get("base_dodge", 1.0) * (0.5 + random.random() * 1.0)),
+            }
+            params["personality"] = personality
+        except Exception:
+            # If random import fails for any reason, proceed without personality
+            pass
+
         setattr(alien, 'controller', controller_cls(alien, params))
+        # also attach personality to the alien object so other systems can read it
+        try:
+            if isinstance(params.get("personality"), dict):
+                setattr(alien, 'personality', params.get("personality"))
+        except Exception:
+            pass
         
         # apply hp/speed multipliers if alien exposes them
         if hasattr(alien, "health"):

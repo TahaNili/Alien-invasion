@@ -721,11 +721,34 @@ def alien_fire(ai_settings, stats, screen, aliens, alien_bullets, ship):
         for alien in aliens.sprites():
             if type(alien) is AlienL1:
                 if randint(1, 1000) <= ai_settings.alien_fire_chance:
-                    bullet = AlienBullet(alien, ship)
+                    # Determine accuracy for this alien (fallbacks applied)
+                    accuracy = 1.0
+                    try:
+                        personality = getattr(alien, 'personality', None)
+                        if isinstance(personality, dict):
+                            accuracy = float(personality.get('accuracy', accuracy))
+                        else:
+                            controller_params = getattr(getattr(alien, 'controller', None), 'params', None)
+                            if isinstance(controller_params, dict):
+                                accuracy = float(controller_params.get('personality', {}).get('accuracy', accuracy))
+                    except Exception:
+                        pass
+                    bullet = AlienBullet(alien, ship, accuracy=accuracy)
                     alien_bullets.add(bullet)
             elif type(alien) is AlienL2:
                 if randint(1, 1000) <= ai_settings.alien_l2_fire_chance:
-                    bullet = AlienBullet(alien, ship)
+                    accuracy = 1.0
+                    try:
+                        personality = getattr(alien, 'personality', None)
+                        if isinstance(personality, dict):
+                            accuracy = float(personality.get('accuracy', accuracy))
+                        else:
+                            controller_params = getattr(getattr(alien, 'controller', None), 'params', None)
+                            if isinstance(controller_params, dict):
+                                accuracy = float(controller_params.get('personality', {}).get('accuracy', accuracy))
+                    except Exception:
+                        pass
+                    bullet = AlienBullet(alien, ship, accuracy=accuracy)
                     alien_bullets.add(bullet)
 
 

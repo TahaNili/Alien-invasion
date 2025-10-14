@@ -71,17 +71,44 @@ class ShipBullet(Bullet):
 
 class AlienBullet(Bullet):
     """A class to manage bullets fired from the aliens."""
-
-    def __init__(self, alien, ship):
+    def __init__(self, alien, ship, accuracy: float = 1.0):
+        # accuracy: higher => tighter aim; expected around 0.5..2.0
         super().__init__(ship, alien, settings.BULLET_COLOR, settings.BULLET_SPEED_FACTOR)
+        self.accuracy = float(accuracy)
 
     def set_angle(self, source, target): # pyright: ignore[reportIncompatibleMethodOverride]
         dx = target.rect.centerx - source.rect.centerx
         dy = target.rect.centery - source.rect.centery
 
-        angle = math.atan2(-dy, dx) - 90
+        # base angle toward target (in radians)
+        base_angle = math.atan2(-dy, dx) - math.radians(90)
+
+        # determine accuracy: prefer source.personality then bullet's accuracy
+        accuracy = 1.0
+        try:
+            if hasattr(source, 'personality') and isinstance(source.personality, dict):
+                accuracy = float(source.personality.get('accuracy', accuracy))
+        except Exception:
+            pass
+        try:
+            accuracy = float(getattr(self, 'accuracy', accuracy))
+        except Exception:
+            pass
+
+        # compute spread (radians): higher accuracy => smaller spread
+        max_spread = 0.6  # tuning constant (radians)
+        # avoid division by zero
+        acc = max(0.1, accuracy)
+        spread = max_spread * (1.0 / acc)
+
+        # use Gaussian noise for natural spread
+        try:
+            import random
+            noisy_angle = base_angle + random.gauss(0, spread)
+        except Exception:
+            noisy_angle = base_angle
 
         x = source.rect.centerx
         y = source.rect.centery
 
-        return angle, x, y
+        return noisy_angle, x, y

@@ -106,7 +106,7 @@ DIFFICULTY_PRESETS = {
     "Unbeatable": {
         "controller": "MLController",
         "hp_mult": 3.0,
-        "speed_mult": 1.3,
+        "speed_mult": 1.1,
         "decision_interval_ms": 100,
         "spawn_multiplier": 4.5,
         "score_mult": 0.2,
