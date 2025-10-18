@@ -1,8 +1,10 @@
 # We Can Make This Game Better!
 
-Welcome to the Alien Invasion project. This is an open-source effort where ser## Advanced Features: AI-Powered Gameplay
+Welcome to the Alien Invasion project. This is an open-source effort where developers, designers, and gamers come together to create something extraordinary. We’re focused on pushing the limits of what this game can be, and we need your expertise to make that happen.
 
-This game features advanced AI enemies on higher difficulty levels! Here's what you need to know:
+## Advanced Features: AI-Powered Gameplay
+
+This game features advanced AI enemies on higher difficulty levels. Here's what you need to know:
 
 ### ML Features
 
@@ -10,7 +12,9 @@ This game features advanced AI enemies on higher difficulty levels! Here's what 
 - **Normal and Above**: AI-powered enemies for extra challenge
 - **ML Training**: Optional feature to enable advanced difficulties
 
-### Setting Up AI Featureslopers, designers, and gamers come together to create something extraordinary. We’re focused on pushing the limits of what this game can be, and we need your expertise to make that happen.
+### Setting Up AI Features
+
+The project includes an AI system for enemy controllers that is optional and powered by simple ML models (Logistic Regression, Decision Tree, KNN). Training uses recorded gameplay data (CSV files) produced by the game's recorder. The models are saved under `data/models/` as joblib files and are required for "Normal" difficulty and above.
 
 The foundation is set, but now it’s time to build something even better. If you’re ready to contribute, collaborate, and help take this project to the next level, we’re excited to have you on board.
 
@@ -100,6 +104,19 @@ We appreciate your contributions and look forward to building something great.
    pip install -r requirements.txt
 ```
 
+Important compatibility note:
+
+- This project uses modern typing and standard library features that require Python 3.9 or newer. We recommend using Python 3.9+ (3.10/3.11 tested).
+- Key dependencies are listed in `requirements.txt` (pygame, numpy, pandas, scikit-learn, joblib). A representative snapshot from `requirements.txt`:
+
+  - pygame>=2.6.1
+  - numpy>=1.26.4
+  - pandas>=2.1.4
+  - scikit-learn>=1.3.2
+  - joblib>=1.3.2
+
+If you use a virtual environment, activate it before installing requirements.
+
 
 
 ## Quick Start
@@ -120,6 +137,8 @@ That's it! You're ready to start playing. Choose Easy difficulty to begin - it's
 
 The developer entrypoint automatically starts the recorder when gameplay begins and prints the recording file path when you quit.
 
+Note: `dev_alien_invasion.py` enables additional logging and will start the recorder automatically when gameplay begins (it prints the path to the CSV on stop). Regular `alien_invasion.py` also uses the recorder when a gameplay session is active, but `dev_alien_invasion.py` is preferred for collecting training data.
+
 
 ## Development, ML Training, and Recording
 
@@ -138,6 +157,22 @@ To enable advanced AI features:
    ```
    This will create the necessary AI models in `data/models/`.
 
+Additional training notes and troubleshooting
+
+- Model files: the project expects three models saved as joblib files in `data/models/` (commonly named `logistic.joblib`, `tree.joblib`, `knn.joblib`). The AI manager saves a small metadata object with each model (including the feature names used during training).
+- Training preconditions: training uses the most recent CSV file from `data/recordings/`. The recorder writes per-frame feature CSVs with a default set of columns (frame, timestamp, dt, ship_centerx, ship_centery, ship_angle, moving_right, moving_left, moving_up, moving_down, bullets_count, aliens_count, ...). For training to succeed the recording must contain movement columns (`moving_right`, `moving_left`, `moving_up`, `moving_down`) with at least two different movement classes present in the data.
+- Force retrain: you can force retraining even if models exist using `--force`:
+
+```
+python -m src.ai_manager --train --force
+```
+
+- In-game training: The difficulty screen provides a "Train" action that runs the same command in a background subprocess (`python -m src.ai_manager --train`) and reports progress. Training is performed in a subprocess to avoid blocking the game loop.
+
+- If training fails: check the logs printed to the terminal for errors, ensure there are CSV recordings in `data/recordings/`, and verify that the recording includes the movement flag columns. If recordings are missing, run `dev_alien_invasion.py` and play for a short time to produce data.
+
+- Model compatibility: the AI manager attempts to verify that saved models were trained on the same feature set as the latest recording and will retrain if there is a mismatch.
+
 2. **Launch the game normally**:
    ```powershell
    python alien_invasion.py
@@ -155,6 +190,12 @@ Important locations:
 - `data/models/`: AI model files (created when you train)
 - `src/`: Source code files
 - `data/assets/`: Game graphics and sounds
+
+Recorder & data file details
+
+- Recordings are written to `data/recordings/` and use the filename pattern: `sessionname_YYYYmmdd_HHMMSS.csv`.
+- The recorder writes a header row with default columns; callers and training code ignore unexpected columns but require movement columns for model target construction.
+- When you stop a recording the recorder prints the full path to the saved CSV file in the console.
 
 ## Troubleshooting
 
